@@ -4,9 +4,9 @@ from array import array
 gStyle.SetOptStat(0)
 gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x AccxEffCalculator.cxx+")
-gROOT.ProcessLineSync(".x /home/luca/GITHUB/polarization/Binning/Binning.cxx+")
+gROOT.ProcessLineSync(".x Binning.cxx+")
 
-fileBinning = TFile.Open("/home/luca/GITHUB/polarization/Binning/binning_6pt10_test.root")
+fileBinning = TFile.Open("/home/luca/GITHUB/polarization_classes/output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
 PhiValues = binning.GetPhiValues()
@@ -21,9 +21,9 @@ maxPt = [2,4,6,10,1000]
 AccxEff = AccxEffCalculator(treeDataMC)
 AccxEff.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEff.SetBinning(CostValues,PhiValues)
-#AccxEff.ComputeAccxEff("FullStat","AccxEff.root")
+AccxEff.ComputeAccxEff("TestStat","output/AccxEff.root")
 
-fileAccxEff = TFile.Open("AccxEff.root")
+fileAccxEff = TFile.Open("output/AccxEff.root")
 histRecCost = []
 histAccxEffCost = []
 histAccxEffPhi = []

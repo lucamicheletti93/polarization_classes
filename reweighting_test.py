@@ -4,9 +4,9 @@ from array import array
 gStyle.SetOptStat(0)
 gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x AccxEffCalculator.cxx+")
-gROOT.ProcessLineSync(".x /home/luca/GITHUB/polarization/Binning/Binning.cxx+")
+gROOT.ProcessLineSync(".x Binning.cxx+")
 
-fileBinning = TFile.Open("/home/luca/GITHUB/polarization/Binning/binning_6pt10_test.root")
+fileBinning = TFile.Open("/home/luca/GITHUB/polarization_classes/output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
 PhiValues = binning.GetPhiValues()
@@ -22,9 +22,9 @@ maxPt = [2,4,6,10,1000]
 AccxEffReWeight1 = AccxEffCalculator(treeDataMC)
 AccxEffReWeight1.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEffReWeight1.SetBinning(CostValues,PhiValues)
-#AccxEffReWeight1.ReWeightAccxEff(0.8,"FullStat","AccxEffReWeightedPol1.root")
+AccxEffReWeight1.ReWeightAccxEff(0.8,"TestStat","output/AccxEffReWeightedPol1.root")
 
-fileAccxEffReWeightedPol1 = TFile.Open("AccxEffReWeightedPol1.root")
+fileAccxEffReWeightedPol1 = TFile.Open("output/AccxEffReWeightedPol1.root")
 
 histGenCostReWeightedPol1 = []
 histAccxEffCostReWeightedPol1 = []
@@ -45,9 +45,9 @@ treeDataMC = fileDataMC.Get("MCTree")
 AccxEffReWeight2 = AccxEffCalculator(treeDataMC)
 AccxEffReWeight2.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEffReWeight2.SetBinning(CostValues,PhiValues)
-#AccxEffReWeight2.ReWeightAccxEff(0.0,"FullStat","AccxEffReWeightedPol2.root")
+AccxEffReWeight2.ReWeightAccxEff(0.0,"TestStat","output/AccxEffReWeightedPol2.root")
 
-fileAccxEffReWeightedPol2 = TFile.Open("AccxEffReWeightedPol2.root")
+fileAccxEffReWeightedPol2 = TFile.Open("output/AccxEffReWeightedPol2.root")
 
 histGenCostReWeightedPol2 = []
 histAccxEffCostReWeightedPol2 = []
