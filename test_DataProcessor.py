@@ -14,6 +14,14 @@ else:
 treeData = fileData.Get("PbPbTree")
 
 test = DataProcessor(treeData)
-test.ComputeTriggerResponseFunction("TestStat","output/test.root")
+#test.ComputeTriggerResponseFunction("FullStat","output/TriggerRespondeFunctionData.root")
+
+fileTriggerResponseFunctionData = TFile.Open("output/TriggerRespondeFunctionData.root")
+histTriggerResponseFunctionSM = fileTriggerResponseFunctionData.Get("histTriggerResponseFunctionSM")
+histTriggerResponseFunctionSMpDCA = fileTriggerResponseFunctionData.Get("histTriggerResponseFunctionSMpDCA")
+
+canvasTriggerResponseFunctionComp = TCanvas("canvasTriggerResponseFunctionComp","canvasTriggerResponseFunctionComp",20,20,600,600)
+histTriggerResponseFunctionSM.Draw()
+histTriggerResponseFunctionSMpDCA.Draw("same")
 
 raw_input()

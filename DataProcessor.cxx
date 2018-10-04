@@ -141,12 +141,23 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
   }
   printf("\n");
 
-
   TH1D *fHistTriggerResponseFunctionSM = new TH1D("histTriggerResponseFunctionSM","",100,0,10);
   fHistTriggerResponseFunctionSM -> Divide(fHistLowPtSM,fHistAllPtSM,1,1,"B");
-  fHistTriggerResponseFunctionSM -> Draw();
+  fHistTriggerResponseFunctionSM -> SetLineColor(kBlue);
 
   TH1D *fHistTriggerResponseFunctionSMpDCA = new TH1D("histTriggerResponseFunctionSMpDCA","",100,0,10);
   fHistTriggerResponseFunctionSMpDCA -> Divide(fHistLowPtSMpDCA,fHistAllPtSMpDCA,1,1,"B");
+  fHistTriggerResponseFunctionSMpDCA -> SetLineColor(kRed);
+  fHistTriggerResponseFunctionSMpDCA -> SetMarkerStyle(20);
+  fHistTriggerResponseFunctionSMpDCA -> SetMarkerColor(kRed);
+
+  TFile *fileTriggerResponseFunction = new TFile(nameOutputFile.c_str(),"RECREATE");
+  fHistAllPtSM -> Write();
+  fHistLowPtSM -> Write();
+  fHistAllPtSMpDCA -> Write();
+  fHistLowPtSMpDCA -> Write();
+  fHistTriggerResponseFunctionSM -> Write();
+  fHistTriggerResponseFunctionSMpDCA -> Write();
+  fileTriggerResponseFunction -> Close();
 
 }
