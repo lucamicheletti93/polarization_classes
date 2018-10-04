@@ -84,10 +84,12 @@ fileAccxEffReWeightedPol2.Close()
 
 canvasAccxEffCostReWeightedComp = TCanvas("canvasAccxEffCostReWeightedComp","canvasAccxEffCostReWeightedComp",20,20,600,600)
 canvasAccxEffCostReWeightedComp.cd()
-#histGenCostReWeightedPol2[2].Draw()
-#histGenCostReWeightedPol1[2].Draw("same")
 histAccxEffCostReWeightedPol2[3].Draw()
 histAccxEffCostReWeightedPol1[3].Draw("same")
+
+canvasAccxEffPhiReWeightedComp = TCanvas("canvasAccxEffPhiReWeightedComp","canvasAccxEffPhiReWeightedComp",20,20,600,600)
+histAccxEffPhiReWeightedPol2[3].Draw()
+histAccxEffPhiReWeightedPol1[3].Draw("same")
 
 
 raw_input()
