@@ -25,7 +25,7 @@ maxPt = [2,4,6,10,1000]
 AccxEff = AccxEffCalculator(treeDataMC)
 AccxEff.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEff.SetBinning(CostValues,PhiValues)
-#AccxEff.ComputeAccxEff("FullStat","output/AccxEff.root")
+AccxEff.ComputeAccxEff("FullStat","output/AccxEff.root")
 AccxEff.ComputeTriggerResponseFunction("FullStat","output/TriggerResponseFunction.root")
 
 fileAccxEff = TFile.Open("output/AccxEff.root")
