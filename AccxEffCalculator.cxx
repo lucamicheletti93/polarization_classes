@@ -204,16 +204,18 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta, string strSample, 
   double weight = 0;
 
   for(int i = 0;i < fNPtBins;i++){
-    //fHistGenCost[i] = new TH1D("fHistGenCost","",100,-1,1);
     fHistGenCostReWeighted[i] = new TH1D(Form("histGenCostReWeighted%2.1f_%ipT%i",LambdaTheta, (int) fMinPt[i],(int) fMaxPt[i]),"",fNCostBins,&fCostValues[0]);
     fHistGenCostReWeighted[i] -> Sumw2();
 
-    //fHistRecCost[i] = new TH1D("fHistRecCost","",100,-1,1);
     fHistRecCostReWeighted[i] = new TH1D(Form("histRecCostReWeighted%2.1f_%ipT%i",LambdaTheta, (int) fMinPt[i],(int) fMaxPt[i]),"",fNCostBins,&fCostValues[0]);
     fHistRecCostReWeighted[i] -> Sumw2();
-  }
 
-  // se genero un DImu fuori dal range di Y e poi lo risocstruisco dentro, lo accetto?
+    fHistGenPhiReWeighted[i] = new TH1D(Form("histGenPhiReWeighted%2.1f_%ipT%i",LambdaTheta, (int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistGenPhiReWeighted[i] -> Sumw2();
+
+    fHistRecPhiReWeighted[i] = new TH1D(Form("histRecPhiReWeighted%2.1f_%ipT%i",LambdaTheta, (int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistRecPhiReWeighted[i] -> Sumw2();
+  }
 
   for(int i = 0;i < nEvents;i++){
     printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
@@ -226,6 +228,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta, string strSample, 
           indexPt++;
         }
         fHistGenCostReWeighted[indexPt] -> Fill(fCostHEGen[j],weight);
+        fHistGenPhiReWeighted[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]),weight);
         indexPt = 0;
       }
     }
@@ -238,6 +241,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta, string strSample, 
               indexPt++;
             }
             fHistRecCostReWeighted[indexPt] -> Fill(fCostHERec[j],weight);
+            fHistRecPhiReWeighted[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]),weight);
             indexPt = 0;
           }
         }
@@ -250,6 +254,9 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta, string strSample, 
   for(int i = 0;i < fNPtBins;i++){
     fHistAccxEffCostReWeighted[i] = new TH1D(Form("histAccxEffCostReWeighted%2.1f_%ipT%i",LambdaTheta,(int) fMinPt[i],(int) fMaxPt[i]),"",fNCostBins,&fCostValues[0]);
     fHistAccxEffCostReWeighted[i] -> Divide(fHistRecCostReWeighted[i],fHistGenCostReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiReWeighted[i] = new TH1D(Form("histAccxEffPhiReWeighted%2.1f_%ipT%i",LambdaTheta,(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffPhiReWeighted[i] -> Divide(fHistRecPhiReWeighted[i],fHistGenPhiReWeighted[i],1,1,"B");
   }
 
   TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
@@ -257,6 +264,10 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta, string strSample, 
     fHistGenCostReWeighted[i] -> Write();
     fHistRecCostReWeighted[i] -> Write();
     fHistAccxEffCostReWeighted[i] -> Write();
+
+    fHistGenPhiReWeighted[i] -> Write();
+    fHistRecPhiReWeighted[i] -> Write();
+    fHistAccxEffPhiReWeighted[i] -> Write();
   }
   fileAccxEffReWeighted -> Close();
 }

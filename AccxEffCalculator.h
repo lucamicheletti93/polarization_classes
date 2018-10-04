@@ -60,9 +60,14 @@ class AccxEffCalculator : public TObject
    TH2D *fHistRecPhiPt;
    TH2D *fHistAccxEffPhiPt;
 
+   // cos(theta)
    TH1D *fHistGenCostReWeighted[13];
    TH1D *fHistRecCostReWeighted[13];
    TH1D *fHistAccxEffCostReWeighted[13];
+   // phi
+   TH1D *fHistGenPhiReWeighted[13];
+   TH1D *fHistRecPhiReWeighted[13];
+   TH1D *fHistAccxEffPhiReWeighted[13];
 
    // Trigger response fuction calculation
    TH1D *fHistLowPt;

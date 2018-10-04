@@ -32,18 +32,21 @@ AccxEffReWeight1.SetBinning(CostValues,PhiValues)
 if os.path.isfile("output/AccxEffReWeightedPol1.root"):
     pass
 else:
-    AccxEffReWeight1.ReWeightAccxEff(0.8,"FullStat","output/AccxEffReWeightedPol1.root")
+    AccxEffReWeight1.ReWeightAccxEff(lambdaTheta1,"TestStat","output/AccxEffReWeightedPol1.root")
 
 fileAccxEffReWeightedPol1 = TFile.Open("output/AccxEffReWeightedPol1.root")
 
 histGenCostReWeightedPol1 = []
 histAccxEffCostReWeightedPol1 = []
+histAccxEffPhiReWeightedPol1 = []
 
 for i in range(5):
     histGenCostReWeightedPol1.append(fileAccxEffReWeightedPol1.Get('histGenCostReWeighted' + str(lambdaTheta1) + '_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histGenCostReWeightedPol1[i].SetDirectory(0)
     histAccxEffCostReWeightedPol1.append(fileAccxEffReWeightedPol1.Get('histAccxEffCostReWeighted' + str(lambdaTheta1) + '_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histAccxEffCostReWeightedPol1[i].SetDirectory(0)
+    histAccxEffPhiReWeightedPol1.append(fileAccxEffReWeightedPol1.Get('histAccxEffPhiReWeighted' + str(lambdaTheta1) + '_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
+    histAccxEffPhiReWeightedPol1[i].SetDirectory(0)
 fileDataMC.Close()
 fileAccxEffReWeightedPol1.Close()
 
@@ -65,12 +68,13 @@ AccxEffReWeight2.SetBinning(CostValues,PhiValues)
 if os.path.isfile("output/AccxEffReWeightedPol2.root"):
     pass
 else:
-    AccxEffReWeight2.ReWeightAccxEff(0.0,"FullStat","output/AccxEffReWeightedPol2.root")
+    AccxEffReWeight2.ReWeightAccxEff(lambdaTheta2,"TestStat","output/AccxEffReWeightedPol2.root")
 
 fileAccxEffReWeightedPol2 = TFile.Open("output/AccxEffReWeightedPol2.root")
 
 histGenCostReWeightedPol2 = []
 histAccxEffCostReWeightedPol2 = []
+histAccxEffPhiReWeightedPol2 = []
 
 for i in range(5):
     histGenCostReWeightedPol2.append(fileAccxEffReWeightedPol2.Get('histGenCostReWeighted' + str(lambdaTheta2) + '_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
@@ -79,11 +83,13 @@ for i in range(5):
     histAccxEffCostReWeightedPol2.append(fileAccxEffReWeightedPol2.Get('histAccxEffCostReWeighted' + str(lambdaTheta2) + '_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histAccxEffCostReWeightedPol2[i].SetDirectory(0)
     histAccxEffCostReWeightedPol2[i].SetLineColor(kRed)
+    histAccxEffPhiReWeightedPol2.append(fileAccxEffReWeightedPol2.Get('histAccxEffPhiReWeighted' + str(lambdaTheta2) + '_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
+    histAccxEffPhiReWeightedPol2[i].SetDirectory(0)
+    histAccxEffPhiReWeightedPol2[i].SetLineColor(kRed)
 fileDataMC.Close()
 fileAccxEffReWeightedPol2.Close()
 
 canvasAccxEffCostReWeightedComp = TCanvas("canvasAccxEffCostReWeightedComp","canvasAccxEffCostReWeightedComp",20,20,600,600)
-canvasAccxEffCostReWeightedComp.cd()
 histAccxEffCostReWeightedPol2[3].Draw()
 histAccxEffCostReWeightedPol1[3].Draw("same")
 
