@@ -19,6 +19,7 @@ class AccxEffCalculator : public TObject
    void SetBinning(vector <Double_t> , vector <Double_t>);
    void ComputeAccxEff(string strSample, string nameOutputFile);
    void ReWeightAccxEff(Double_t LambdaTheta, string strSample, string nameOutputFile);
+   void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
    Int_t GetNPtBins(){return fNPtBins;};
    Int_t GetNCostBins(){return fNCostBins;};
@@ -63,6 +64,11 @@ class AccxEffCalculator : public TObject
    TH1D *fHistRecCostReWeighted[13];
    TH1D *fHistAccxEffCostReWeighted[13];
 
+   // Trigger response fuction calculation
+   TH1D *fHistLowPt;
+   TH1D *fHistAllPt;
+   TH1D *fHistTriggerResponseFunction;
+
    // tree variables
    Int_t fNDimuGen;
    Double_t fDimuPtGen[3000];
@@ -81,6 +87,10 @@ class AccxEffCalculator : public TObject
    Double_t fPhiHERec[3000];
    Double_t fCostCSRec[3000];
    Double_t fPhiCSRec[3000];
+
+   Int_t fNMuonsRec;
+   Double_t fPtRec[3000];
+   Int_t fMatchTrigRec[3000];
 
 ClassDef(AccxEffCalculator,1)
 };

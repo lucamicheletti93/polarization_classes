@@ -41,6 +41,10 @@ AccxEffCalculator::AccxEffCalculator(TTree *treeAccxEff): TObject() {
   fTreeAccxEff -> SetBranchAddress("PhiHE_rec",fPhiHERec);
   fTreeAccxEff -> SetBranchAddress("CostCS_rec",fCostCSRec);
   fTreeAccxEff -> SetBranchAddress("PhiCS_rec",fPhiCSRec);
+
+  fTreeAccxEff -> SetBranchAddress("NMuons_rec",&fNMuonsRec);
+  fTreeAccxEff -> SetBranchAddress("Pt_rec",fPtRec);
+  fTreeAccxEff -> SetBranchAddress("MatchTrig_rec",fMatchTrigRec);
 }
 //______________________________________________________________________________
 AccxEffCalculator::~AccxEffCalculator() {
@@ -104,7 +108,7 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
   fHistRecPhiPt -> Sumw2();
 
   for(int i = 0;i < nEvents;i++){
-    printf("Reading : %3.2f % \r",((double) i/(double) nEvents)*100.);
+    printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
     fTreeAccxEff -> GetEntry(i);
 
     for(int j = 0;j < fNDimuGen;j++){
@@ -212,7 +216,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta, string strSample, 
   // se genero un DImu fuori dal range di Y e poi lo risocstruisco dentro, lo accetto?
 
   for(int i = 0;i < nEvents;i++){
-    printf("Reading : %3.2f %\r",((double) i/(double) nEvents)*100.);
+    printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
     fTreeAccxEff -> GetEntry(i);
 
     for(int j = 0;j < fNDimuGen;j++){
@@ -255,4 +259,37 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta, string strSample, 
     fHistAccxEffCostReWeighted[i] -> Write();
   }
   fileAccxEffReWeighted -> Close();
+}
+//______________________________________________________________________________
+void AccxEffCalculator::ComputeTriggerResponseFunction(string strSample, string nameOutputFile) {
+  int nEvents = 0;
+  int indexPt = 0;
+
+  if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
+  if(strSample == "TestStat"){nEvents = 100000;}
+  printf("N events = %i \n",nEvents);
+
+  fHistLowPt = new TH1D("fHistLowPt","",100,0,10);
+  fHistLowPt -> Sumw2();
+  fHistAllPt = new TH1D("fHistAllPt","",100,0,10);
+  fHistAllPt -> Sumw2();
+
+  for(int i = 0;i < nEvents;i++){
+    fTreeAccxEff -> GetEntry(i);
+    printf("Reading : %2.1f %% \r",((double) i/(double) nEvents)*100.);
+    if(fMatchTrigRec[0] >= 1){fHistAllPt -> Fill(fPtRec[0]);}
+    if(fMatchTrigRec[1] >= 1){fHistAllPt -> Fill(fPtRec[1]);}
+    if(fMatchTrigRec[0] >= 2){fHistLowPt -> Fill(fPtRec[0]);}
+    if(fMatchTrigRec[1] >= 2){fHistLowPt -> Fill(fPtRec[1]);}
+  }
+  printf("\n");
+
+  TH1D *fHistTriggerResponseFunction = new TH1D("histTriggerResponseFunction","",100,0,10);
+  fHistTriggerResponseFunction -> Divide(fHistLowPt,fHistAllPt,1,1,"B");
+
+  TFile *fileTriggerResponseFunction = new TFile(nameOutputFile.c_str(),"RECREATE");
+  fHistLowPt -> Write();
+  fHistAllPt -> Write();
+  fHistTriggerResponseFunction -> Write();
+  fileTriggerResponseFunction -> Close();
 }

@@ -21,7 +21,8 @@ maxPt = [2,4,6,10,1000]
 AccxEff = AccxEffCalculator(treeDataMC)
 AccxEff.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEff.SetBinning(CostValues,PhiValues)
-AccxEff.ComputeAccxEff("TestStat","output/AccxEff.root")
+#AccxEff.ComputeAccxEff("FullStat","output/AccxEff.root")
+AccxEff.ComputeTriggerResponseFunction("FullStat","output/TriggerResponseFunction.root")
 
 fileAccxEff = TFile.Open("output/AccxEff.root")
 histRecCost = []
@@ -75,9 +76,15 @@ histAccxEffCostPt.Draw("COLZ")
 canvasAccxEffPhiPt = TCanvas("canvasAccxEffPhiPt","canvasAccxEffPhiPt",20,20,600,600)
 histAccxEffPhiPt.Draw("COLZ")
 
-histGenCostPt = histGenCostPt.ProjectionY("histGenPt")
+histGenPt = histGenCostPt.ProjectionY("histGenPt")
 canvasGenPt = TCanvas("canvasGenPt","canvasGenPt",20,20,600,600)
 histGenPt.Draw()
+
+fileTriggerResponseFunction = TFile.Open("output/TriggerResponseFunction.root")
+histTriggerResponseFunction = fileTriggerResponseFunction.Get("histTriggerResponseFunction")
+
+canvasTriggerResponseFunction = TCanvas("canvasTriggerResponseFunction","canvasTriggerResponseFunction",20,20,600,600)
+histTriggerResponseFunction.Draw()
 
 ################################################################################
 
