@@ -17,6 +17,8 @@ if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/J
 else:
     fileDataMC = TFile.Open("/home/luca/cernbox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root") # local
 
+treeDataMC = fileDataMC.Get("MCTree")
+
 minPt = [0,2,4,6,10]
 maxPt = [2,4,6,10,1000]
 
