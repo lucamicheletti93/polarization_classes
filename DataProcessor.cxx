@@ -9,6 +9,7 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TTree.h"
 #include "TF1.h"
 #include "TFile.h"
@@ -54,7 +55,7 @@ DataProcessor::DataProcessor(TTree *treeData): TObject() {
   fTreeData -> SetBranchAddress("CostCS",fCostCS);
   fTreeData -> SetBranchAddress("PhiCS",fPhiCS);
   fTreeData -> SetBranchAddress("IsPhysSelected",&fIsPhysSelected);
-  fTreeData -> SetBranchAddress("pDCA",fPDCA);
+  //fTreeData -> SetBranchAddress("pDCA",fPDCA);
   fTreeData -> SetBranchAddress("MuonId",fMuonId);
 }
 //______________________________________________________________________________
@@ -77,7 +78,113 @@ void DataProcessor::SetBinning(vector <Double_t> CostValues, vector <Double_t> P
   fNPhiBins = fPhiValues.size() - 1;
 }
 //______________________________________________________________________________
+void DataProcessor::CreateFilteredTrees(string strSample, string nameOutputFile) {
+  int nEvents = 0;
+  int indexPt = 0;
+  double PI = TMath::Pi();
+  int minPt[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
+  int maxPt[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
+
+  if(strSample == "FullStat"){nEvents = fTreeData -> GetEntries();}
+  if(strSample == "TestStat"){nEvents = 100000;}
+  printf("N events = %i \n",nEvents);
+
+  TFile *fileTreeDataFiltered = new TFile(nameOutputFile.c_str(),"RECREATE");
+  double DimuMass, CostHE, PhiHE;
+  TTree *treeDataFiltered[12];
+  TH3D *histDataFiltered[12];
+  for(int i = 0;i < 12;i++){
+    treeDataFiltered[i] = new TTree(Form("treeDataFiltered_%ipt%i",minPt[i],maxPt[i]),Form("treeDataFiltered_%ipt%i",minPt[i],maxPt[i]));
+    treeDataFiltered[i] -> Branch("DimuMass",&DimuMass,"DimuMass/D");
+    treeDataFiltered[i] -> Branch("CostHE",&CostHE,"CostHE/D");
+    treeDataFiltered[i] -> Branch("PhiHE",&PhiHE,"PhiHE/D");
+
+    histDataFiltered[i] = new TH3D(Form("histDataFiltered_%ipt%i",minPt[i],maxPt[i]),"",100,2,5,100,-1,1,50,0,PI);
+  }
+
+  for(int i = 0;i < nEvents;i++){
+    printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
+    fTreeData -> GetEntry(i);
+    for(int k = 0;k < fNDimu;k++){
+
+      if(fIsPhysSelected){
+        TString Trigger = fTrigClass;
+        Bool_t TriggerSelected = kFALSE;
+        if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")) TriggerSelected = kTRUE;
+        if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
+          if(TriggerSelected){
+            if(fDimuMatch[k] == 2){
+              if(fDimuMass[k] > 2 && fDimuMass[k] < 5){
+                DimuMass = fDimuMass[k];
+                CostHE = fCostHE[k];
+                PhiHE = TMath::Abs(fPhiHE[k]);
+                if(fDimuPt[k] > 0 && fDimuPt[k] <= 12){
+                  while(fDimuPt[k] < minPt[indexPt] || fDimuPt[k] > maxPt[indexPt]){indexPt++;}
+                  treeDataFiltered[indexPt] -> Fill();
+                  histDataFiltered[indexPt] -> Fill(DimuMass,CostHE,PhiHE);
+                  indexPt = 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  printf("\n");
+
+  fileTreeDataFiltered -> cd();
+  for(int i = 0;i < 12;i++){
+    treeDataFiltered[i] -> Write();
+    histDataFiltered[i] -> Write();
+  }
+  fileTreeDataFiltered -> Close();
+}
+//______________________________________________________________________________
+/*void DataProcessor::CreateInvariantMassHistograms(TFile *fileDataFiltered, string nameOutputFile) {
+  int nEvents = 0;
+  int indexCost = 0;
+  const int nCostBins = fNCostBins;
+  const int nPhiBins = fNPhiBins;
+
+  fileDataFiltered -> ls();
+
+  int minPt[13] = {0,1,2,3,4,5,6,7,8,9,10,11,12};
+  int maxPt[13] = {1,2,3,4,5,6,7,8,9,10,11,12,1000};
+
+  double DimuMass, CostHE, PhiHE;
+  TTree *treeDataFiltered[13];
+  for(int i = 0;i < 13;i++){
+    treeDataFiltered[i] = (TTree*) fileDataFiltered -> Get(Form("treeDataFiltered_%ipt%i",minPt[i],maxPt[i]));
+    treeDataFiltered[i] -> SetBranchAddress("DimuMass",&DimuMass);
+    treeDataFiltered[i] -> SetBranchAddress("CostHE",&CostHE);
+    treeDataFiltered[i] -> SetBranchAddress("PhiHE",&PhiHE);
+    treeDataFiltered[i] -> SetDirectory(0);
+  }
+  fileDataFiltered -> Close();
+
+  TH1D *histMassCost[nCostBins];
+
+  for(int i = 0;i < 13;i++){
+    histMassCost[i] = new TH1D(Form("histMassCost_%ipt%i",minPt[i],maxPt[i]),"",100,2,5);
+    nEvents = treeDataFiltered[i] -> GetEntries();
+    for(int j = 0;j < nEvents;j++){
+      printf("Reading : %2.1f %% \r",((double) j)/((double) nEvents)*100);
+      treeDataFiltered[i] -> GetEntry(j);
+      while(fCostHE[j] > fCostValues[indexCost] && fCostHE[j] < fCostValues[indexCost+1]){indexCost++;}
+      histMassCost[i] -> Fill(DimuMass);
+      indexCost = 0;
+    }
+  }
+
+  TFile *fileHistMass = new TFile(nameOutputFile.c_str(),"RECREATE");
+  fileHistMass -> cd();
+  for(int i = 0;i < 13;i++){histMassCost[i] -> Write();}
+  fileHistMass -> Close();
+}*/
+//______________________________________________________________________________
 void DataProcessor::ComputeTriggerResponseFunction(string strSample, string nameOutputFile) {
+  fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCA
   int nEvents = 0;
 
   if(strSample == "FullStat"){nEvents = fTreeData -> GetEntries();}
@@ -159,5 +266,4 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
   fHistTriggerResponseFunctionSM -> Write();
   fHistTriggerResponseFunctionSMpDCA -> Write();
   fileTriggerResponseFunction -> Close();
-
 }

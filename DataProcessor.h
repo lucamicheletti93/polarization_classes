@@ -3,6 +3,7 @@
 #include "TObject.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TFile.h"
 #include "TTree.h"
 #include <string>
 #include <vector>
@@ -17,6 +18,8 @@ class DataProcessor : public TObject
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Double_t> , vector <Double_t>);
+   void CreateFilteredTrees(string strSample, string nameOutputFile);
+   //void CreateInvariantMassHistograms(TFile *, string strSample);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
  private:
