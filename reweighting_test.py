@@ -29,12 +29,12 @@ AccxEffReWeight1 = AccxEffCalculator(treeDataMC)
 AccxEffReWeight1.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEffReWeight1.SetBinning(CostValues,PhiValues)
 
-if os.path.isfile("output/AccxEffReWeightedPol1.root"):
+if os.path.isfile("output/AccxEffReWeightedFullStatPol1.root"):
     pass
 else:
-    AccxEffReWeight1.ReWeightAccxEff(lambdaTheta1,"TestStat","output/AccxEffReWeightedPol1.root")
+    AccxEffReWeight1.ReWeightAccxEff(lambdaTheta1,"FullStat","output/AccxEffReWeightedFullStatPol1.root")
 
-fileAccxEffReWeightedPol1 = TFile.Open("output/AccxEffReWeightedPol1.root")
+fileAccxEffReWeightedPol1 = TFile.Open("output/AccxEffReWeightedFullStatPol1.root")
 
 histGenCostReWeightedPol1 = []
 histAccxEffCostReWeightedPol1 = []
@@ -65,12 +65,12 @@ AccxEffReWeight2 = AccxEffCalculator(treeDataMC)
 AccxEffReWeight2.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEffReWeight2.SetBinning(CostValues,PhiValues)
 
-if os.path.isfile("output/AccxEffReWeightedPol2.root"):
+if os.path.isfile("output/AccxEffReWeightedFullStatPol2.root"):
     pass
 else:
-    AccxEffReWeight2.ReWeightAccxEff(lambdaTheta2,"TestStat","output/AccxEffReWeightedPol2.root")
+    AccxEffReWeight2.ReWeightAccxEff(lambdaTheta2,"FullStat","output/AccxEffReWeightedFullStatPol2.root")
 
-fileAccxEffReWeightedPol2 = TFile.Open("output/AccxEffReWeightedPol2.root")
+fileAccxEffReWeightedPol2 = TFile.Open("output/AccxEffReWeightedFullStatPol2.root")
 
 histGenCostReWeightedPol2 = []
 histAccxEffCostReWeightedPol2 = []
@@ -89,13 +89,42 @@ for i in range(5):
 fileDataMC.Close()
 fileAccxEffReWeightedPol2.Close()
 
-canvasAccxEffCostReWeightedComp = TCanvas("canvasAccxEffCostReWeightedComp","canvasAccxEffCostReWeightedComp",20,20,600,600)
+legendAccxEffComp = TLegend(0.35,0.1,0.65,0.3)
+legendAccxEffComp.AddEntry(histAccxEffCostReWeightedPol2[1],"#lambda_{#theta} = 0.0","l")
+legendAccxEffComp.AddEntry(histAccxEffCostReWeightedPol1[1],"#lambda_{#theta} = 0.8","l")
+
+canvasAccxEffReWeightedComp = TCanvas("canvasAccxEffReWeightedComp","canvasAccxEffReWeightedComp",4,132,1024,768)
+canvasAccxEffReWeightedComp.Divide(3,2)
+
+canvasAccxEffReWeightedComp.cd(1)
+histAccxEffCostReWeightedPol2[1].Draw()
+histAccxEffCostReWeightedPol1[1].Draw("same")
+legendAccxEffComp.Draw("same")
+
+canvasAccxEffReWeightedComp.cd(2)
+histAccxEffCostReWeightedPol2[2].Draw()
+histAccxEffCostReWeightedPol1[2].Draw("same")
+legendAccxEffComp.Draw("same")
+
+canvasAccxEffReWeightedComp.cd(3)
 histAccxEffCostReWeightedPol2[3].Draw()
 histAccxEffCostReWeightedPol1[3].Draw("same")
+legendAccxEffComp.Draw("same")
 
-canvasAccxEffPhiReWeightedComp = TCanvas("canvasAccxEffPhiReWeightedComp","canvasAccxEffPhiReWeightedComp",20,20,600,600)
+canvasAccxEffReWeightedComp.cd(4)
+histAccxEffPhiReWeightedPol2[1].Draw()
+histAccxEffPhiReWeightedPol1[1].Draw("same")
+legendAccxEffComp.Draw("same")
+
+canvasAccxEffReWeightedComp.cd(5)
+histAccxEffPhiReWeightedPol2[2].Draw()
+histAccxEffPhiReWeightedPol1[2].Draw("same")
+legendAccxEffComp.Draw("same")
+
+canvasAccxEffReWeightedComp.cd(6)
 histAccxEffPhiReWeightedPol2[3].Draw()
 histAccxEffPhiReWeightedPol1[3].Draw("same")
+legendAccxEffComp.Draw("same")
 
 
 raw_input()
