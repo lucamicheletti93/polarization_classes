@@ -6,34 +6,41 @@ import string
 gStyle.SetOptStat(0)
 gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x DataProcessor.cxx+")
+gROOT.ProcessLineSync(".x Binning.cxx+")
+
+fileBinning = TFile.Open("output/binning.root")
+binning = fileBinning.Get("Binning")
+CostValues = binning.GetCostValues()
+PhiValues = binning.GetPhiValues()
 
 #print "#######################################################################"
 #print "Create filtered histograms from the original trees"
-fileRunList = open("run_list.txt","r")
-for eachLine in fileRunList:
-    runNumber = ''
-    for char in eachLine:
-        if char.isdigit():
-            runNumber += char
-    if runNumber.isdigit():
-        if os.path.isfile('/media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root'):
-            print os.path.join('/media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root')
-            fileData = TFile.Open('/media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root')  # local
-            treeData = fileData.Get("PbPbTree")
-            test = DataProcessor(treeData)
-            test.CreateFilteredTrees("FullStat",'output/filtered_trees/TreeDataFiltered_' + runNumber + '.root')
-            fileData.Close()
-            del test
-    else:
-        print os.path.join('File /media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root not found')
+#fileRunList = open("run_list.txt","r")
+#for eachLine in fileRunList:
+    #runNumber = ''
+    #for char in eachLine:
+        #if char.isdigit():
+            #runNumber += char
+    #if runNumber.isdigit():
+        #if os.path.isfile('/media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root'):
+            #print os.path.join('/media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root')
+            #fileData = TFile.Open('/media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root')  # local
+            #treeData = fileData.Get("PbPbTree")
+            #test = DataProcessor(treeData)
+            #test.CreateFilteredTrees("FullStat",'output/filtered_trees/TreeDataFiltered_' + runNumber + '.root')
+            #fileData.Close()
+            #del test
+    #else:
+        #print os.path.join('File /media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root not found')
 
-fileRunList.close()
+#fileRunList.close()
 
 #print "#######################################################################"
-#print "Create histograms from the filtered trees"
-#fileHistMass = TFile.Open('output/filtered_trees/TreeDataFiltered_246994.root')
-#test = DataProcessor()
-#test.CreateInvariantMassHistograms(fileHistMass,'output/HistMass_246994.root')
+print "Create histograms from the filtered trees"
+fileHistMass = TFile.Open('output/filtered_trees/TreeDataFiltered_246994.root')
+test = DataProcessor()
+test.SetBinning(CostValues,PhiValues)
+test.CreateInvMassHistograms(fileHistMass,'output/HistMass_246994.root')
 
 #print "#######################################################################"
 #print "Compute the trigger response function from data"

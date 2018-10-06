@@ -19,7 +19,7 @@ class DataProcessor : public TObject
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Double_t> , vector <Double_t>);
    void CreateFilteredTrees(string strSample, string nameOutputFile);
-   //void CreateInvariantMassHistograms(TFile *, string strSample);
+   void CreateInvMassHistograms(TFile *, string strSample);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
  private:
