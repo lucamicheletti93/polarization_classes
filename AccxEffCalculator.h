@@ -26,6 +26,7 @@ class AccxEffCalculator : public TObject
    Int_t GetNPhiBins(){return fNPhiBins;};
 
  private:
+   Double_t fPi;
    Int_t fNPtBins;
    vector <Double_t> fMinPt;
    vector <Double_t> fMaxPt;

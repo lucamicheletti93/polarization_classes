@@ -18,11 +18,13 @@ ClassImp(AccxEffCalculator)
 
 //______________________________________________________________________________
 AccxEffCalculator::AccxEffCalculator(): TObject() {
-   // default constructor
+  fPi = TMath::Pi();
+  // default constructor
 }
 //______________________________________________________________________________
 AccxEffCalculator::AccxEffCalculator(TTree *treeAccxEff): TObject() {
   // standard constructor
+  fPi = TMath::Pi();
   fTreeAccxEff = (TTree*) treeAccxEff -> Clone();
   fTreeAccxEff -> SetBranchAddress("NDimu_gen",&fNDimuGen);
   fTreeAccxEff -> SetBranchAddress("DimuPt_gen",fDimuPtGen);
@@ -69,7 +71,6 @@ void AccxEffCalculator::SetBinning(vector <Double_t> CostValues, vector <Double_
 void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) {
   int nEvents = 0;
   int indexPt = 0;
-  double PI = TMath::Pi();
 
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
   if(strSample == "TestStat"){nEvents = 1000000;}
@@ -88,10 +89,10 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
     fHistRecPhi[i] = new TH1D(Form("histRecPhi_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
     fHistRecPhi[i] -> Sumw2();
 
-    fHistGenPhiTilde[i] = new TH1D(Form("histGenPhiTilde_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-PI,PI);
+    fHistGenPhiTilde[i] = new TH1D(Form("histGenPhiTilde_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-fPi,fPi);
     fHistGenPhiTilde[i] -> Sumw2();
 
-    fHistRecPhiTilde[i] = new TH1D(Form("histRecPhiTilde_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-PI,PI);
+    fHistRecPhiTilde[i] = new TH1D(Form("histRecPhiTilde_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-fPi,fPi);
     fHistRecPhiTilde[i] -> Sumw2();
 
     fHistGenCostPhi[i] = new TH2D(Form("histGenCostPhi_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCostBins,&fCostValues[0],fNPhiBins,&fPhiValues[0]);
@@ -107,10 +108,10 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
   fHistRecCostPt = new TH2D("histRecCostPt","",100,-1,1,100,0,10);
   fHistRecCostPt -> Sumw2();
 
-  fHistGenPhiPt = new TH2D("histGenPhiPt","",100,0,PI,100,0,10);
+  fHistGenPhiPt = new TH2D("histGenPhiPt","",100,0,fPi,100,0,10);
   fHistGenPhiPt -> Sumw2();
 
-  fHistRecPhiPt = new TH2D("histRecPhiPt","",100,0,PI,100,0,10);
+  fHistRecPhiPt = new TH2D("histRecPhiPt","",100,0,fPi,100,0,10);
   fHistRecPhiPt -> Sumw2();
 
   for(int i = 0;i < nEvents;i++){
@@ -125,8 +126,8 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
         // 1D approach
         fHistGenCost[indexPt] -> Fill(fCostHEGen[j]);
         fHistGenPhi[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]));
-        if(fCostHEGen[j] < 0){fHistGenPhiTilde[indexPt] -> Fill(fPhiHEGen[j] - (3./4.)*PI);}
-        else{fHistGenPhiTilde[indexPt] -> Fill(fPhiHEGen[j] - (1./4.)*PI);}
+        if(fCostHEGen[j] < 0.){fHistGenPhiTilde[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]) - (3./4.)*fPi);}
+        if(fCostHEGen[j] > 0.){fHistGenPhiTilde[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]) - (1./4.)*fPi);}
         // 2D approach
         fHistGenCostPhi[indexPt] -> Fill(fCostHEGen[j],TMath::Abs(fPhiHEGen[j]));
         indexPt = 0;
@@ -143,8 +144,8 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
             // 1D approach
             fHistRecCost[indexPt] -> Fill(fCostHERec[j]);
             fHistRecPhi[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]));
-            if(fCostHERec[j] < 0){fHistRecPhiTilde[indexPt] -> Fill(fPhiHERec[j] - (3./4.)*PI);}
-            else{fHistRecPhiTilde[indexPt] -> Fill(fPhiHERec[j] - (1./4.)*PI);}
+            if(fCostHERec[j] < 0.){fHistRecPhiTilde[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]) - (3./4.)*fPi);}
+            if(fCostHERec[j] > 0.){fHistRecPhiTilde[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]) - (1./4.)*fPi);}
             // 2D approach
             fHistRecCostPhi[indexPt] -> Fill(fCostHERec[j],TMath::Abs(fPhiHERec[j]));
             indexPt = 0;
@@ -163,7 +164,7 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
     fHistAccxEffPhi[i] = new TH1D(Form("histAccxEffPhi_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
     fHistAccxEffPhi[i] -> Divide(fHistRecPhi[i],fHistGenPhi[i],1,1,"B");
 
-    fHistAccxEffPhiTilde[i] = new TH1D(Form("histAccxEffPhiTilde_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-PI,PI);
+    fHistAccxEffPhiTilde[i] = new TH1D(Form("histAccxEffPhiTilde_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-fPi,fPi);
     fHistAccxEffPhiTilde[i] -> Divide(fHistRecPhiTilde[i],fHistGenPhiTilde[i],1,1,"B");
 
     fHistAccxEffCostPhi[i] = new TH2D(Form("histAccxEffCostPhi_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCostBins,&fCostValues[0],fNPhiBins,&fPhiValues[0]);
@@ -174,7 +175,7 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
 
   fHistAccxEffCostPt = new TH2D("histAccxEffCostPt","",100,-1,1,100,0,10);
   fHistAccxEffCostPt -> Divide(fHistRecCostPt,fHistGenCostPt,1,1,"B");
-  fHistAccxEffPhiPt = new TH2D("histAccxEffPhiPt","",100,0,PI,100,0,10);
+  fHistAccxEffPhiPt = new TH2D("histAccxEffPhiPt","",100,0,fPi,100,0,10);
   fHistAccxEffPhiPt -> Divide(fHistRecPhiPt,fHistGenPhiPt,1,1,"B");
 
   for(int i = 0;i < fNPtBins;i++){
@@ -214,7 +215,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
   TF1 *funcCosTheta = new TF1("funcCosTheta","(1/(3 + [0]))*(1 + [0]*x*x)",-1,1);
   funcCosTheta -> SetParameter(0,LambdaTheta);
 
-  TF1 *funcPhi = new TF1("funcPhi","(1 + ((2*[1])/(3 + [0]))*cos(2*x))",0,PI);
+  TF1 *funcPhi = new TF1("funcPhi","(1 + ((2*[1])/(3 + [0]))*cos(2*x))",0,fPi);
   funcPhi -> SetParameter(0,LambdaTheta);
   funcPhi -> SetParameter(1,LambdaPhi);
 
