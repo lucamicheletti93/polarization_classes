@@ -17,6 +17,10 @@ CostWidth = binning.GetCostWidth()
 PhiValues = binning.GetPhiValues()
 PhiWidth = binning.GetPhiWidth()
 
+fileAccxEff = TFile.Open("output/AccxEffFullStat.root")
+histAccxEffCost = fileAccxEff.Get("histAccxEffCost_2pT4")
+histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_2pT4")
+
 # Fitting procedure
 #fileNJpsi = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_2pt4_test/2pt4.root")
 #histNJpsiCost = fileNJpsi.Get("histNJpsiCost")
@@ -27,10 +31,6 @@ PhiWidth = binning.GetPhiWidth()
 
 #canvasNJpsiPhi = TCanvas("canvasNJpsiPhi","canvasNJpsiPhi",20,20,600,600)
 #histNJpsiPhi.Draw("E")
-
-#fileAccxEff = TFile.Open("output/AccxEffFullStat.root")
-#histAccxEffCost = fileAccxEff.Get("histAccxEffCost_2pT4")
-#histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_2pT4")
 
 #histNJpsiCostCorr = histNJpsiCost.Clone("histNJpsiCostCorr")
 #for i in range(19):
@@ -76,8 +76,6 @@ AccxEffReWeight1stStep.SetPtBins(1,array('d',[2.]),array('d',[4.]))
 AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
 #AccxEffReWeight1stStep.ReWeightAccxEff(funcCost.GetParameter(1),funcPhi.GetParameter(2),"FullStat","iterative_procedure/AccxEffReWeighted1stStep.root")
 AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"FullStat","iterative_procedure/AccxEffReWeighted1stStep.root")
-
-raw_input()
 
 fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/AccxEffReWeighted1stStep.root")
 histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
