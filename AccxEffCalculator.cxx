@@ -247,31 +247,28 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
     fTreeAccxEff -> GetEntry(i);
 
     for(int j = 0;j < fNDimuGen;j++){
-      if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
-        weightCosTheta = (funcCosTheta -> Eval(fCostHEGen[j]))/(funcCosTheta -> GetMaximum());
-        weightPhi = (funcPhi -> Eval(fCostHEGen[j]))/(funcPhi -> GetMaximum());
-        if(fDimuPtGen[j] < fMinPt[0] || fDimuPtGen[j] > fMaxPt[0]){
-          //while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
-          fHistGenCostReWeighted[0] -> Fill(fCostHEGen[j],weightCosTheta);
-          fHistGenPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHEGen[j]),weightPhi);
+      if(fDimuPtGen[j] < fMinPt[0] || fDimuPtGen[j] > fMaxPt[0]){
+        if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
+            weightCosTheta = (funcCosTheta -> Eval(fCostHEGen[j]))/(funcCosTheta -> GetMaximum());
+            weightPhi = (funcPhi -> Eval(fCostHEGen[j]))/(funcPhi -> GetMaximum());
+            fHistGenCostReWeighted[0] -> Fill(fCostHEGen[j],weightCosTheta);
+            fHistGenPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHEGen[j]),weightPhi);
         }
       }
     }
 
     for(int j = 0;j < fNDimuRec;j++){
-      if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
-        if(fDimuMatchRec[j] == 2){
-          if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
-            if(fDimuPtRec[j] < fMinPt[0] || fDimuPtRec[j] > fMaxPt[0]){
-            //while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
-            fHistRecCostReWeighted[0] -> Fill(fCostHERec[j],weightCosTheta);
-            fHistRecPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhi);
+      if(fDimuPtRec[j] < fMinPt[0] || fDimuPtRec[j] > fMaxPt[0]){
+        if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
+          if(fDimuMatchRec[j] == 2){
+            if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+              fHistRecCostReWeighted[0] -> Fill(fCostHERec[j],weightCosTheta);
+              fHistRecPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhi);
             }
           }
         }
       }
     }
-
   }
   printf("\n");
 
