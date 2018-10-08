@@ -7,6 +7,10 @@ gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x ../AccxEffCalculator.cxx+")
 gROOT.ProcessLineSync(".x ../Binning.cxx+")
 
+# To check if a directory exists
+#if not os.path.exists('output'):
+    #os.makedirs('output')
+
 fileBinning = TFile.Open("output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
@@ -134,9 +138,5 @@ legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[1],"2 < #it{p}_{T} < 4 GeV/#i
 legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[2],"4 < #it{p}_{T} < 6 GeV/#it{c}","l")
 legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[3],"6 < #it{p}_{T} < 10 GeV/#it{c}","l")
 legendAccxEffPhiTilde.Draw("same")
-
-
-#if not os.path.exists('output'):
-    #os.makedirs('output')
 
 raw_input()

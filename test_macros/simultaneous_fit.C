@@ -163,5 +163,4 @@ void simultaneous_fit(){
   ffitB2 -> SetLineColor(kRed);
   histNJpsiPhiCorr -> GetListOfFunctions()->Add(ffitB2);
   histNJpsiPhiCorr -> Draw("E");
-
 }

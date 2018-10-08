@@ -1,7 +1,7 @@
 from ROOT import *
 import math
 
-gROOT.ProcessLineSync(".x Binning.cxx+")
+gROOT.ProcessLineSync(".x ../Binning.cxx+")
 
 PI = math.pi
 
@@ -13,7 +13,7 @@ PhiValues = binning.GetPhiValues()
 PhiWidth = binning.GetPhiWidth()
 
 # Create the observables
-cosTheta = RooRealVar("cosTheta","cos#it{#theta}_{HE}",-1.,1.)
+cosTheta = RooRealVar("cosTheta","cos#it{#theta}_{HE}",-0.8,0.8)
 phi = RooRealVar("phi","#it{#varphi}_{HE}",0,PI)
 
 fileNJpsi = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_2pt4_test/2pt4.root")
@@ -36,12 +36,15 @@ lambdaTheta = RooRealVar("lambdaTheta","#lambda_{#theta}",-1.,1.)
 
 # Create cosTheta PDF
 funcCosTheta = RooGenericPdf("funcCosTheta","funcCosTheta","(1/(3. + lambdaTheta))*(1 + lambdaTheta*cosTheta*cosTheta)",RooArgList(cosTheta,lambdaTheta))
-cosTheta.setRange("R1",-1.,1.)
+cosTheta.setRange("R1",-0.6,0.6)
 #funcCosTheta.chi2FitTo(rooHistNJpsiCostCorr,RooFit.Range("R1"))
 #funcCosTheta.chi2FitTo(rooHistNJpsiCostCorr)
+#funcCosTheta.fitTo(rooHistNJpsiCostCorr,RooFit.SumW2Error(kFALSE),RooFit.Range("R1"))
 
 
-chi2Fit = RooChi2Var("chi2Fit","chi2Fit",funcCosTheta,rooHistNJpsiCostCorr,RooFit.DataError(RooAbsData.SumW2),RooFit.Range("R1"))
+#chi2Fit = RooChi2Var("chi2Fit","chi2Fit",funcCosTheta,rooHistNJpsiCostCorr,RooFit.DataError(RooAbsData.SumW2Error(kTRUE)),RooFit.Range("R1"))
+#chi2Fit = RooChi2Var("chi2Fit","chi2Fit",funcCosTheta,rooHistNJpsiCostCorr,RooFit.SumW2Error(kFALSE),RooFit.Range("R1"))
+chi2Fit = RooChi2Var("chi2Fit","chi2Fit",funcCosTheta,rooHistNJpsiCostCorr,RooFit.SumW2Error(kFALSE))
 minuit = RooMinuit(chi2Fit)
 minuit.migrad()
 minuit.hesse()
