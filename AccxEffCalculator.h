@@ -18,7 +18,7 @@ class AccxEffCalculator : public TObject
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Double_t> , vector <Double_t>);
    void ComputeAccxEff(string strSample, string nameOutputFile);
-   void ReWeightAccxEff(Double_t LambdaTheta, string strSample, string nameOutputFile);
+   void ReWeightAccxEff(Double_t LambdaTheta, Double_t LambdaPhi, string strSample, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
    Int_t GetNPtBins(){return fNPtBins;};
