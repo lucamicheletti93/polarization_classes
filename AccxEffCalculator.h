@@ -46,6 +46,10 @@ class AccxEffCalculator : public TObject
    TH1D *fHistGenPhi[13];
    TH1D *fHistRecPhi[13];
    TH1D *fHistAccxEffPhi[13];
+   // phi Tilde
+   TH1D *fHistGenPhiTilde[13];
+   TH1D *fHistRecPhiTilde[13];
+   TH1D *fHistAccxEffPhiTilde[13];
    // cos(theta),phi
    TH2D *fHistGenCostPhi[13];
    TH2D *fHistRecCostPhi[13];

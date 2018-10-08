@@ -61,30 +61,30 @@ histNJpsiPhiCorr.Draw("E")
 funcPhi.Draw("same")
 
 ################################################################################
-if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root"):
-    fileDataMC = TFile.Open("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root")  # lxplus
-else:
-    fileDataMC = TFile.Open("/home/luca/cernbox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root") # local
+#if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root"):
+    #fileDataMC = TFile.Open("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root")  # lxplus
+#else:
+    #fileDataMC = TFile.Open("/home/luca/cernbox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root") # local
 
-treeDataMC = fileDataMC.Get("MCTree")
+#treeDataMC = fileDataMC.Get("MCTree")
 
-AccxEffReWeight1stStep = AccxEffCalculator(treeDataMC)
-AccxEffReWeight1stStep.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
-AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
-AccxEffReWeight1stStep.ReWeightAccxEff(funcCost.GetParameter(1),funcPhi.GetParameter(2),"FullStat","iterative_procedure/AccxEffReWeighted1stStep.root")
+#AccxEffReWeight1stStep = AccxEffCalculator(treeDataMC)
+#AccxEffReWeight1stStep.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
+#AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
+#AccxEffReWeight1stStep.ReWeightAccxEff(funcCost.GetParameter(1),funcPhi.GetParameter(2),"FullStat","iterative_procedure/AccxEffReWeighted1stStep.root")
 
-fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/AccxEffReWeighted1stStep.root")
-histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
-histAccxEffCostReWeighted1stStep.SetLineColor(kRed);
-histAccxEffPhiReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffPhiReWeighted_2pT4")
-histAccxEffPhiReWeighted1stStep.SetLineColor(kRed);
+#fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/AccxEffReWeighted1stStep.root")
+#histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
+#histAccxEffCostReWeighted1stStep.SetLineColor(kRed);
+#histAccxEffPhiReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffPhiReWeighted_2pT4")
+#histAccxEffPhiReWeighted1stStep.SetLineColor(kRed);
 
-canvasAccxEffCost = TCanvas("canvasAccxEffCost","canvasAccxEffCost",20,20,600,600)
-histAccxEffCost.Draw("E")
-histAccxEffCostReWeighted1stStep.Draw("Esame")
+#canvasAccxEffCost = TCanvas("canvasAccxEffCost","canvasAccxEffCost",20,20,600,600)
+#histAccxEffCost.Draw("E")
+#histAccxEffCostReWeighted1stStep.Draw("Esame")
 
-canvasAccxEffPhi = TCanvas("canvasAccxEffPhi","canvasAccxEffPhi",20,20,600,600)
-histAccxEffPhi.Draw("E")
-histAccxEffPhiReWeighted1stStep.Draw("Esame")
+#canvasAccxEffPhi = TCanvas("canvasAccxEffPhi","canvasAccxEffPhi",20,20,600,600)
+#histAccxEffPhi.Draw("E")
+#histAccxEffPhiReWeighted1stStep.Draw("Esame")
 
 raw_input()

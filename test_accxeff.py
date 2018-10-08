@@ -32,10 +32,11 @@ if os.path.isfile("output/AccxEffFullStat.root"):
 else:
     AccxEff.ComputeAccxEff("FullStat","output/AccxEffFullStat.root")
 
-fileAccxEff = TFile.Open("output/AccxEff.root")
+fileAccxEff = TFile.Open("output/AccxEffFullStat.root")
 histRecCost = []
 histAccxEffCost = []
 histAccxEffPhi = []
+histAccxEffPhiTilde = []
 histAccxEffCostPhi = []
 histAccxEffCostPhiStatRel = []
 
@@ -43,6 +44,7 @@ for i in range(5):
     histRecCost.append(fileAccxEff.Get('histRecCost_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histAccxEffCost.append(fileAccxEff.Get('histAccxEffCost_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histAccxEffPhi.append(fileAccxEff.Get('histAccxEffPhi_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
+    histAccxEffPhiTilde.append(fileAccxEff.Get('histAccxEffPhiTilde_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histAccxEffCostPhi.append(fileAccxEff.Get('histAccxEffCostPhi_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histAccxEffCostPhiStatRel.append(fileAccxEff.Get('histAccxEffCostPhiStatRel_' + str(minPt[i]) + 'pT' + str(maxPt[i])))
     histRecCost[i].SetDirectory(0)
@@ -51,6 +53,8 @@ for i in range(5):
     histAccxEffCost[i].GetXaxis().SetTitle("cos#it{#theta}_{HE}")
     histAccxEffPhi[i].SetDirectory(0)
     histAccxEffPhi[i].GetXaxis().SetTitle("#it{#varphi}_{HE}")
+    histAccxEffPhiTilde[i].SetDirectory(0)
+    histAccxEffPhiTilde[i].GetXaxis().SetTitle("#tilde{#it{#varphi}}_{HE}")
     histAccxEffCostPhi[i].SetDirectory(0)
     histAccxEffCostPhi[i].GetXaxis().SetTitle("#it{#varphi}_{HE}")
     histAccxEffCostPhiStatRel[i].SetDirectory(0)
@@ -116,5 +120,19 @@ legendAccxEffPhi.AddEntry(histAccxEffPhi[1],"2 < #it{p}_{T} < 4 GeV/#it{c}","l")
 legendAccxEffPhi.AddEntry(histAccxEffPhi[2],"4 < #it{p}_{T} < 6 GeV/#it{c}","l")
 legendAccxEffPhi.AddEntry(histAccxEffPhi[3],"6 < #it{p}_{T} < 10 GeV/#it{c}","l")
 legendAccxEffPhi.Draw("same")
+
+canvasAccxEffPhiTildeComp = TCanvas("canvasAccxEffPhiTildeComp","canvasAccxEffPhiTildeComp",20,20,600,600)
+histAccxEffPhiTilde[3].SetLineColor(kBlue)
+histAccxEffPhiTilde[3].Draw()
+histAccxEffPhiTilde[2].SetLineColor(kRed)
+histAccxEffPhiTilde[2].Draw("same")
+histAccxEffPhiTilde[1].SetLineColor(kGreen)
+histAccxEffPhiTilde[1].Draw("same")
+
+legendAccxEffPhiTilde = TLegend(0.35,0.1,0.65,0.3)
+legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[1],"2 < #it{p}_{T} < 4 GeV/#it{c}","l")
+legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[2],"4 < #it{p}_{T} < 6 GeV/#it{c}","l")
+legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[3],"6 < #it{p}_{T} < 10 GeV/#it{c}","l")
+legendAccxEffPhiTilde.Draw("same")
 
 raw_input()
