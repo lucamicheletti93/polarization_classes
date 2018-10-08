@@ -4,10 +4,10 @@ import os.path
 
 gStyle.SetOptStat(0)
 gStyle.SetPaintTextFormat("0.2g");
-gROOT.ProcessLineSync(".x AccxEffCalculator.cxx+")
-gROOT.ProcessLineSync(".x Binning.cxx+")
+gROOT.ProcessLineSync(".x ../AccxEffCalculator.cxx+")
+gROOT.ProcessLineSync(".x ../Binning.cxx+")
 
-fileBinning = TFile.Open("output/binning.root")
+fileBinning = TFile.Open("../output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
 PhiValues = binning.GetPhiValues()
@@ -26,13 +26,13 @@ AccxEff = AccxEffCalculator(treeDataMC)
 AccxEff.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEff.SetBinning(CostValues,PhiValues)
 
-if os.path.isfile("output/AccxEffFullStat.root"):
-    print "The file output/AccxEffFullStat.root already exists, proceed with the following part of the macro"
+if os.path.isfile("../output/AccxEffFullStat.root"):
+    print "The file ../output/AccxEffFullStat.root already exists, proceed with the following part of the macro"
 
 else:
-    AccxEff.ComputeAccxEff("FullStat","output/AccxEffFullStat.root")
+    AccxEff.ComputeAccxEff("FullStat","../output/AccxEffFullStat.root")
 
-fileAccxEff = TFile.Open("output/AccxEffFullStat.root")
+fileAccxEff = TFile.Open("../output/AccxEffFullStat.root")
 histRecCost = []
 histAccxEffCost = []
 histAccxEffPhi = []

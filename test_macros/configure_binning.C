@@ -26,13 +26,13 @@
 #include <TPaveText.h>
 #include <TGaxis.h>
 
-#include "Binning.h"
-#include "Binning.cxx"
+#include "../Binning.h"
+#include "../Binning.cxx"
 #endif
 
 void configure_binning(){
 
-  string pathOutput = "output/";
+  string pathOutput = "../output/";
 
   const int nCostBins = 19;
   int minCostBin[nCostBins] = {1,11,16,21,26,31,36,41,45,49,53,57,61,66,71,76,81,86,91};

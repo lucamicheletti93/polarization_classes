@@ -5,14 +5,14 @@ import math
 
 gStyle.SetOptStat(0)
 gStyle.SetPaintTextFormat("0.2g");
-gROOT.ProcessLineSync(".x AccxEffCalculator.cxx+")
-gROOT.ProcessLineSync(".x Binning.cxx+")
+gROOT.ProcessLineSync(".x ../AccxEffCalculator.cxx+")
+gROOT.ProcessLineSync(".x ../Binning.cxx+")
 
 PI = math.pi
 
 # crea in maniera automatica la cartella di output se questa non esiste
 
-fileBinning = TFile.Open("output/binning.root")
+fileBinning = TFile.Open("../output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
 CostWidth = binning.GetCostWidth()
@@ -29,7 +29,7 @@ histNJpsiCost.Draw("E")
 canvasNJpsiPhi = TCanvas("canvasNJpsiPhi","canvasNJpsiPhi",20,20,600,600)
 histNJpsiPhi.Draw("E")
 
-fileAccxEff = TFile.Open("output/AccxEffFullStat.root")
+fileAccxEff = TFile.Open("../output/AccxEffFullStat.root")
 histAccxEffCost = fileAccxEff.Get("histAccxEffCost_2pT4")
 histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_2pT4")
 
