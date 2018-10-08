@@ -7,7 +7,7 @@ gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x ../AccxEffCalculator.cxx+")
 gROOT.ProcessLineSync(".x ../Binning.cxx+")
 
-fileBinning = TFile.Open("../output/binning.root")
+fileBinning = TFile.Open("output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
 PhiValues = binning.GetPhiValues()
@@ -26,13 +26,13 @@ AccxEff = AccxEffCalculator(treeDataMC)
 AccxEff.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEff.SetBinning(CostValues,PhiValues)
 
-if os.path.isfile("../output/AccxEffFullStat.root"):
-    print "The file ../output/AccxEffFullStat.root already exists, proceed with the following part of the macro"
+if os.path.isfile("output/AccxEffFullStat.root"):
+    print "The file output/AccxEffFullStat.root already exists, proceed with the following part of the macro"
 
 else:
-    AccxEff.ComputeAccxEff("FullStat","../output/AccxEffFullStat.root")
+    AccxEff.ComputeAccxEff("FullStat","output/AccxEffFullStat.root")
 
-fileAccxEff = TFile.Open("../output/AccxEffFullStat.root")
+fileAccxEff = TFile.Open("output/AccxEffFullStat.root")
 histRecCost = []
 histAccxEffCost = []
 histAccxEffPhi = []
@@ -134,5 +134,9 @@ legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[1],"2 < #it{p}_{T} < 4 GeV/#i
 legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[2],"4 < #it{p}_{T} < 6 GeV/#it{c}","l")
 legendAccxEffPhiTilde.AddEntry(histAccxEffPhiTilde[3],"6 < #it{p}_{T} < 10 GeV/#it{c}","l")
 legendAccxEffPhiTilde.Draw("same")
+
+
+#if not os.path.exists('output'):
+    #os.makedirs('output')
 
 raw_input()

@@ -7,7 +7,7 @@ gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x ../AccxEffCalculator.cxx+")
 gROOT.ProcessLineSync(".x ../Binning.cxx+")
 
-fileBinning = TFile.Open("../output/binning.root")
+fileBinning = TFile.Open("output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
 PhiValues = binning.GetPhiValues()
@@ -29,12 +29,12 @@ AccxEffReWeight1 = AccxEffCalculator(treeDataMC)
 AccxEffReWeight1.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEffReWeight1.SetBinning(CostValues,PhiValues)
 
-if os.path.isfile("../output/AccxEffReWeightedFullStatPol1.root"):
+if os.path.isfile("output/AccxEffReWeightedFullStatPol1.root"):
     pass
 else:
-    AccxEffReWeight1.ReWeightAccxEff(lambdaTheta1,"FullStat","../output/AccxEffReWeightedFullStatPol1.root")
+    AccxEffReWeight1.ReWeightAccxEff(lambdaTheta1,"FullStat","output/AccxEffReWeightedFullStatPol1.root")
 
-fileAccxEffReWeightedPol1 = TFile.Open("../output/AccxEffReWeightedFullStatPol1.root")
+fileAccxEffReWeightedPol1 = TFile.Open("output/AccxEffReWeightedFullStatPol1.root")
 
 histGenCostReWeightedPol1 = []
 histAccxEffCostReWeightedPol1 = []
@@ -65,12 +65,12 @@ AccxEffReWeight2 = AccxEffCalculator(treeDataMC)
 AccxEffReWeight2.SetPtBins(5,array('d',[0.,2.,4.,6.,10.]),array('d',[2.,4.,6.,10.,1000.]))
 AccxEffReWeight2.SetBinning(CostValues,PhiValues)
 
-if os.path.isfile("../output/AccxEffReWeightedFullStatPol2.root"):
+if os.path.isfile("output/AccxEffReWeightedFullStatPol2.root"):
     pass
 else:
-    AccxEffReWeight2.ReWeightAccxEff(lambdaTheta2,"FullStat","../output/AccxEffReWeightedFullStatPol2.root")
+    AccxEffReWeight2.ReWeightAccxEff(lambdaTheta2,"FullStat","output/AccxEffReWeightedFullStatPol2.root")
 
-fileAccxEffReWeightedPol2 = TFile.Open("../output/AccxEffReWeightedFullStatPol2.root")
+fileAccxEffReWeightedPol2 = TFile.Open("output/AccxEffReWeightedFullStatPol2.root")
 
 histGenCostReWeightedPol2 = []
 histAccxEffCostReWeightedPol2 = []

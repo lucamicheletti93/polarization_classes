@@ -72,7 +72,7 @@ void simultaneous_fit(){
   vector <double> CostWidth;
   vector <double> PhiWidth;
 
-  TFile *fileBinning = new TFile("../output/binning.root","READ");
+  TFile *fileBinning = new TFile("output/binning.root","READ");
   Binning *binning = (Binning*) fileBinning -> Get("Binning");
   CostWidth = binning -> GetCostWidth();
   PhiWidth = binning -> GetPhiWidth();
@@ -83,7 +83,7 @@ void simultaneous_fit(){
   TH1D *histNJpsiPhi = (TH1D*) fileNJpsi -> Get("histNJpsiPhi");
   histNJpsiPhi -> GetXaxis() -> SetTitle("#it{#varphi}_{HE}");
 
-  TFile *fileAccxEff = new TFile("../output/AccxEffFullStat.root","READ");
+  TFile *fileAccxEff = new TFile("output/AccxEffFullStat.root","READ");
   TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCost_2pT4");
   TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhi_2pT4");
 

@@ -8,7 +8,7 @@ gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x ../DataProcessor.cxx+")
 gROOT.ProcessLineSync(".x ../Binning.cxx+")
 
-fileBinning = TFile.Open("../output/binning.root")
+fileBinning = TFile.Open("output/binning.root")
 binning = fileBinning.Get("Binning")
 CostValues = binning.GetCostValues()
 PhiValues = binning.GetPhiValues()
@@ -27,7 +27,7 @@ PhiValues = binning.GetPhiValues()
             #fileData = TFile.Open('/media/luca/488AE2208AE20A70/PbPb_2015_Trees/Tree_' + runNumber + '.root')  # local
             #treeData = fileData.Get("PbPbTree")
             #test = DataProcessor(treeData)
-            #test.CreateFilteredTrees("FullStat",'../output/filtered_trees/TreeDataFiltered_' + runNumber + '.root')
+            #test.CreateFilteredTrees("FullStat",'output/filtered_trees/TreeDataFiltered_' + runNumber + '.root')
             #fileData.Close()
             #del test
     #else:
@@ -37,10 +37,10 @@ PhiValues = binning.GetPhiValues()
 
 #print "#######################################################################"
 print "Create histograms from the filtered trees"
-fileHistMass = TFile.Open('../output/filtered_trees/TreeDataFiltered_246994.root')
+fileHistMass = TFile.Open('output/filtered_trees/TreeDataFiltered_246994.root')
 test = DataProcessor()
 test.SetBinning(CostValues,PhiValues)
-test.CreateInvMassHistograms(fileHistMass,'../output/HistMass_246994.root')
+test.CreateInvMassHistograms(fileHistMass,'output/HistMass_246994.root')
 
 #print "#######################################################################"
 #print "Compute the trigger response function from data"
@@ -48,13 +48,13 @@ test.CreateInvMassHistograms(fileHistMass,'../output/HistMass_246994.root')
     #fileData = TFile.Open("/media/luca/488AE2208AE20A70/PbPb_2015_Trees_pDCA/new_tree/Tree_full_stat.root")  # local
     #treeData = fileData.Get("PbPbTree")
     #test = DataProcessor(treeData)
-    #test.ComputeTriggerResponseFunction("FullStat","../output/TriggerRespondeFunctionData.root")
+    #test.ComputeTriggerResponseFunction("FullStat","output/TriggerRespondeFunctionData.root")
 
 #else:
     #print "This class can be run only in local on the hard disk!!!"
 
-#if os.path.isfile("../output/TriggerRespondeFunctionData.root"):
-    #fileTriggerResponseFunctionData = TFile.Open("../output/TriggerRespondeFunctionData.root")
+#if os.path.isfile("output/TriggerRespondeFunctionData.root"):
+    #fileTriggerResponseFunctionData = TFile.Open("output/TriggerRespondeFunctionData.root")
     #histTriggerResponseFunctionSM = fileTriggerResponseFunctionData.Get("histTriggerResponseFunctionSM")
     #histTriggerResponseFunctionSMpDCA = fileTriggerResponseFunctionData.Get("histTriggerResponseFunctionSMpDCA")
 
@@ -63,6 +63,6 @@ test.CreateInvMassHistograms(fileHistMass,'../output/HistMass_246994.root')
     #histTriggerResponseFunctionSMpDCA.Draw("same")
 
 #else:
-    #print "Connect the hard disk to produce the file ../output/TriggerRespondeFunctionData.root!!!"
+    #print "Connect the hard disk to produce the file output/TriggerRespondeFunctionData.root!!!"
 
 raw_input()
