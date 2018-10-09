@@ -72,13 +72,20 @@ treeDataMC = fileDataMC.Get("MCTree")
 if not os.path.exists('iterative_procedure'):
     os.makedirs('iterative_procedure')
 
-AccxEffReWeight1stStep = AccxEffCalculator(treeDataMC)
-AccxEffReWeight1stStep.SetPtBins(1,array('d',[2.]),array('d',[4.]))
-AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
-#AccxEffReWeight1stStep.ReWeightAccxEff(funcCost.GetParameter(1),funcPhi.GetParameter(2),"FullStat","iterative_procedure/AccxEffReWeighted1stStep.root")
-AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"TestStat","iterative_procedure/AccxEffReWeighted1stStep.root")
+nameOutputFile = 'AccxEffReWeighted1stStep_test.root'
 
-fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/AccxEffReWeighted1stStep.root")
+#if os.path.isfile("iterative_procedure/AccxEffReWeighted1stStep.root"):
+if os.path.isfile("iterative_procedure/" + nameOutputFile):
+    print "iterative_procedure/AccxEffReWeighted1stStep.root has already produced"
+    print "if you want to reproduce it delete iterative_procedure/AccxEffReWeighted1stStep.root and re-run"
+else:
+    AccxEffReWeight1stStep = AccxEffCalculator(treeDataMC)
+    AccxEffReWeight1stStep.SetPtBins(1,array('d',[2.]),array('d',[4.]))
+    AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
+    #AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"TestStat",kTRUE,"iterative_procedure/" + nameOutputFile)
+    AccxEffReWeight1stStep.ReWeightAccxEff(-0.8,-0.8,"TestStat",kTRUE,"iterative_procedure/" + nameOutputFile)
+
+fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/" + nameOutputFile)
 histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
 histAccxEffCostReWeighted1stStep.SetLineColor(kRed);
 histAccxEffPhiReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffPhiReWeighted_2pT4")
@@ -88,8 +95,9 @@ histGenCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histGenCostReWeig
 histGenCostReWeighted1stStep.SetLineColor(kRed);
 
 canvasAccxEffCost = TCanvas("canvasAccxEffCost","canvasAccxEffCost",20,20,600,600)
-histAccxEffCost.Draw("E")
-histAccxEffCostReWeighted1stStep.Draw("Esame")
+histAccxEffCostReWeighted1stStep.Draw("E")
+histAccxEffCost.Draw("Esame")
+
 
 canvasAccxEffPhi = TCanvas("canvasAccxEffPhi","canvasAccxEffPhi",20,20,600,600)
 histAccxEffPhi.Draw("E")

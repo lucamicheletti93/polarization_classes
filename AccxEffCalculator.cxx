@@ -212,7 +212,7 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
   fileAccxEff -> Close();
 }
 //______________________________________________________________________________
-void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi, string strSample, string nameOutputFile) {
+void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile) {
   TF1 *funcCosTheta = new TF1("funcCosTheta","(1/(3 + [0]))*(1 + [0]*x*x)",-1,1);
   funcCosTheta -> SetParameter(0,LambdaTheta);
 
@@ -227,7 +227,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
   int nEvents = 0;
 
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
-  if(strSample == "TestStat"){nEvents = 100000;}
+  if(strSample == "TestStat"){nEvents = 1000000;}
   printf("N events = %i \n",nEvents);
 
   double weightCosTheta = 0;
@@ -253,10 +253,10 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
     fTreeAccxEff -> GetEntry(i);
 
     for(int j = 0;j < fNDimuGen;j++){
-      if(fDimuPtGen[j] < fMinPt[0] || fDimuPtGen[j] > fMaxPt[0]){
+      if(fDimuPtGen[j] > fMinPt[0] && fDimuPtGen[j] < fMaxPt[0]){
         if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
             weightCosTheta = (funcCosTheta -> Eval(fCostHEGen[j]))/(funcCosTheta -> GetMaximum());
-            weightPhi = (funcPhi -> Eval(fCostHEGen[j]))/(funcPhi -> GetMaximum());
+            weightPhi = (funcPhi -> Eval(fPhiHEGen[j]))/(funcPhi -> GetMaximum());
             weightCosThetaPhi = (funcCosThetaPhi -> Eval(fCostHEGen[j],fPhiHEGen[j]))/(funcCosThetaPhi -> GetMaximum());
             // Devo applicare un solo peso per cosTheta e Phi???
             fHistGenCostReWeighted[0] -> Fill(fCostHEGen[j],weightCosTheta);
@@ -268,7 +268,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
     }
 
     for(int j = 0;j < fNDimuRec;j++){
-      if(fDimuPtRec[j] < fMinPt[0] || fDimuPtRec[j] > fMaxPt[0]){
+      if(fDimuPtRec[j] > fMinPt[0] && fDimuPtRec[j] < fMaxPt[0]){
         if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
           if(fDimuMatchRec[j] == 2){
             if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
@@ -293,17 +293,19 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
     fHistAccxEffPhiReWeighted[i] -> Divide(fHistRecPhiReWeighted[i],fHistGenPhiReWeighted[i],1,1,"B");
   }
 
-  TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
-  for(int i = 0;i < fNPtBins;i++){
-    fHistGenCostReWeighted[i] -> Write();
-    fHistRecCostReWeighted[i] -> Write();
-    fHistAccxEffCostReWeighted[i] -> Write();
+  if(saveFile){
+    TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
+    for(int i = 0;i < fNPtBins;i++){
+      fHistGenCostReWeighted[i] -> Write();
+      fHistRecCostReWeighted[i] -> Write();
+      fHistAccxEffCostReWeighted[i] -> Write();
 
-    fHistGenPhiReWeighted[i] -> Write();
-    fHistRecPhiReWeighted[i] -> Write();
-    fHistAccxEffPhiReWeighted[i] -> Write();
+      fHistGenPhiReWeighted[i] -> Write();
+      fHistRecPhiReWeighted[i] -> Write();
+      fHistAccxEffPhiReWeighted[i] -> Write();
+    }
+    fileAccxEffReWeighted -> Close();
   }
-  fileAccxEffReWeighted -> Close();
 }
 //______________________________________________________________________________
 void AccxEffCalculator::ComputeTriggerResponseFunction(string strSample, string nameOutputFile) {
