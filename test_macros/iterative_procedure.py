@@ -72,7 +72,7 @@ treeDataMC = fileDataMC.Get("MCTree")
 if not os.path.exists('iterative_procedure'):
     os.makedirs('iterative_procedure')
 
-nameOutputFile = 'AccxEffReWeighted2ndStep.root'
+nameOutputFile = 'AccxEffReWeighted3rdStep.root'
 
 #if os.path.isfile("iterative_procedure/AccxEffReWeighted1stStep.root"):
 if os.path.isfile("iterative_procedure/" + nameOutputFile):
@@ -83,7 +83,8 @@ else:
     AccxEffReWeight1stStep.SetPtBins(1,array('d',[2.]),array('d',[4.]))
     AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
     #AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile) # 1st iteration
-    AccxEffReWeight1stStep.ReWeightAccxEff(-0.20244,-0.262088 ,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)  # 2nd iteration
+    #AccxEffReWeight1stStep.ReWeightAccxEff(-0.20244,-0.262088,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)  # 2nd iteration
+    AccxEffReWeight1stStep.ReWeightAccxEff(-0.203284,-0.269251,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)  # 3rd iteration
 
 fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/" + nameOutputFile)
 histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
