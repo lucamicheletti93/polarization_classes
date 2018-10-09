@@ -82,8 +82,7 @@ else:
     AccxEffReWeight1stStep = AccxEffCalculator(treeDataMC)
     AccxEffReWeight1stStep.SetPtBins(1,array('d',[2.]),array('d',[4.]))
     AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
-    #AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"TestStat",kTRUE,"iterative_procedure/" + nameOutputFile)
-    AccxEffReWeight1stStep.ReWeightAccxEff(-0.8,-0.8,"TestStat",kTRUE,"iterative_procedure/" + nameOutputFile)
+    AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)
 
 fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/" + nameOutputFile)
 histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
