@@ -72,7 +72,7 @@ treeDataMC = fileDataMC.Get("MCTree")
 if not os.path.exists('iterative_procedure'):
     os.makedirs('iterative_procedure')
 
-nameOutputFile = 'AccxEffReWeighted1stStep_test.root'
+nameOutputFile = 'AccxEffReWeighted2stStep.root'
 
 #if os.path.isfile("iterative_procedure/AccxEffReWeighted1stStep.root"):
 if os.path.isfile("iterative_procedure/" + nameOutputFile):
@@ -82,7 +82,8 @@ else:
     AccxEffReWeight1stStep = AccxEffCalculator(treeDataMC)
     AccxEffReWeight1stStep.SetPtBins(1,array('d',[2.]),array('d',[4.]))
     AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
-    AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)
+    #AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile) # 1st iteration
+    AccxEffReWeight1stStep.ReWeightAccxEff(-0.20244,-0.20244,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)  # 2nd iteration
 
 fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/" + nameOutputFile)
 histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
@@ -110,6 +111,6 @@ for i in range(19):
 
 canvasGenCost = TCanvas("canvasGenCost","canvasGenCost",20,20,600,600)
 histGenCostReWeighted1stStep.Draw()
-#histGenCost.Draw("Esame")
+histGenCost.Draw("Esame")
 
 raw_input()

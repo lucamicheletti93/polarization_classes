@@ -83,10 +83,10 @@ void simultaneous_fit(){
   TH1D *histNJpsiPhi = (TH1D*) fileNJpsi -> Get("histNJpsiPhi");
   histNJpsiPhi -> GetXaxis() -> SetTitle("#it{#varphi}_{HE}");
 
-  TFile *fileAccxEff = new TFile("output/AccxEffFullStat.root","READ"); // zero iteration
-  //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted1stStep.root","READ"); // 1st iteration
-  TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCost_2pT4");
-  TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhi_2pT4");
+  //TFile *fileAccxEff = new TFile("output/AccxEffFullStat.root","READ"); // zero iteration
+  TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted1stStep_test.root","READ"); // 1st iteration
+  TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_2pT4");
+  TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_2pT4");
 
   TH1D *histNJpsiCostCorr = (TH1D*) histNJpsiCost -> Clone("histNJpsiCostCorr");
   for(int i = 0;i < 19;i++){
@@ -115,7 +115,7 @@ void simultaneous_fit(){
 
   // set the data range
   rangeB1.SetRange(-0.8,0.8);
-  rangeB2.SetRange(0.,PI);
+  rangeB2.SetRange(histNJpsiPhi -> GetBinLowEdge(2),histNJpsiPhi -> GetBinLowEdge(10));
 
   ROOT::Fit::BinData dataB1(opt,rangeB1);
   ROOT::Fit::BinData dataB2(opt,rangeB2);

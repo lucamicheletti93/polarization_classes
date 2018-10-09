@@ -32,9 +32,11 @@ void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsM
       fCostValues.push_back(bin);
       fCostBinsMin.push_back(CostBinsMin[i]);
       fCostBinsMax.push_back(CostBinsMax[i]);
+      printf("CosTheta = %f \n",bin);
     }
     bin = hist -> GetXaxis() -> GetBinLowEdge(101);
     fCostValues.push_back(bin);
+    printf("CosTheta = %f \n",bin);
 
     fNPhiBins = NPhiBins;
     for(int i = 0;i < NPhiBins;i++){
@@ -42,9 +44,11 @@ void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsM
       fPhiValues.push_back(bin);
       fPhiBinsMin.push_back(PhiBinsMin[i]);
       fPhiBinsMax.push_back(PhiBinsMax[i]);
+      printf("Phi = %f \n",bin);
     }
     bin = hist -> GetYaxis() -> GetBinLowEdge(51);
     fPhiValues.push_back(bin);
+    printf("Phi = %f \n",bin);
     delete hist;
 }
 //______________________________________________________________________________
