@@ -18,6 +18,7 @@ PhiValues = binning.GetPhiValues()
 PhiWidth = binning.GetPhiWidth()
 
 fileAccxEff = TFile.Open("output/AccxEffFullStat.root")
+histGenCost = fileAccxEff.Get("histGenCost_2pT4")
 histAccxEffCost = fileAccxEff.Get("histAccxEffCost_2pT4")
 histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_2pT4")
 
@@ -75,13 +76,16 @@ AccxEffReWeight1stStep = AccxEffCalculator(treeDataMC)
 AccxEffReWeight1stStep.SetPtBins(1,array('d',[2.]),array('d',[4.]))
 AccxEffReWeight1stStep.SetBinning(CostValues,PhiValues)
 #AccxEffReWeight1stStep.ReWeightAccxEff(funcCost.GetParameter(1),funcPhi.GetParameter(2),"FullStat","iterative_procedure/AccxEffReWeighted1stStep.root")
-AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"FullStat","iterative_procedure/AccxEffReWeighted1stStep.root")
+AccxEffReWeight1stStep.ReWeightAccxEff(-0.189948,-0.2228,"TestStat","iterative_procedure/AccxEffReWeighted1stStep.root")
 
 fileAccxEffReWeight1stStep = TFile.Open("iterative_procedure/AccxEffReWeighted1stStep.root")
 histAccxEffCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffCostReWeighted_2pT4")
 histAccxEffCostReWeighted1stStep.SetLineColor(kRed);
 histAccxEffPhiReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histAccxEffPhiReWeighted_2pT4")
 histAccxEffPhiReWeighted1stStep.SetLineColor(kRed);
+
+histGenCostReWeighted1stStep = fileAccxEffReWeight1stStep.Get("histGenCostReWeighted_2pT4")
+histGenCostReWeighted1stStep.SetLineColor(kRed);
 
 canvasAccxEffCost = TCanvas("canvasAccxEffCost","canvasAccxEffCost",20,20,600,600)
 histAccxEffCost.Draw("E")
@@ -90,5 +94,15 @@ histAccxEffCostReWeighted1stStep.Draw("Esame")
 canvasAccxEffPhi = TCanvas("canvasAccxEffPhi","canvasAccxEffPhi",20,20,600,600)
 histAccxEffPhi.Draw("E")
 histAccxEffPhiReWeighted1stStep.Draw("Esame")
+
+
+# Check plots
+for i in range(19):
+    histGenCostReWeighted1stStep.SetBinContent(i+1,histGenCostReWeighted1stStep.GetBinContent(i+1)/CostWidth[i])
+    histGenCostReWeighted1stStep.SetBinError(i+1,histGenCostReWeighted1stStep.GetBinError(i+1)/CostWidth[i])
+
+canvasGenCost = TCanvas("canvasGenCost","canvasGenCost",20,20,600,600)
+histGenCostReWeighted1stStep.Draw()
+#histGenCost.Draw("Esame")
 
 raw_input()

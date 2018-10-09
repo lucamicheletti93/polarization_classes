@@ -11,6 +11,7 @@
 #include "TH2.h"
 #include "TTree.h"
 #include "TF1.h"
+#include "TF2.h"
 #include "TFile.h"
 #include "AccxEffCalculator.h"
 
@@ -219,6 +220,10 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
   funcPhi -> SetParameter(0,LambdaTheta);
   funcPhi -> SetParameter(1,LambdaPhi);
 
+  TF2 *funcCosThetaPhi = new TF2("funcCosThetaPhi","(1/(3 + [0]))*(1 + [0]*x*x*(1 - cos(2*y)) + [1]*cos(2*y))",-1,1,0,fPi);
+  funcCosThetaPhi -> SetParameter(0,LambdaTheta);
+  funcCosThetaPhi -> SetParameter(1,LambdaPhi);
+
   int nEvents = 0;
 
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
@@ -227,6 +232,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
 
   double weightCosTheta = 0;
   double weightPhi = 0;
+  double weightCosThetaPhi = 0;
 
   for(int i = 0;i < fNPtBins;i++){
     fHistGenCostReWeighted[i] = new TH1D(Form("histGenCostReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCostBins,&fCostValues[0]);
@@ -251,8 +257,12 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
         if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
             weightCosTheta = (funcCosTheta -> Eval(fCostHEGen[j]))/(funcCosTheta -> GetMaximum());
             weightPhi = (funcPhi -> Eval(fCostHEGen[j]))/(funcPhi -> GetMaximum());
+            weightCosThetaPhi = (funcCosThetaPhi -> Eval(fCostHEGen[j],fPhiHEGen[j]))/(funcCosThetaPhi -> GetMaximum());
+            // Devo applicare un solo peso per cosTheta e Phi???
             fHistGenCostReWeighted[0] -> Fill(fCostHEGen[j],weightCosTheta);
             fHistGenPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHEGen[j]),weightPhi);
+            //fHistGenCostReWeighted[0] -> Fill(fCostHEGen[j],weightCosThetaPhi);
+            //fHistGenPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHEGen[j]),weightCosThetaPhi);
         }
       }
     }
@@ -262,8 +272,11 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
         if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
           if(fDimuMatchRec[j] == 2){
             if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+              // Devo applicare un solo peso per cosTheta e Phi???
               fHistRecCostReWeighted[0] -> Fill(fCostHERec[j],weightCosTheta);
               fHistRecPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhi);
+              //fHistRecCostReWeighted[0] -> Fill(fCostHERec[j],weightCosThetaPhi);
+              //fHistRecPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHERec[j]),weightCosThetaPhi);
             }
           }
         }
