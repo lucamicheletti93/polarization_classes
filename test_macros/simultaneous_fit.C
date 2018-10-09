@@ -84,8 +84,9 @@ void simultaneous_fit(){
   histNJpsiPhi -> GetXaxis() -> SetTitle("#it{#varphi}_{HE}");
 
   //TFile *fileAccxEff = new TFile("output/AccxEffFullStat.root","READ"); // zero iteration
-  //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted1stStep.root","READ"); // 1st iteration
-  TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted2ndStep.root","READ");   // 2nd iteration
+  //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted1stStep.root","READ");   // 1st iteration
+  //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted2ndStep.root","READ");   // 2nd iteration
+  TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted3rdStep.root","READ");     // 3rd iteration
   TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_2pT4");
   TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_2pT4");
 
