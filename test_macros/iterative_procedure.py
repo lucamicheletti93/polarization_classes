@@ -77,19 +77,19 @@ for i in range(len(namePtRanges)):
         os.makedirs('iterative_procedure/' + namePtRanges[i])
 
 #nameOutputFile = ['AccxEffReWeighted1stStep.root','AccxEffReWeighted2ndStep.root','AccxEffReWeighted3rdStep.root']
-nameOutputFile = 'AccxEffReWeighted1stStep.root'
+nameOutputFile = 'AccxEffReWeighted2ndStep.root'
 # 2 < pT < 4 GeV/c
 #lambdaTheta_2pt4 = [-0.189948,-0.20244,-0.203284,-0.203346]
 #lambdaPhi_2pt4 = [-0.2228,-0.262088,-0.269251,-0.270491]
 # 4 < pT < 6 GeV/c
-#lambdaTheta_4pt6 = [-0.0197807]
-#lambdaPhi_4pt6 = [-0.00780492]
+#lambdaTheta_4pt6 = [-0.0197807,-0.0210581]
+#lambdaPhi_4pt6 = [-0.00780492,-0.00874564]
 # 6 < pT < 10 GeV/c
-#lambdaTheta_6pt10 = [0.0662521]
-#lambdaPhi_6pt10 = [-0.0603516]
+#lambdaTheta_6pt10 = [0.0662521,0.069291]
+#lambdaPhi_6pt10 = [-0.0603516,-0.064812]
 
-lambdaTheta = [-0.189948,-0.0197807,0.0662521]
-lambdaPhi = [-0.2228,-0.00780492,-0.0603516]
+lambdaTheta = [-0.20244,-0.0210581,0.069291]
+lambdaPhi = [-0.262088,-0.00874564,-0.064812]
 
 for i in range(len(namePtRanges)):
     if os.path.isfile("iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile):
