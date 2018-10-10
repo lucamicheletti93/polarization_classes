@@ -70,101 +70,118 @@ else:
 treeDataMC = fileDataMC.Get("MCTree")
 
 # To check if a directory exists
-if not os.path.exists('iterative_procedure'):
-    os.makedirs('iterative_procedure')
+namePtRanges = ['2pt4','4pt6','6pt10']
+for i in range(len(namePtRanges)):
+    if not os.path.exists('iterative_procedure/' + namePtRanges[i]):
+        os.makedirs('iterative_procedure/' + namePtRanges[i])
 
-nameOutputFile = ['AccxEffReWeighted1stStep.root','AccxEffReWeighted2ndStep.root','AccxEffReWeighted3rdStep.root']
-lambdaTheta = [-0.189948,-0.20244,-0.203284,-0.203346]
-lambdaPhi = [-0.2228,-0.262088,-0.269251,-0.270491]
+#nameOutputFile = ['AccxEffReWeighted1stStep.root','AccxEffReWeighted2ndStep.root','AccxEffReWeighted3rdStep.root']
+nameOutputFile = 'AccxEffReWeighted1stStep.root'
+# 2 < pT < 4 GeV/c
+#lambdaTheta_2pt4 = [-0.189948,-0.20244,-0.203284,-0.203346]
+#lambdaPhi_2pt4 = [-0.2228,-0.262088,-0.269251,-0.270491]
+# 4 < pT < 6 GeV/c
+#lambdaTheta_4pt6 = [-0.0197807]
+#lambdaPhi_4pt6 = [-0.00780492]
+# 6 < pT < 10 GeV/c
+#lambdaTheta_6pt10 = [0.0662521]
+#lambdaPhi_6pt10 = [-0.0603516]
 
-for i in range(3):
-    if os.path.isfile("iterative_procedure/" + nameOutputFile[i]):
-        print nameOutputFile[i] + " has already produced"
-        print "if you want to reproduce it delete " + nameOutputFile[i] + " and re-run"
+lambdaTheta = [-0.189948,-0.0197807,0.0662521]
+lambdaPhi = [-0.2228,-0.00780492,-0.0603516]
+
+for i in range(len(namePtRanges)):
+    if os.path.isfile("iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile):
+        print "--> " + nameOutputFile + " has already produced"
+        print "if you want to reproduce it delete " + nameOutputFile + " and re-run"
     else:
+        print "--> iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile + " does not exist"
         AccxEffReWeight = AccxEffCalculator(treeDataMC)
         AccxEffReWeight.SetPtBins(1,array('d',[2.]),array('d',[4.]))
         AccxEffReWeight.SetBinning(CostValues,PhiValues)
-        AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i],lambdaPhi[i],"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile[i])
+        AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i],lambdaPhi[i],"FullStat",kTRUE,"iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile)
         del AccxEffReWeight
         #AccxEffReWeight.ReWeightAccxEff(-0.189948,-0.2228,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)    # 1st iteration
         #AccxEffReWeight.ReWeightAccxEff(-0.20244,-0.262088,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)   # 2nd iteration
         #AccxEffReWeight.ReWeightAccxEff(-0.203284,-0.269251,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)  # 3rd iteration
         #AccxEffReWeight.ReWeightAccxEff(-0.203346,-0.270491,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)  # 4th iteration (to be performed)
 
-histAccxEffCostReWeighted = []
-histAccxEffPhiReWeighted = []
-histGenCostReWeighted = []
-histGenPhiReWeighted = []
-funcCost = []
-funcPhi = []
+################################################################################
+#histAccxEffCostReWeighted = []
+#histAccxEffPhiReWeighted = []
+#histGenCostReWeighted = []
+#histGenPhiReWeighted = []
+#funcCost = []
+#funcPhi = []
 
-for i in range(3):
-    fileAccxEffReWeight = TFile.Open("iterative_procedure/" + nameOutputFile[i])
-    histAccxEffCostReWeighted.append(fileAccxEffReWeight.Get("histAccxEffCostReWeighted_2pT4"))
-    histAccxEffCostReWeighted[i].SetLineColor(i+2)
-    histAccxEffCostReWeighted[i].SetDirectory(0)
-    histAccxEffPhiReWeighted.append(fileAccxEffReWeight.Get("histAccxEffPhiReWeighted_2pT4"))
-    histAccxEffPhiReWeighted[i].SetLineColor(i+2)
-    histAccxEffPhiReWeighted[i].SetDirectory(0)
-    histGenCostReWeighted.append(fileAccxEffReWeight.Get("histGenCostReWeighted_2pT4"))
-    histGenCostReWeighted[i].SetLineColor(i+2)
-    histGenCostReWeighted[i].SetDirectory(0)
-    histGenPhiReWeighted.append(fileAccxEffReWeight.Get("histGenPhiReWeighted_2pT4"))
-    histGenPhiReWeighted[i].SetLineColor(i+2)
-    histGenPhiReWeighted[i].SetDirectory(0)
-    fileAccxEffReWeight.Close()
+#for i in range(3):
+    #fileAccxEffReWeight = TFile.Open("iterative_procedure/" + nameOutputFile[i])
+    #histAccxEffCostReWeighted.append(fileAccxEffReWeight.Get("histAccxEffCostReWeighted_2pT4"))
+    #histAccxEffCostReWeighted[i].SetLineColor(i+2)
+    #histAccxEffCostReWeighted[i].SetDirectory(0)
+    #histAccxEffPhiReWeighted.append(fileAccxEffReWeight.Get("histAccxEffPhiReWeighted_2pT4"))
+    #histAccxEffPhiReWeighted[i].SetLineColor(i+2)
+    #histAccxEffPhiReWeighted[i].SetDirectory(0)
+    #histGenCostReWeighted.append(fileAccxEffReWeight.Get("histGenCostReWeighted_2pT4"))
+    #histGenCostReWeighted[i].SetLineColor(i+2)
+    #histGenCostReWeighted[i].SetDirectory(0)
+    #histGenPhiReWeighted.append(fileAccxEffReWeight.Get("histGenPhiReWeighted_2pT4"))
+    #histGenPhiReWeighted[i].SetLineColor(i+2)
+    #histGenPhiReWeighted[i].SetDirectory(0)
+    #fileAccxEffReWeight.Close()
 
-canvasAccxEffCost = TCanvas("canvasAccxEffCost","canvasAccxEffCost",20,20,600,600)
-histAccxEffCostReWeighted[0].Draw("E")
-histAccxEffCostReWeighted[1].Draw("Esame")
-histAccxEffCostReWeighted[2].Draw("Esame")
+#canvasAccxEffCost = TCanvas("canvasAccxEffCost","canvasAccxEffCost",20,20,600,600)
+#histAccxEffCostReWeighted[0].Draw("E")
+#histAccxEffCostReWeighted[1].Draw("Esame")
+#histAccxEffCostReWeighted[2].Draw("Esame")
 
-canvasAccxEffPhi = TCanvas("canvasAccxEffPhi","canvasAccxEffPhi",20,20,600,600)
-histAccxEffPhiReWeighted[0].Draw("E")
-histAccxEffPhiReWeighted[1].Draw("Esame")
-histAccxEffPhiReWeighted[2].Draw("Esame")
+#canvasAccxEffPhi = TCanvas("canvasAccxEffPhi","canvasAccxEffPhi",20,20,600,600)
+#histAccxEffPhiReWeighted[0].Draw("E")
+#histAccxEffPhiReWeighted[1].Draw("Esame")
+#histAccxEffPhiReWeighted[2].Draw("Esame")
 
 # Check plots
-for i in range(3):
-    for j in range(19):
-        histGenCostReWeighted[i].SetBinContent(j+1,histGenCostReWeighted[i].GetBinContent(j+1)/CostWidth[j])
-        histGenCostReWeighted[i].SetBinError(j+1,histGenCostReWeighted[i].GetBinError(j+1)/CostWidth[j])
-    for j in range(10):
-        histGenPhiReWeighted[i].SetBinContent(j+1,histGenPhiReWeighted[i].GetBinContent(j+1)/PhiWidth[j])
-        histGenPhiReWeighted[i].SetBinError(j+1,histGenPhiReWeighted[i].GetBinError(j+1)/PhiWidth[j])
+#for i in range(3):
+    #for j in range(19):
+        #histGenCostReWeighted[i].SetBinContent(j+1,histGenCostReWeighted[i].GetBinContent(j+1)/CostWidth[j])
+        #histGenCostReWeighted[i].SetBinError(j+1,histGenCostReWeighted[i].GetBinError(j+1)/CostWidth[j])
+        #histGenCostReWeighted[i].GetXaxis().SetTitle("cos#it{#theta}_{HE}")
+    #for j in range(10):
+        #histGenPhiReWeighted[i].SetBinContent(j+1,histGenPhiReWeighted[i].GetBinContent(j+1)/PhiWidth[j])
+        #histGenPhiReWeighted[i].SetBinError(j+1,histGenPhiReWeighted[i].GetBinError(j+1)/PhiWidth[j])
+        #histGenPhiReWeighted[i].GetXaxis().SetTitle("#it{#varphi}_{HE}")
 
-for i in range(3):
-    funcCost.append(TF1("funcCost",MathFuncs.MyMathFuncs.MyFuncPolCosTheta,-1.,1.,2))
-    funcCost[i].SetLineColor(i+2)
-    histGenCostReWeighted[i].Fit(funcCost[i],"R0")
-    funcPhi.append(TF1("funcPhi",MathFuncs.MyMathFuncs.MyFuncPolPhi,0,PI,3))
-    funcPhi[i].SetLineColor(i+2)
-    histGenPhiReWeighted[i].Fit(funcPhi[i],"R0")
+#for i in range(3):
+    #funcCost.append(TF1("funcCost",MathFuncs.MyMathFuncs.MyFuncPolCosTheta,-1.,1.,2))
+    #funcCost[i].SetLineColor(i+2)
+    #histGenCostReWeighted[i].Fit(funcCost[i],"R0")
+    #funcPhi.append(TF1("funcPhi",MathFuncs.MyMathFuncs.MyFuncPolPhi,0,PI,3))
+    #funcPhi[i].SetLineColor(i+2)
+    #histGenPhiReWeighted[i].Fit(funcPhi[i],"R0")
 
-canvasGenCost = TCanvas("canvasGenCost","canvasGenCost",20,20,600,600)
-histGenCostReWeighted[0].Draw("E")
-funcCost[0].Draw("Esame")
-for i in range(2):
-    histGenCostReWeighted[i+1].Draw("Esame")
-    funcCost[i+1].Draw("Esame")
-legendGenCost = TLegend(0.35,0.1,0.65,0.3)
-legendGenCost.AddEntry(funcCost[0],"1^{st} itreration","l")
-legendGenCost.AddEntry(funcCost[1],"2^{nd} itreration","l")
-legendGenCost.AddEntry(funcCost[2],"3^{rd} itreration","l")
-legendGenCost.Draw("same")
+#canvasGenCost = TCanvas("canvasGenCost","canvasGenCost",20,20,600,600)
+#histGenCostReWeighted[0].Draw("E")
+#funcCost[0].Draw("Esame")
+#for i in range(2):
+    #histGenCostReWeighted[i+1].Draw("Esame")
+    #funcCost[i+1].Draw("Esame")
+#legendGenCost = TLegend(0.35,0.1,0.65,0.3)
+#legendGenCost.AddEntry(funcCost[0],"1^{st} itreration","l")
+#legendGenCost.AddEntry(funcCost[1],"2^{nd} itreration","l")
+#legendGenCost.AddEntry(funcCost[2],"3^{rd} itreration","l")
+#legendGenCost.Draw("same")
 
 
-canvasGenPhi = TCanvas("canvasGenPhi","canvasGenPhi",20,20,600,600)
-histGenPhiReWeighted[0].Draw("E")
-funcPhi[0].Draw("Esame")
-for i in range(2):
-    histGenPhiReWeighted[i+1].Draw("Esame")
-    funcPhi[i+1].Draw("Esame")
-legendGenPhi = TLegend(0.35,0.1,0.65,0.3)
-legendGenPhi.AddEntry(funcPhi[0],"1^{st} itreration","l")
-legendGenPhi.AddEntry(funcPhi[1],"2^{nd} itreration","l")
-legendGenPhi.AddEntry(funcPhi[2],"3^{rd} itreration","l")
-legendGenPhi.Draw("same")
+#canvasGenPhi = TCanvas("canvasGenPhi","canvasGenPhi",20,20,600,600)
+#histGenPhiReWeighted[0].Draw("E")
+#funcPhi[0].Draw("Esame")
+#for i in range(2):
+    #histGenPhiReWeighted[i+1].Draw("Esame")
+    #funcPhi[i+1].Draw("Esame")
+#legendGenPhi = TLegend(0.35,0.1,0.65,0.3)
+#legendGenPhi.AddEntry(funcPhi[0],"1^{st} itreration","l")
+#legendGenPhi.AddEntry(funcPhi[1],"2^{nd} itreration","l")
+#legendGenPhi.AddEntry(funcPhi[2],"3^{rd} itreration","l")
+#legendGenPhi.Draw("same")
 
 raw_input()

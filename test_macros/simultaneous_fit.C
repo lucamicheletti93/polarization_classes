@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "../MathFuncsLib.h"
 #include "../Binning.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ struct GlobalChi2 {
 ////////////////////////////////////////////////////////////////////////////////
 // Definition of functions
 // FuncCosTheta
-double myfunction1(double *x, double *par){
+/*double myfunction1(double *x, double *par){
       double N = par[0];
       double lambdaTheta = par[1];
       double cosTheta = x[0];
@@ -66,7 +67,7 @@ double myfunction2(double *x, double *par){
       double lambdaPhi = par[2];
       double cos2Phi = TMath::Cos(2*x[0]);
       return N*(1 + ((2*lambdaPhi)/(3 + lambdaTheta))*cos2Phi);
-   }
+   }*/
 ////////////////////////////////////////////////////////////////////////////////
 void simultaneous_fit(){
   vector <double> CostWidth;
@@ -77,18 +78,28 @@ void simultaneous_fit(){
   CostWidth = binning -> GetCostWidth();
   PhiWidth = binning -> GetPhiWidth();
 
-  TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_2pt4_test/2pt4.root","READ");
+  //TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_2pt4_test/2pt4.root","READ");
+  //TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_4pt6_test/4pt6.root","READ");
+  TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_6pt10_test/6pt10.root","READ");
   TH1D *histNJpsiCost = (TH1D*) fileNJpsi -> Get("histNJpsiCost");
   histNJpsiCost -> GetXaxis() -> SetTitle("cos#it{#theta}_{HE}");
   TH1D *histNJpsiPhi = (TH1D*) fileNJpsi -> Get("histNJpsiPhi");
   histNJpsiPhi -> GetXaxis() -> SetTitle("#it{#varphi}_{HE}");
 
-  //TFile *fileAccxEff = new TFile("output/AccxEffFullStat.root","READ"); // zero iteration
-  //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted1stStep.root","READ");   // 1st iteration
+  TFile *fileAccxEff = new TFile("output/AccxEffFullStat.root","READ"); // zero iteration
+  //TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCost_2pT4");
+  //TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhi_2pT4");
+  //TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCost_4pT6");
+  //TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhi_4pT6");
+  TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCost_6pT10");
+  TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhi_6pT10");
+  //============================================================================
+  //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted1stStep.root","READ");   // 1st iteration 2 < pT < 4 GeV/c
   //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted2ndStep.root","READ");   // 2nd iteration
-  TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted3rdStep.root","READ");     // 3rd iteration
-  TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_2pT4");
-  TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_2pT4");
+  //TFile *fileAccxEff = new TFile("iterative_procedure/AccxEffReWeighted3rdStep.root","READ");     // 3rd iteration
+  //TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_2pT4");
+  //TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_2pT4");
+  //============================================================================
 
   TH1D *histNJpsiCostCorr = (TH1D*) histNJpsiCost -> Clone("histNJpsiCostCorr");
   for(int i = 0;i < 19;i++){
@@ -105,8 +116,10 @@ void simultaneous_fit(){
   histNJpsiPhiCorr -> Divide(histAccxEffPhi);
 
   double PI = TMath::Pi();
-  TF1 *ffitB1 = new TF1("ffitB1",myfunction1,-1.,1.,2);
-  TF1 *ffitB2 = new TF1("ffitB2",myfunction2,0.,PI,3);
+  //TF1 *ffitB1 = new TF1("ffitB1",myfunction1,-1.,1.,2);
+  //TF1 *ffitB2 = new TF1("ffitB2",myfunction2,0.,PI,3);
+  TF1 *ffitB1 = new TF1("ffitB1",MathFuncs::MyMathFuncs::MyFuncPolCosTheta,-1.,1.,2);
+  TF1 *ffitB2 = new TF1("ffitB2",MathFuncs::MyMathFuncs::MyFuncPolPhi,0.,PI,3);
 
   ROOT::Math::WrappedMultiTF1 wfB1(*ffitB1,1);
   ROOT::Math::WrappedMultiTF1 wfB2(*ffitB2,1);
