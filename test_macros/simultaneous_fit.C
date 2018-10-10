@@ -79,8 +79,8 @@ void simultaneous_fit(){
   PhiWidth = binning -> GetPhiWidth();
 
   //TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_2pt4_test/2pt4.root","READ");
-  //TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_4pt6_test/4pt6.root","READ");
-  TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_6pt10_test/6pt10.root","READ");
+  TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_4pt6_test/4pt6.root","READ");
+  //TFile *fileNJpsi = new TFile("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_6pt10_test/6pt10.root","READ");
   TH1D *histNJpsiCost = (TH1D*) fileNJpsi -> Get("histNJpsiCost");
   histNJpsiCost -> GetXaxis() -> SetTitle("cos#it{#theta}_{HE}");
   TH1D *histNJpsiPhi = (TH1D*) fileNJpsi -> Get("histNJpsiPhi");
@@ -94,17 +94,19 @@ void simultaneous_fit(){
   //TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCost_6pT10");
   //TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhi_6pT10");
   //============================================================================
-  //TFile *fileAccxEff = new TFile("iterative_procedure/2pt4/AccxEffReWeighted1stStep.root","READ");   // 1st iteration 2 < pT < 4 GeV/c
-  //TFile *fileAccxEff = new TFile("iterative_procedure/2pt4/AccxEffReWeighted2ndStep.root","READ");   // 2nd iteration
-  //TFile *fileAccxEff = new TFile("iterative_procedure/2pt4/AccxEffReWeighted3rdStep.root","READ");     // 3rd iteration
+  //TFile *fileAccxEff = new TFile("iterative_procedure/2pT4/AccxEffReWeighted1stStep.root","READ");   // 1st iteration 2 < pT < 4 GeV/c
+  //TFile *fileAccxEff = new TFile("iterative_procedure/2pT4/AccxEffReWeighted2ndStep.root","READ");   // 2nd iteration
+  //TFile *fileAccxEff = new TFile("iterative_procedure/2pT4/AccxEffReWeighted3rdStep.root","READ");   // 3rd iteration
   //TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_2pT4");
   //TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_2pT4");
-  //TFile *fileAccxEff = new TFile("iterative_procedure/4pt6/AccxEffReWeighted1stStep.root","READ");   // 1st iteration 4 < pT < 6 GeV/c
-  //TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_4pT6");
-  //TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_4pT6");
-  TFile *fileAccxEff = new TFile("iterative_procedure/6pt10/AccxEffReWeighted1stStep.root","READ");   // 1st iteration 6 < pT < 10 GeV/c
-  TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_6pT10");
-  TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_6pT10");
+  //TFile *fileAccxEff = new TFile("iterative_procedure/4pT6/AccxEffReWeighted1stStep.root","READ");   // 1st iteration 4 < pT < 6 GeV/c
+  TFile *fileAccxEff = new TFile("iterative_procedure/4pT6/AccxEffReWeighted2ndStep.root","READ");   // 2nd iteration
+  TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_4pT6");
+  TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_4pT6");
+  //TFile *fileAccxEff = new TFile("iterative_procedure/6pT10/AccxEffReWeighted1stStep.root","READ");   // 1st iteration 6 < pT < 10 GeV/c
+  //TFile *fileAccxEff = new TFile("iterative_procedure/6pT10/AccxEffReWeighted2ndStep.root","READ");   // 2nd iteration
+  //TH1D *histAccxEffCost = (TH1D*) fileAccxEff -> Get("histAccxEffCostReWeighted_6pT10");
+  //TH1D *histAccxEffPhi = (TH1D*) fileAccxEff -> Get("histAccxEffPhiReWeighted_6pT10");
   //============================================================================
 
   TH1D *histNJpsiCostCorr = (TH1D*) histNJpsiCost -> Clone("histNJpsiCostCorr");
