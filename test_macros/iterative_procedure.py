@@ -62,15 +62,16 @@ histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_2pT4")
 #funcPhi.Draw("same")
 
 ################################################################################
-if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root"):
-    fileDataMC = TFile.Open("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root")  # lxplus
-else:
-    fileDataMC = TFile.Open("/home/luca/cernbox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root") # local
-
-treeDataMC = fileDataMC.Get("MCTree")
+#if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root"):
+    #fileDataMC = TFile.Open("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root")  # lxplus
+#else:
+    #fileDataMC = TFile.Open("/home/luca/cernbox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root") # local
+#treeDataMC = fileDataMC.Get("MCTree")
 
 # To check if a directory exists
 namePtRanges = ['2pt4','4pt6','6pt10']
+minPtBin = [2.,4.,6.]
+maxPtBin = [4.,6.,10.]
 for i in range(len(namePtRanges)):
     if not os.path.exists('iterative_procedure/' + namePtRanges[i]):
         os.makedirs('iterative_procedure/' + namePtRanges[i])
@@ -96,11 +97,17 @@ for i in range(len(namePtRanges)):
         print "if you want to reproduce it delete " + nameOutputFile + " and re-run"
     else:
         print "--> iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile + " does not exist"
+        if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root"):
+            fileDataMC = TFile.Open("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root")  # lxplus
+        else:
+            fileDataMC = TFile.Open("/home/luca/cernbox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root") # local
+        treeDataMC = fileDataMC.Get("MCTree")
         AccxEffReWeight = AccxEffCalculator(treeDataMC)
-        AccxEffReWeight.SetPtBins(1,array('d',[2.]),array('d',[4.]))
+        AccxEffReWeight.SetPtBins(1,array('d',[minPtBin[i]]),array('d',[maxPtBin[i]]))
         AccxEffReWeight.SetBinning(CostValues,PhiValues)
         AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i],lambdaPhi[i],"FullStat",kTRUE,"iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile)
         del AccxEffReWeight
+        fileDataMC.Close()
         #AccxEffReWeight.ReWeightAccxEff(-0.189948,-0.2228,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)    # 1st iteration
         #AccxEffReWeight.ReWeightAccxEff(-0.20244,-0.262088,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)   # 2nd iteration
         #AccxEffReWeight.ReWeightAccxEff(-0.203284,-0.269251,"FullStat",kTRUE,"iterative_procedure/" + nameOutputFile)  # 3rd iteration
