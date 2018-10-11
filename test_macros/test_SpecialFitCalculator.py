@@ -17,7 +17,10 @@ lambdaPhi = np.zeros((len(namePtRanges), len(nameIdIterations)))
 
 for iterStep in range(len(nameIdIterations)):
     for i in range(len(namePtRanges)):
-        fileNJpsi = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_" + minNamePt[i] + "pt" + maxNamePt[i] + "_test/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root")
+        if os.path.isfile("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root"):
+            fileNJpsi = TFile.Open("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root")  # lxplus
+        else:
+            fileNJpsi = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_" + minNamePt[i] + "pt" + maxNamePt[i] + "_test/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root") # local
         histNJpsiCost = fileNJpsi.Get("histNJpsiCost")
         histNJpsiPhi = fileNJpsi.Get("histNJpsiPhi")
 
