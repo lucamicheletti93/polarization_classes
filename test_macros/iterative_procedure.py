@@ -311,4 +311,41 @@ for i in range(nIterations):
     funcPhi_6pT10[i].Draw("same")
     legendGenPhi.Draw("same")
 
+################################################################################
+lambdaThetaFin = [-0.203346,-0.0211515,0.0694346]
+errLambdaThetaFin = [0.0965229,0.121205,0.150435]
+
+lineZero = TLine(0.,0.,15.,0.)
+lineZero.SetLineStyle(kDashed)
+
+histLambdaThetaFin = TH1D("histLambdaThetaFin","",4,array('d',[0.,2.,4.,6.,10.]))
+for i in range(1,4):
+    histLambdaThetaFin.SetBinContent(i+1,lambdaThetaFin[i-1])
+    histLambdaThetaFin.SetBinError(i+1,errLambdaThetaFin[i-1])
+
+histGridLambdaTheta = TH2D("histGridLambdaTheta","#lambda_{#it{#theta}} vs #it{p}_{T}",100,0,15,100,-0.5,0.5)
+histGridLambdaTheta.GetXaxis().SetTitle("#it{p}_{T} (GeV/#it{c})")
+histGridLambdaTheta.GetYaxis().SetTitle("#lambda_{#it{#theta}}"); histGridLambdaTheta.GetYaxis().SetTitleOffset(1.2);
+canvasLambdaThetaFin = TCanvas("canvasLambdaThetaFin","canvasLambdaThetaFin",20,20,600,600)
+histGridLambdaTheta.Draw()
+lineZero.Draw("same")
+histLambdaThetaFin.Draw("Esame")
+
+lambdaPhiFin = [-0.270491,-0.00887629,-0.0651542]
+errLambdaPhiFin = [0.0483929,0.0541244,0.0678619]
+
+histLambdaPhiFin = TH1D("histLambdaPhiFin","",4,array('d',[0.,2.,4.,6.,10.]))
+for i in range(1,4):
+    histLambdaPhiFin.SetBinContent(i+1,lambdaPhiFin[i-1])
+    histLambdaPhiFin.SetBinError(i+1,errLambdaPhiFin[i-1])
+
+histGridLambdaPhi = TH2D("histGridLambdaPhi","#lambda_{#it{#varphi}} vs #it{p}_{T}",100,0,15,100,-0.5,0.5)
+histGridLambdaPhi.GetXaxis().SetTitle("#it{p}_{T} (GeV/#it{c})")
+histGridLambdaPhi.GetYaxis().SetTitle("#lambda_{#it{#varphi}}"); histGridLambdaPhi.GetYaxis().SetTitleOffset(1.2);
+canvasLambdaPhiFin = TCanvas("canvasLambdaPhiFin","canvasLambdaPhiFin",20,20,600,600)
+histGridLambdaPhi.Draw()
+lineZero.Draw("same")
+histLambdaPhiFin.Draw("Esame")
+
+
 raw_input()
