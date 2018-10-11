@@ -63,7 +63,7 @@ for iterStep in range(len(nameIdIterations)):
     for i in range(len(namePtRanges)):
         if os.path.isfile("iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root"):
             print "--> " + "AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root" + " has already produced"
-            print "if you want to reproduce it delete " + "/AccxEffReWeighted" + nameIdIterations[i] + "Step.root" + " and re-run"
+            print "if you want to reproduce it delete " + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root" + " and re-run"
         else:
             print "--> iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root" + " does not exist"
             if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root"):
@@ -74,7 +74,7 @@ for iterStep in range(len(nameIdIterations)):
             AccxEffReWeight = AccxEffCalculator(treeDataMC)
             AccxEffReWeight.SetPtBins(1,array('d',[minPtBin[i]]),array('d',[maxPtBin[i]]))
             AccxEffReWeight.SetBinning(CostValues,PhiValues)
-            AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i, iterStep],lambdaPhi[i, iterStep],"FullStat",kTRUE,"iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[i] + "Step.root")
+            AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i, iterStep],lambdaPhi[i, iterStep],"FullStat",kTRUE,"iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root")
             del AccxEffReWeight
             fileDataMC.Close
 
