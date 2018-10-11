@@ -26,6 +26,10 @@ maxNamePt = ['4','6','10']
 minPtBin = [2.,4.,6.]
 maxPtBin = [4.,6.,10.]
 
+for i in range(len(namePtRanges)):
+    if not os.path.exists('iterative_procedure/' + namePtRanges[i]):
+        os.makedirs('iterative_procedure/' + namePtRanges[i])
+
 lambdaTheta = np.zeros((len(namePtRanges), len(nameIdIterations)))
 lambdaPhi = np.zeros((len(namePtRanges), len(nameIdIterations)))
 
