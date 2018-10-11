@@ -8,7 +8,7 @@ gStyle.SetPaintTextFormat("0.2g");
 gROOT.ProcessLineSync(".x ../SpecialFitCalculator.cxx+")
 
 namePtRanges = ['2pT4','4pT6','6pT10']
-nameIdIterations = ['1st','2nd','3rd']
+nameIdIterations = ['0th','1st','2nd','3rd']
 minNamePt = ['2','4','6']
 maxNamePt = ['4','6','10']
 
@@ -24,10 +24,16 @@ for iterStep in range(len(nameIdIterations)):
         histNJpsiCost = fileNJpsi.Get("histNJpsiCost")
         histNJpsiPhi = fileNJpsi.Get("histNJpsiPhi")
 
-        print "iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root"
-        fileAccxEff = TFile.Open("iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root")
-        histAccxEffCost = fileAccxEff.Get("histAccxEffCostReWeighted_" + namePtRanges[i])
-        histAccxEffPhi = fileAccxEff.Get("histAccxEffPhiReWeighted_" + namePtRanges[i])
+        if iterStep == 0:
+            print "output/AccxEffFullStat.root"
+            fileAccxEff = TFile.Open("output/AccxEffFullStat.root","READ")
+            histAccxEffCost = fileAccxEff.Get("histAccxEffCost_" + namePtRanges[i])
+            histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_" + namePtRanges[i])
+        else:
+            print "iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root"
+            fileAccxEff = TFile.Open("iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root")
+            histAccxEffCost = fileAccxEff.Get("histAccxEffCostReWeighted_" + namePtRanges[i])
+            histAccxEffPhi = fileAccxEff.Get("histAccxEffPhiReWeighted_" + namePtRanges[i])
 
         SimFit = SpecialFitCalculator()
         SimFit.SimultaneousFit(histNJpsiCost,histNJpsiPhi,histAccxEffCost,histAccxEffPhi)
