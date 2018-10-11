@@ -9,6 +9,15 @@ gROOT.ProcessLineSync(".x ../Binning.cxx+")
 gROOT.ProcessLineSync(".x ../AccxEffCalculator.cxx+")
 gROOT.ProcessLineSync(".x ../SpecialFitCalculator.cxx+")
 
+# Setting main quantities
+PI = math.pi
+fileBinning = TFile.Open("output/binning.root")
+binning = fileBinning.Get("Binning")
+CostValues = binning.GetCostValues()
+CostWidth = binning.GetCostWidth()
+PhiValues = binning.GetPhiValues()
+PhiWidth = binning.GetPhiWidth()
+
 namePtRanges = ['2pT4','4pT6','6pT10']
 nameIdIterations = ['0th','1st','2nd','3rd']
 minNamePt = ['2','4','6']
