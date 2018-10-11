@@ -5,6 +5,8 @@ import numpy as np
 
 gStyle.SetOptStat(0)
 gStyle.SetPaintTextFormat("0.2g");
+gROOT.ProcessLineSync(".x ../Binning.cxx+")
+gROOT.ProcessLineSync(".x ../AccxEffCalculator.cxx+")
 gROOT.ProcessLineSync(".x ../SpecialFitCalculator.cxx+")
 
 namePtRanges = ['2pT4','4pT6','6pT10']
