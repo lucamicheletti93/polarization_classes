@@ -227,7 +227,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t LambdaTheta,Double_t LambdaPhi,
   int nEvents = 0;
 
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
-  if(strSample == "TestStat"){nEvents = 1000000;}
+  if(strSample == "TestStat"){nEvents = 100000;}
   printf("N events = %i \n",nEvents);
 
   double weightCosTheta = 0;

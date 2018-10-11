@@ -30,42 +30,40 @@ for i in range(len(namePtRanges)):
     if not os.path.exists('iterative_procedure/' + namePtRanges[i]):
         os.makedirs('iterative_procedure/' + namePtRanges[i])
 
-lambdaTheta = np.zeros((len(namePtRanges), len(nameIdIterations)))
-lambdaPhi = np.zeros((len(namePtRanges), len(nameIdIterations)))
+lambdaTheta = np.zeros((len(namePtRanges), len(nameIdIterations)+1))
+lambdaPhi = np.zeros((len(namePtRanges), len(nameIdIterations)+1))
+
+print "... Performing simultaneous fit (zero tep) ... "
+for i in range(len(namePtRanges)):
+    if os.path.isfile("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root"):
+        fileNJpsi = TFile.Open("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root")  # lxplus
+    else:
+        fileNJpsi = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_" + minNamePt[i] + "pt" + maxNamePt[i] + "_test/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root") # local
+    histNJpsiCost = fileNJpsi.Get("histNJpsiCost")
+    histNJpsiPhi = fileNJpsi.Get("histNJpsiPhi")
+
+    print "output/AccxEffFullStat.root"
+    fileAccxEff = TFile.Open("output/AccxEffFullStat.root","READ")
+    histAccxEffCost = fileAccxEff.Get("histAccxEffCost_" + namePtRanges[i])
+    histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_" + namePtRanges[i])
+
+    SimFit = SpecialFitCalculator()
+    SimFit.SimultaneousFit(histNJpsiCost,histNJpsiPhi,histAccxEffCost,histAccxEffPhi)
+    lambdaTheta[i, 0] = SimFit.GetLambdaTheta()
+    lambdaPhi[i, 0] = SimFit.GetLambdaPhi()
+    fileNJpsi.Close()
+    fileAccxEff.Close()
 
 for iterStep in range(len(nameIdIterations)):
-    for i in range(len(namePtRanges)):
-        if os.path.isfile("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root"):
-            fileNJpsi = TFile.Open("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root")  # lxplus
-        else:
-            fileNJpsi = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_" + minNamePt[i] + "pt" + maxNamePt[i] + "_test/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root") # local
-        histNJpsiCost = fileNJpsi.Get("histNJpsiCost")
-        histNJpsiPhi = fileNJpsi.Get("histNJpsiPhi")
-
-        if iterStep == 0:
-            print "output/AccxEffFullStat.root"
-            fileAccxEff = TFile.Open("output/AccxEffFullStat.root","READ")
-            histAccxEffCost = fileAccxEff.Get("histAccxEffCost_" + namePtRanges[i])
-            histAccxEffPhi = fileAccxEff.Get("histAccxEffPhi_" + namePtRanges[i])
-        else:
-            print "iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root"
-            fileAccxEff = TFile.Open("iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root")
-            histAccxEffCost = fileAccxEff.Get("histAccxEffCostReWeighted_" + namePtRanges[i])
-            histAccxEffPhi = fileAccxEff.Get("histAccxEffPhiReWeighted_" + namePtRanges[i])
-
-        SimFit = SpecialFitCalculator()
-        SimFit.SimultaneousFit(histNJpsiCost,histNJpsiPhi,histAccxEffCost,histAccxEffPhi)
-        lambdaTheta[i, iterStep] = SimFit.GetLambdaTheta()
-        lambdaPhi[i, iterStep] = SimFit.GetLambdaPhi()
-        fileNJpsi.Close()
-        fileAccxEff.Close()
-
+    print "... Generating reweighted data sample ... "
     for i in range(len(namePtRanges)):
         if os.path.isfile("iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root"):
             print "--> " + "AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root" + " has already produced"
             print "if you want to reproduce it delete " + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root" + " and re-run"
         else:
             print "--> iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root" + " does not exist"
+            print "LambdaTheta = " + str(lambdaTheta[i, iterStep])
+            print "LambdaPhi = " + str(lambdaPhi[i, iterStep])
             if os.path.isfile("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root"):
                 fileDataMC = TFile.Open("/afs/cern.ch/user/l/lmichele/CERNBox/JPSI/JPSI_POLARIZATION/JIRA_TICKET/READ_MC/OUTPUT/MC_official_tree_Jpsi_PbPb_Nopol.root")  # lxplus
             else:
@@ -77,5 +75,26 @@ for iterStep in range(len(nameIdIterations)):
             AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i, iterStep],lambdaPhi[i, iterStep],"FullStat",kTRUE,"iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root")
             del AccxEffReWeight
             fileDataMC.Close
+
+    print "... Performing simultaneous fit ... "
+    for i in range(len(namePtRanges)):
+        if os.path.isfile("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root"):
+            fileNJpsi = TFile.Open("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root")  # lxplus
+        else:
+            fileNJpsi = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_" + minNamePt[i] + "pt" + maxNamePt[i] + "_test/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root") # local
+        histNJpsiCost = fileNJpsi.Get("histNJpsiCost")
+        histNJpsiPhi = fileNJpsi.Get("histNJpsiPhi")
+
+        print "iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root"
+        fileAccxEff = TFile.Open("iterative_procedure/" + namePtRanges[i] + "/AccxEffReWeighted" + nameIdIterations[iterStep] + "Step.root")
+        histAccxEffCost = fileAccxEff.Get("histAccxEffCostReWeighted_" + namePtRanges[i])
+        histAccxEffPhi = fileAccxEff.Get("histAccxEffPhiReWeighted_" + namePtRanges[i])
+
+        SimFit = SpecialFitCalculator()
+        SimFit.SimultaneousFit(histNJpsiCost,histNJpsiPhi,histAccxEffCost,histAccxEffPhi)
+        lambdaTheta[i, iterStep+1] = SimFit.GetLambdaTheta()
+        lambdaPhi[i, iterStep+1] = SimFit.GetLambdaPhi()
+        fileNJpsi.Close()
+        fileAccxEff.Close()
 
 raw_input()
