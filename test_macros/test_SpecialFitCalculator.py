@@ -20,7 +20,7 @@ PhiValues = binning.GetPhiValues()
 PhiWidth = binning.GetPhiWidth()
 
 namePtRanges = ['2pT4','4pT6','6pT10']
-nameIdIterations = ['0th','1st','2nd','3rd']
+nameIdIterations = ['1st','2nd','3rd']
 minNamePt = ['2','4','6']
 maxNamePt = ['4','6','10']
 minPtBin = [2.,4.,6.]
