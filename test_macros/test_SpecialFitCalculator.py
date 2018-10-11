@@ -13,6 +13,8 @@ namePtRanges = ['2pT4','4pT6','6pT10']
 nameIdIterations = ['0th','1st','2nd','3rd']
 minNamePt = ['2','4','6']
 maxNamePt = ['4','6','10']
+minPtBin = [2.,4.,6.]
+maxPtBin = [4.,6.,10.]
 
 lambdaTheta = np.zeros((len(namePtRanges), len(nameIdIterations)))
 lambdaPhi = np.zeros((len(namePtRanges), len(nameIdIterations)))
