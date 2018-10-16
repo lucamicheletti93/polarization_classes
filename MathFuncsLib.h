@@ -12,6 +12,7 @@ namespace MathFuncs
     class MyMathFuncs
     {
     public:
+        static double MyFuncPol(double *x, double *par);
         static double MyFuncPolCosTheta(double *x, double *par);
         static double MyFuncPolPhi(double *x, double *par);
     };

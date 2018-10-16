@@ -129,7 +129,7 @@ for i in range(len(namePtRanges)):
         AccxEffReWeight = AccxEffCalculator(treeDataMC)
         AccxEffReWeight.SetPtBins(1,array('d',[minPtBin[i]]),array('d',[maxPtBin[i]]))
         AccxEffReWeight.SetBinning(CostValues,PhiValues)
-        AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i],lambdaPhi[i],"FullStat",kTRUE,"iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile)
+        #AccxEffReWeight.ReWeightAccxEff(lambdaTheta[i],lambdaPhi[i],"FullStat",kTRUE,"iterative_procedure/" + namePtRanges[i] + "/" + nameOutputFile)
         del AccxEffReWeight
         fileDataMC.Close()
 
@@ -312,16 +312,100 @@ for i in range(nIterations):
     legendGenPhi.Draw("same")
 
 ################################################################################
+# Results from the 2D approach
+lambdaTheta2DSigmaFixedRange1 = [0.090071,0.042878,-0.187015]
+errLambdaTheta2DSigmaFixedRange1 = [0.109741,0.120239,0.148915]
+lambdaPhi2DSigmaFixedRange1 = [0.034499,0.002710,-0.023982]
+errLambdaPhi2DSigmaFixedRange1 = [0.027053,0.030219,0.037875]
+lambdaThetaPhi2DSigmaFixedRange1 = [-0.144842,-0.060507,-0.029900]
+errLambdaThetaPhi2DSigmaFixedRange1 = [0.045375,0.051753,0.056858]
+
+lambdaTheta2DSigmaFreeRange1 = [-0.012614,0.116041,-0.364637]
+errLambdaTheta2DSigmaFreeRange1 = [0.144894,0.174576,0.159683]
+lambdaPhi2DSigmaFreeRange1 = [-0.105262,-0.013791,-0.020319]
+errLambdaPhi2DSigmaFreeRange1 = [0.038864,0.038414,0.042074]
+lambdaThetaPhi2DSigmaFreeRange1 = [-0.393252,-0.090899,-0.023839]
+errLambdaThetaPhi2DSigmaFreeRange1 = [0.059848,0.064584,0.063189]
+#==============================
+
+lambdaTheta2DSigmaFixedRange2 = [0.151902,0.114259,-0.211925]
+errLambdaTheta2DSigmaFixedRange2 = [0.086331,0.098645,0.118930]
+lambdaPhi2DSigmaFixedRange2 = [0.029227,0.009894,-0.020011]
+errLambdaPhi2DSigmaFixedRange2 = [0.024582,0.029836,0.039160]
+lambdaThetaPhi2DSigmaFixedRange2 = [-0.116712,-0.084138,-0.038373]
+errLambdaThetaPhi2DSigmaFixedRange2 = [0.041448,0.045351,0.054891]
+
+lambdaTheta2DSigmaFreeRange2 = [-0.228718,-0.018856,-0.355285]
+errLambdaTheta2DSigmaFreeRange2 = [0.113497,0.122214,0.123781]
+lambdaPhi2DSigmaFreeRange2 = [-0.130421,-0.005728,-0.015552]
+errLambdaPhi2DSigmaFreeRange2 = [0.037736,0.037244,0.041935]
+lambdaThetaPhi2DSigmaFreeRange2 = [-0.328887,-0.101709,-0.016528]
+errLambdaThetaPhi2DSigmaFreeRange2 = [0.053661,0.057556,0.058968]
+#===============================
+
+lambdaTheta2DSigmaFixedRange3 = [-1.475312,0.112109,-0.102163]
+errLambdaTheta2DSigmaFixedRange3 = [0.028088,0.091883,0.104001]
+lambdaPhi2DSigmaFixedRange3 = [0.075501,0.009568,-0.021483]
+errLambdaPhi2DSigmaFixedRange3 = [0.020608,0.029891,0.037627]
+lambdaThetaPhi2DSigmaFixedRange3 = [-0.240544,-0.081499,-0.081782]
+errLambdaThetaPhi2DSigmaFixedRange3 = [0.036157,0.044702,0.051858]
+
+lambdaTheta2DSigmaFreeRange3 = [-0.342158,-0.136331,-0.407555]
+errLambdaTheta2DSigmaFreeRange3 = [0.098063,0.102047,0.101571]
+lambdaPhi2DSigmaFreeRange3 = [-0.117459,-0.004814,-0.023401]
+errLambdaPhi2DSigmaFreeRange3 = [0.036713,0.036359,0.039777]
+lambdaThetaPhi2DSigmaFreeRange3 = [-0.331377,-0.078762,-0.070618]
+errLambdaThetaPhi2DSigmaFreeRange3 = [0.052152,0.055155,0.055898]
+
+filePolarization2D = TFile.Open("/home/luca/GITHUB/polarization_classes/test_macros/output/PolarizationParameters2D.root")
+histLambdaTheta2DSigmaFixed1 = filePolarization2D.Get("histLambdaThetaSigmaFixed1"); histLambdaTheta2DSigmaFixed1.SetDirectory(0);
+histLambdaTheta2DSigmaFixed2 = filePolarization2D.Get("histLambdaThetaSigmaFixed2"); histLambdaTheta2DSigmaFixed2.SetDirectory(0);
+histLambdaTheta2DSigmaFixed3 = filePolarization2D.Get("histLambdaThetaSigmaFixed3"); histLambdaTheta2DSigmaFixed3.SetDirectory(0);
+histLambdaTheta2DSigmaFree1 = filePolarization2D.Get("histLambdaThetaSigmaFree1"); histLambdaTheta2DSigmaFree1.SetDirectory(0);
+histLambdaTheta2DSigmaFree2 = filePolarization2D.Get("histLambdaThetaSigmaFree2"); histLambdaTheta2DSigmaFree2.SetDirectory(0);
+histLambdaTheta2DSigmaFree3 = filePolarization2D.Get("histLambdaThetaSigmaFree3"); histLambdaTheta2DSigmaFree3.SetDirectory(0);
+histLambdaPhi2DSigmaFixed1 = filePolarization2D.Get("histLambdaPhiSigmaFixed1"); histLambdaPhi2DSigmaFixed1.SetDirectory(0);
+histLambdaPhi2DSigmaFixed2 = filePolarization2D.Get("histLambdaPhiSigmaFixed2"); histLambdaPhi2DSigmaFixed2.SetDirectory(0);
+histLambdaPhi2DSigmaFixed3 = filePolarization2D.Get("histLambdaPhiSigmaFixed3"); histLambdaPhi2DSigmaFixed3.SetDirectory(0);
+histLambdaPhi2DSigmaFree1 = filePolarization2D.Get("histLambdaPhiSigmaFree1"); histLambdaPhi2DSigmaFree1.SetDirectory(0);
+histLambdaPhi2DSigmaFree2 = filePolarization2D.Get("histLambdaPhiSigmaFree2"); histLambdaPhi2DSigmaFree2.SetDirectory(0);
+histLambdaPhi2DSigmaFree3 = filePolarization2D.Get("histLambdaPhiSigmaFree3"); histLambdaPhi2DSigmaFree3.SetDirectory(0);
+histLambdaThetaPhi2DSigmaFixed1 = filePolarization2D.Get("histLambdaThetaPhiSigmaFixed1"); histLambdaThetaPhi2DSigmaFixed1.SetDirectory(0);
+histLambdaThetaPhi2DSigmaFixed2 = filePolarization2D.Get("histLambdaThetaPhiSigmaFixed2"); histLambdaThetaPhi2DSigmaFixed2.SetDirectory(0);
+histLambdaThetaPhi2DSigmaFixed3 = filePolarization2D.Get("histLambdaThetaPhiSigmaFixed3"); histLambdaThetaPhi2DSigmaFixed3.SetDirectory(0);
+histLambdaThetaPhi2DSigmaFree1 = filePolarization2D.Get("histLambdaThetaPhiSigmaFree1"); histLambdaThetaPhi2DSigmaFree1.SetDirectory(0);
+histLambdaThetaPhi2DSigmaFree2 = filePolarization2D.Get("histLambdaThetaPhiSigmaFree2"); histLambdaThetaPhi2DSigmaFree2.SetDirectory(0);
+histLambdaThetaPhi2DSigmaFree3 = filePolarization2D.Get("histLambdaThetaPhiSigmaFree3"); histLambdaThetaPhi2DSigmaFree3.SetDirectory(0);
+
+histProjCosThetaLambdaThetaSigmaFixed1 = filePolarization2D.Get("histProjCosThetaLambdaThetaSigmaFixed1"); histProjCosThetaLambdaThetaSigmaFixed1.SetDirectory(0);
+histProjCosThetaLambdaThetaSigmaFixed2 = filePolarization2D.Get("histProjCosThetaLambdaThetaSigmaFixed2"); histProjCosThetaLambdaThetaSigmaFixed2.SetDirectory(0);
+histProjCosThetaLambdaThetaSigmaFixed3 = filePolarization2D.Get("histProjCosThetaLambdaThetaSigmaFixed3"); histProjCosThetaLambdaThetaSigmaFixed3.SetDirectory(0);
+histProjCosThetaLambdaThetaSigmaFree1 = filePolarization2D.Get("histProjCosThetaLambdaThetaSigmaFree1"); histProjCosThetaLambdaThetaSigmaFree1.SetDirectory(0);
+histProjCosThetaLambdaThetaSigmaFree2 = filePolarization2D.Get("histProjCosThetaLambdaThetaSigmaFree2"); histProjCosThetaLambdaThetaSigmaFree2.SetDirectory(0);
+histProjCosThetaLambdaThetaSigmaFree3 = filePolarization2D.Get("histProjCosThetaLambdaThetaSigmaFree3"); histProjCosThetaLambdaThetaSigmaFree3.SetDirectory(0);
+filePolarization2D.Close()
+
+################################################################################
 lambdaThetaFin = [-0.203346,-0.0211515,0.0694346]
 errLambdaThetaFin = [0.0965229,0.121205,0.150435]
 
-lineZero = TLine(0.,0.,15.,0.)
-lineZero.SetLineStyle(kDashed)
+lineZero = TLine(0.,0.,15.,0.); lineZero.SetLineStyle(kDashed);
 
-histLambdaThetaFin = TH1D("histLambdaThetaFin","",4,array('d',[0.,2.,4.,6.,10.]))
+histLambdaThetaFin = TH1D("histLambdaThetaFin","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaThetaFin.SetLineColor(kBlack); histLambdaThetaFin.SetLineWidth(2);
+histLambdaTheta2DSigmaFixedRange1 = TH1D("histLambdaTheta2DSigmaFixedRange1","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaTheta2DSigmaFixedRange1.SetLineColor(kRed);
+histLambdaTheta2DSigmaFixedRange2 = TH1D("histLambdaTheta2DSigmaFixedRange2","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaTheta2DSigmaFixedRange2.SetLineColor(kGreen);
+histLambdaTheta2DSigmaFixedRange3 = TH1D("histLambdaTheta2DSigmaFixedRange3","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaTheta2DSigmaFixedRange3.SetLineColor(kMagenta);
+histLambdaTheta2DSigmaFreeRange1 = TH1D("histLambdaTheta2DSigmaFreeRange1","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaTheta2DSigmaFreeRange1.SetLineColor(kRed+2);
+histLambdaTheta2DSigmaFreeRange2 = TH1D("histLambdaTheta2DSigmaFreeRange2","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaTheta2DSigmaFreeRange2.SetLineColor(kGreen+2);
+histLambdaTheta2DSigmaFreeRange3 = TH1D("histLambdaTheta2DSigmaFreeRange3","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaTheta2DSigmaFreeRange3.SetLineColor(kMagenta+2);
 for i in range(1,4):
-    histLambdaThetaFin.SetBinContent(i+1,lambdaThetaFin[i-1])
-    histLambdaThetaFin.SetBinError(i+1,errLambdaThetaFin[i-1])
+    histLambdaThetaFin.SetBinContent(i+1,lambdaThetaFin[i-1]); histLambdaThetaFin.SetBinError(i+1,errLambdaThetaFin[i-1]);
+    histLambdaTheta2DSigmaFixedRange1.SetBinContent(i+1,lambdaTheta2DSigmaFixedRange1[i-1]); histLambdaTheta2DSigmaFixedRange1.SetBinError(i+1,errLambdaTheta2DSigmaFixedRange1[i-1]);
+    histLambdaTheta2DSigmaFixedRange2.SetBinContent(i+1,lambdaTheta2DSigmaFixedRange2[i-1]); histLambdaTheta2DSigmaFixedRange2.SetBinError(i+1,errLambdaTheta2DSigmaFixedRange2[i-1]);
+    histLambdaTheta2DSigmaFixedRange3.SetBinContent(i+1,lambdaTheta2DSigmaFixedRange3[i-1]); histLambdaTheta2DSigmaFixedRange3.SetBinError(i+1,errLambdaTheta2DSigmaFixedRange3[i-1]);
+    histLambdaTheta2DSigmaFreeRange1.SetBinContent(i+1,lambdaTheta2DSigmaFreeRange1[i-1]); histLambdaTheta2DSigmaFreeRange1.SetBinError(i+1,errLambdaTheta2DSigmaFreeRange1[i-1]);
+    histLambdaTheta2DSigmaFreeRange2.SetBinContent(i+1,lambdaTheta2DSigmaFreeRange2[i-1]); histLambdaTheta2DSigmaFreeRange2.SetBinError(i+1,errLambdaTheta2DSigmaFreeRange2[i-1]);
+    histLambdaTheta2DSigmaFreeRange3.SetBinContent(i+1,lambdaTheta2DSigmaFreeRange3[i-1]); histLambdaTheta2DSigmaFreeRange3.SetBinError(i+1,errLambdaTheta2DSigmaFreeRange3[i-1]);
 
 histGridLambdaTheta = TH2D("histGridLambdaTheta","#lambda_{#it{#theta}} vs #it{p}_{T}",100,0,15,100,-0.5,0.5)
 histGridLambdaTheta.GetXaxis().SetTitle("#it{p}_{T} (GeV/#it{c})")
@@ -330,14 +414,46 @@ canvasLambdaThetaFin = TCanvas("canvasLambdaThetaFin","canvasLambdaThetaFin",20,
 histGridLambdaTheta.Draw()
 lineZero.Draw("same")
 histLambdaThetaFin.Draw("Esame")
+histLambdaTheta2DSigmaFixed2.Draw("Esame")
+histLambdaTheta2DSigmaFree2.Draw("Esame")
+histProjCosThetaLambdaThetaSigmaFixed2.Draw("Esame")
+histProjCosThetaLambdaThetaSigmaFree2.Draw("Esame")
+#histLambdaTheta2DSigmaFixedRange1.Draw("Esame")
+#histLambdaTheta2DSigmaFixedRange2.Draw("Esame")
+#histLambdaTheta2DSigmaFixedRange3.Draw("Esame")
+#histLambdaTheta2DSigmaFreeRange1.Draw("Esame")
+#histLambdaTheta2DSigmaFreeRange2.Draw("Esame")
+#histLambdaTheta2DSigmaFreeRange3.Draw("Esame")
+legendLambdaTheta = TLegend(0.6,0.7,0.9,0.9)
+legendLambdaTheta.SetTextSize(0.04)
+legendLambdaTheta.AddEntry(histLambdaThetaFin,"#lambda_{#theta}^{1D}","l")
+#legendLambdaTheta.AddEntry(histLambdaTheta2DSigmaFixedRange2,"#lambda_{#theta}^{2D} #sigma_{J/#psi}^{Fixed}","l")
+#legendLambdaTheta.AddEntry(histLambdaTheta2DSigmaFreeRange2,"#lambda_{#theta}^{2D} #sigma_{J/#psi}^{Free}","l")
+legendLambdaTheta.AddEntry(histLambdaTheta2DSigmaFixed2,"#lambda_{#theta}^{2D} #sigma_{J/#psi}^{Fixed}","lp")
+legendLambdaTheta.AddEntry(histLambdaTheta2DSigmaFree2,"#lambda_{#theta}^{2D} #sigma_{J/#psi}^{Free}","lp")
+legendLambdaTheta.AddEntry(histProjCosThetaLambdaThetaSigmaFixed2,"#lambda_{#theta}^{2D projection} #sigma_{J/#psi}^{Fixed}","lp")
+legendLambdaTheta.AddEntry(histProjCosThetaLambdaThetaSigmaFree2,"#lambda_{#theta}^{2D projection} #sigma_{J/#psi}^{Free}","lp")
+legendLambdaTheta.Draw("same")
 
 lambdaPhiFin = [-0.270491,-0.00887629,-0.0651542]
 errLambdaPhiFin = [0.0483929,0.0541244,0.0678619]
 
-histLambdaPhiFin = TH1D("histLambdaPhiFin","",4,array('d',[0.,2.,4.,6.,10.]))
+histLambdaPhiFin = TH1D("histLambdaPhiFin","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaPhiFin.SetLineColor(kBlack); histLambdaPhiFin.SetLineWidth(2);
+histLambdaPhi2DSigmaFixedRange1 = TH1D("histLambdaPhi2DSigmaFixedRange1","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaPhi2DSigmaFixedRange1.SetLineColor(kRed);
+histLambdaPhi2DSigmaFixedRange2 = TH1D("histLambdaPhi2DSigmaFixedRange2","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaPhi2DSigmaFixedRange2.SetLineColor(kGreen);
+histLambdaPhi2DSigmaFixedRange3 = TH1D("histLambdaPhi2DSigmaFixedRange3","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaPhi2DSigmaFixedRange3.SetLineColor(kMagenta);
+histLambdaPhi2DSigmaFreeRange1 = TH1D("histLambdaPhi2DSigmaFreeRange1","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaPhi2DSigmaFreeRange1.SetLineColor(kRed+2);
+histLambdaPhi2DSigmaFreeRange2 = TH1D("histLambdaPhi2DSigmaFreeRange2","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaPhi2DSigmaFreeRange2.SetLineColor(kGreen+2);
+histLambdaPhi2DSigmaFreeRange3 = TH1D("histLambdaPhi2DSigmaFreeRange3","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaPhi2DSigmaFreeRange3.SetLineColor(kMagenta+2);
 for i in range(1,4):
     histLambdaPhiFin.SetBinContent(i+1,lambdaPhiFin[i-1])
     histLambdaPhiFin.SetBinError(i+1,errLambdaPhiFin[i-1])
+    histLambdaPhi2DSigmaFixedRange1.SetBinContent(i+1,lambdaPhi2DSigmaFixedRange1[i-1]); histLambdaPhi2DSigmaFixedRange1.SetBinError(i+1,errLambdaPhi2DSigmaFixedRange1[i-1]);
+    histLambdaPhi2DSigmaFixedRange2.SetBinContent(i+1,lambdaPhi2DSigmaFixedRange2[i-1]); histLambdaPhi2DSigmaFixedRange2.SetBinError(i+1,errLambdaPhi2DSigmaFixedRange2[i-1]);
+    histLambdaPhi2DSigmaFixedRange3.SetBinContent(i+1,lambdaPhi2DSigmaFixedRange3[i-1]); histLambdaPhi2DSigmaFixedRange3.SetBinError(i+1,errLambdaPhi2DSigmaFixedRange3[i-1]);
+    histLambdaPhi2DSigmaFreeRange1.SetBinContent(i+1,lambdaPhi2DSigmaFreeRange1[i-1]); histLambdaPhi2DSigmaFreeRange1.SetBinError(i+1,errLambdaPhi2DSigmaFreeRange1[i-1]);
+    histLambdaPhi2DSigmaFreeRange2.SetBinContent(i+1,lambdaPhi2DSigmaFreeRange2[i-1]); histLambdaPhi2DSigmaFreeRange2.SetBinError(i+1,errLambdaPhi2DSigmaFreeRange2[i-1]);
+    histLambdaPhi2DSigmaFreeRange3.SetBinContent(i+1,lambdaPhi2DSigmaFreeRange3[i-1]); histLambdaPhi2DSigmaFreeRange3.SetBinError(i+1,errLambdaPhi2DSigmaFreeRange3[i-1]);
 
 histGridLambdaPhi = TH2D("histGridLambdaPhi","#lambda_{#it{#varphi}} vs #it{p}_{T}",100,0,15,100,-0.5,0.5)
 histGridLambdaPhi.GetXaxis().SetTitle("#it{p}_{T} (GeV/#it{c})")
@@ -346,6 +462,58 @@ canvasLambdaPhiFin = TCanvas("canvasLambdaPhiFin","canvasLambdaPhiFin",20,20,600
 histGridLambdaPhi.Draw()
 lineZero.Draw("same")
 histLambdaPhiFin.Draw("Esame")
+histLambdaPhi2DSigmaFixed2.Draw("Esame")
+histLambdaPhi2DSigmaFree2.Draw("Esame")
+#histLambdaPhi2DSigmaFixedRange1.Draw("Esame")
+#histLambdaPhi2DSigmaFixedRange2.Draw("Esame")
+#histLambdaPhi2DSigmaFixedRange3.Draw("Esame")
+#histLambdaPhi2DSigmaFreeRange1.Draw("Esame")
+#histLambdaPhi2DSigmaFreeRange2.Draw("Esame")
+#histLambdaPhi2DSigmaFreeRange3.Draw("Esame")
+legendLambdaPhi = TLegend(0.6,0.7,0.9,0.9)
+legendLambdaPhi.SetTextSize(0.04)
+legendLambdaPhi.AddEntry(histLambdaPhiFin,"#lambda_{#phi}^{1D}","l")
+#legendLambdaPhi.AddEntry(histLambdaPhi2DSigmaFixedRange2,"#lambda_{#phi}^{2D} #sigma_{J/#psi}^{Fixed}","l")
+#legendLambdaPhi.AddEntry(histLambdaPhi2DSigmaFreeRange2,"#lambda_{#phi}^{2D} #sigma_{J/#psi}^{Free}","l")
+legendLambdaPhi.AddEntry(histLambdaTheta2DSigmaFixed2,"#lambda_{#theta}^{2D} #sigma_{J/#psi}^{Fixed}","lp")
+legendLambdaPhi.AddEntry(histLambdaTheta2DSigmaFree2,"#lambda_{#theta}^{2D} #sigma_{J/#psi}^{Free}","lp")
+legendLambdaPhi.Draw("same")
 
+
+histLambdaThetaPhi2DSigmaFixedRange1 = TH1D("histLambdaThetaPhi2DSigmaFixedRange1","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaThetaPhi2DSigmaFixedRange1.SetLineColor(kRed);
+histLambdaThetaPhi2DSigmaFixedRange2 = TH1D("histLambdaThetaPhi2DSigmaFixedRange2","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaThetaPhi2DSigmaFixedRange2.SetLineColor(kGreen);
+histLambdaThetaPhi2DSigmaFixedRange3 = TH1D("histLambdaThetaPhi2DSigmaFixedRange3","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaThetaPhi2DSigmaFixedRange3.SetLineColor(kMagenta);
+histLambdaThetaPhi2DSigmaFreeRange1 = TH1D("histLambdaThetaPhi2DSigmaFreeRange1","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaThetaPhi2DSigmaFreeRange1.SetLineColor(kRed+2);
+histLambdaThetaPhi2DSigmaFreeRange2 = TH1D("histLambdaThetaPhi2DSigmaFreeRange2","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaThetaPhi2DSigmaFreeRange2.SetLineColor(kGreen+2);
+histLambdaThetaPhi2DSigmaFreeRange3 = TH1D("histLambdaThetaPhi2DSigmaFreeRange3","",4,array('d',[0.,2.,4.,6.,10.])); histLambdaThetaPhi2DSigmaFreeRange3.SetLineColor(kMagenta+2);
+for i in range(1,4):
+    histLambdaThetaPhi2DSigmaFixedRange1.SetBinContent(i+1,lambdaThetaPhi2DSigmaFixedRange1[i-1]); histLambdaThetaPhi2DSigmaFixedRange1.SetBinError(i+1,errLambdaThetaPhi2DSigmaFixedRange1[i-1]);
+    histLambdaThetaPhi2DSigmaFixedRange2.SetBinContent(i+1,lambdaThetaPhi2DSigmaFixedRange2[i-1]); histLambdaThetaPhi2DSigmaFixedRange2.SetBinError(i+1,errLambdaThetaPhi2DSigmaFixedRange2[i-1]);
+    histLambdaThetaPhi2DSigmaFixedRange3.SetBinContent(i+1,lambdaThetaPhi2DSigmaFixedRange3[i-1]); histLambdaThetaPhi2DSigmaFixedRange3.SetBinError(i+1,errLambdaThetaPhi2DSigmaFixedRange3[i-1]);
+    histLambdaThetaPhi2DSigmaFreeRange1.SetBinContent(i+1,lambdaThetaPhi2DSigmaFreeRange1[i-1]); histLambdaThetaPhi2DSigmaFreeRange1.SetBinError(i+1,errLambdaThetaPhi2DSigmaFreeRange1[i-1]);
+    histLambdaThetaPhi2DSigmaFreeRange2.SetBinContent(i+1,lambdaThetaPhi2DSigmaFreeRange2[i-1]); histLambdaThetaPhi2DSigmaFreeRange2.SetBinError(i+1,errLambdaThetaPhi2DSigmaFreeRange2[i-1]);
+    histLambdaThetaPhi2DSigmaFreeRange3.SetBinContent(i+1,lambdaThetaPhi2DSigmaFreeRange3[i-1]); histLambdaThetaPhi2DSigmaFreeRange3.SetBinError(i+1,errLambdaThetaPhi2DSigmaFreeRange3[i-1]);
+
+histGridLambdaThetaPhi = TH2D("histGridLambdaThetaPhi","#lambda_{#it{#theta#varphi}} vs #it{p}_{T}",100,0,15,100,-0.5,0.5)
+histGridLambdaThetaPhi.GetXaxis().SetTitle("#it{p}_{T} (GeV/#it{c})")
+histGridLambdaThetaPhi.GetYaxis().SetTitle("#lambda_{#it{#theta#varphi}}"); histGridLambdaThetaPhi.GetYaxis().SetTitleOffset(1.2);
+canvasLambdaThetaPhiFin = TCanvas("canvasLambdaThetaPhiFin","canvasLambdaThetaPhiFin",20,20,600,600)
+histGridLambdaThetaPhi.Draw()
+lineZero.Draw("same")
+histLambdaThetaPhi2DSigmaFixed2.Draw("Esame")
+histLambdaThetaPhi2DSigmaFree2.Draw("Esame")
+#histLambdaThetaPhi2DSigmaFixedRange1.Draw("Esame")
+#histLambdaThetaPhi2DSigmaFixedRange2.Draw("Esame")
+#histLambdaThetaPhi2DSigmaFixedRange3.Draw("Esame")
+#histLambdaThetaPhi2DSigmaFreeRange1.Draw("Esame")
+#histLambdaThetaPhi2DSigmaFreeRange2.Draw("Esame")
+#histLambdaThetaPhi2DSigmaFreeRange3.Draw("Esame")
+legendLambdaThetaPhi = TLegend(0.6,0.7,0.9,0.9)
+legendLambdaThetaPhi.SetTextSize(0.05)
+#legendLambdaThetaPhi.AddEntry(histLambdaThetaPhi2DSigmaFixedRange2,"#lambda_{#theta#varphi}^{2D} #sigma_{J/#psi}^{Fixed}","l")
+#legendLambdaThetaPhi.AddEntry(histLambdaThetaPhi2DSigmaFreeRange2,"#lambda_{#theta#varphi}^{2D} #sigma_{J/#psi}^{Free}","l")
+legendLambdaThetaPhi.AddEntry(histLambdaThetaPhi2DSigmaFixed2,"#lambda_{#theta#varphi}^{2D} #sigma_{J/#psi}^{Fixed}","lp")
+legendLambdaThetaPhi.AddEntry(histLambdaThetaPhi2DSigmaFree2,"#lambda_{#theta#varphi}^{2D} #sigma_{J/#psi}^{Free}","lp")
+legendLambdaThetaPhi.Draw("same")
 
 raw_input()
