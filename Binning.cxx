@@ -32,11 +32,11 @@ void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsM
       fCostValues.push_back(bin);
       fCostBinsMin.push_back(CostBinsMin[i]);
       fCostBinsMax.push_back(CostBinsMax[i]);
-      printf("CosTheta = %f \n",bin);
+      //printf("CosTheta = %f \n",bin);
     }
     bin = hist -> GetXaxis() -> GetBinLowEdge(101);
     fCostValues.push_back(bin);
-    printf("CosTheta = %f \n",bin);
+    //printf("CosTheta = %f \n",bin);
 
     fNPhiBins = NPhiBins;
     for(int i = 0;i < NPhiBins;i++){
@@ -44,11 +44,11 @@ void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsM
       fPhiValues.push_back(bin);
       fPhiBinsMin.push_back(PhiBinsMin[i]);
       fPhiBinsMax.push_back(PhiBinsMax[i]);
-      printf("Phi = %f \n",bin);
+      //printf("Phi = %f \n",bin);
     }
     bin = hist -> GetYaxis() -> GetBinLowEdge(51);
     fPhiValues.push_back(bin);
-    printf("Phi = %f \n",bin);
+    //printf("Phi = %f \n",bin);
     delete hist;
 }
 //______________________________________________________________________________
@@ -105,7 +105,7 @@ vector < vector <Double_t> > Binning::GetCellAreaMatrix(){
   vector <double> ColumnMatrix;
   for(int i = 0;i < fNCostBins;i++){
     for(int j = 0;j < fNPhiBins;j++){
-      ColumnMatrix.push_back((fCostValues[i+1] - fCostValues[i])*(fPhiValues[j+1] - fPhiValues[j]));
+      ColumnMatrix.push_back((TMath::Abs(fCostValues[i+1] - fCostValues[i]))*(fPhiValues[j+1] - fPhiValues[j]));
     }
     fCellAreaMatrix.push_back(ColumnMatrix);
     ColumnMatrix.clear();

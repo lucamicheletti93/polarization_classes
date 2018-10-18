@@ -24,8 +24,8 @@ namespace MathFuncs
     double cos2Phi = TMath::Cos(2*phi);
 
     // WARNING!!!!!!
-    //return (N/(3 + lambdaTheta))*(1 + (lambdaTheta + lambdaPhi*cos2Phi)*cosTheta*cosTheta + 2*lambdaThetaPhi*cosTheta*cosPhi*TMath::Sqrt(1 - cosTheta*cosTheta) + lambdaPhi*cos2Phi);
-    return (N/(3 + lambdaTheta))*(1 + (lambdaTheta - lambdaPhi*cos2Phi)*cosTheta*cosTheta + 2*lambdaThetaPhi*cosTheta*cosPhi*TMath::Sqrt(1 - cosTheta*cosTheta) + lambdaPhi*cos2Phi);
+    return (N/(3 + lambdaTheta))*(1 + (lambdaTheta + lambdaPhi*cos2Phi)*cosTheta*cosTheta + 2*lambdaThetaPhi*cosTheta*cosPhi*TMath::Sqrt(1 - cosTheta*cosTheta) + lambdaPhi*cos2Phi);
+    //return (N/(3 + lambdaTheta))*(1 + (lambdaTheta - lambdaPhi*cos2Phi)*cosTheta*cosTheta + 2*lambdaThetaPhi*cosTheta*cosPhi*TMath::Sqrt(1 - cosTheta*cosTheta) + lambdaPhi*cos2Phi);
   }
 
     double MyMathFuncs::MyFuncPolCosTheta(double *x, double *par){
