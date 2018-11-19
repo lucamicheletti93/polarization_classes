@@ -18,11 +18,11 @@ class AccxEffCalculator : public TObject
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Double_t> , vector <Double_t>);
    void ComputeAccxEff(string strSample, string nameOutputFile);
-   void ReWeightAccxEff(Double_t LambdaTheta, Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile);
+   void ReWeightAccxEff(string refFrame, Double_t LambdaTheta, Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
    Int_t GetNPtBins(){return fNPtBins;};
-   Int_t GetNCostBins(){return fNCostBins;};
+   Int_t GetNCosThetaBins(){return fNCosThetaBins;};
    Int_t GetNPhiBins(){return fNPhiBins;};
 
  private:
@@ -31,8 +31,8 @@ class AccxEffCalculator : public TObject
    vector <Double_t> fMinPt;
    vector <Double_t> fMaxPt;
 
-   Int_t fNCostBins;
-   vector <Double_t> fCostValues;
+   Int_t fNCosThetaBins;
+   vector <Double_t> fCosThetaValues;
    Int_t fNPhiBins;
    vector <Double_t> fPhiValues;
 
@@ -40,35 +40,54 @@ class AccxEffCalculator : public TObject
 
    // Acc x Eff
    // cos(theta)
-   TH1D *fHistGenCost[13];
-   TH1D *fHistRecCost[13];
-   TH1D *fHistAccxEffCost[13];
+   TH1D *fHistGenCosThetaHE[13];
+   TH1D *fHistRecCosThetaHE[13];
+   TH1D *fHistAccxEffCosThetaHE[13];
+   TH1D *fHistGenCosThetaCS[13];
+   TH1D *fHistRecCosThetaCS[13];
+   TH1D *fHistAccxEffCosThetaCS[13];
    // phi
-   TH1D *fHistGenPhi[13];
-   TH1D *fHistRecPhi[13];
-   TH1D *fHistAccxEffPhi[13];
+   TH1D *fHistGenPhiHE[13];
+   TH1D *fHistRecPhiHE[13];
+   TH1D *fHistAccxEffPhiHE[13];
+   TH1D *fHistGenPhiCS[13];
+   TH1D *fHistRecPhiCS[13];
+   TH1D *fHistAccxEffPhiCS[13];
    // phi Tilde
-   TH1D *fHistGenPhiTilde[13];
-   TH1D *fHistRecPhiTilde[13];
-   TH1D *fHistAccxEffPhiTilde[13];
+   TH1D *fHistGenPhiTildeHE[13];
+   TH1D *fHistRecPhiTildeHE[13];
+   TH1D *fHistAccxEffPhiTildeHE[13];
+   TH1D *fHistGenPhiTildeCS[13];
+   TH1D *fHistRecPhiTildeCS[13];
+   TH1D *fHistAccxEffPhiTildeCS[13];
    // cos(theta),phi
-   TH2D *fHistGenCostPhi[13];
-   TH2D *fHistRecCostPhi[13];
-   TH2D *fHistAccxEffCostPhi[13];
-   TH2D *fHistAccxEffCostPhiStatRel[13];
+   TH2D *fHistGenCosThetaPhiHE[13];
+   TH2D *fHistRecCosThetaPhiHE[13];
+   TH2D *fHistAccxEffCosThetaPhiHE[13];
+   TH2D *fHistAccxEffCosThetaPhiStatRelHE[13];
+   TH2D *fHistGenCosThetaPhiCS[13];
+   TH2D *fHistRecCosThetaPhiCS[13];
+   TH2D *fHistAccxEffCosThetaPhiCS[13];
+   TH2D *fHistAccxEffCosThetaPhiStatRelCS[13];
    // cos(theta),pT
-   TH2D *fHistGenCostPt;
-   TH2D *fHistRecCostPt;
-   TH2D *fHistAccxEffCostPt;
+   TH2D *fHistGenCosThetaHEPt;
+   TH2D *fHistRecCosThetaHEPt;
+   TH2D *fHistAccxEffCosThetaHEPt;
+   TH2D *fHistGenCosThetaCSPt;
+   TH2D *fHistRecCosThetaCSPt;
+   TH2D *fHistAccxEffCosThetaCSPt;
    // phi,pT
-   TH2D *fHistGenPhiPt;
-   TH2D *fHistRecPhiPt;
-   TH2D *fHistAccxEffPhiPt;
+   TH2D *fHistGenPhiHEPt;
+   TH2D *fHistRecPhiHEPt;
+   TH2D *fHistAccxEffPhiHEPt;
+   TH2D *fHistGenPhiCSPt;
+   TH2D *fHistRecPhiCSPt;
+   TH2D *fHistAccxEffPhiCSPt;
 
    // cos(theta)
-   TH1D *fHistGenCostReWeighted[13];
-   TH1D *fHistRecCostReWeighted[13];
-   TH1D *fHistAccxEffCostReWeighted[13];
+   TH1D *fHistGenCosThetaReWeighted[13];
+   TH1D *fHistRecCosThetaReWeighted[13];
+   TH1D *fHistAccxEffCosThetaReWeighted[13];
    // phi
    TH1D *fHistGenPhiReWeighted[13];
    TH1D *fHistRecPhiReWeighted[13];
@@ -83,9 +102,9 @@ class AccxEffCalculator : public TObject
    Int_t fNDimuGen;
    Double_t fDimuPtGen[3000];
    Double_t fDimuYGen[3000];
-   Double_t fCostHEGen[3000];
+   Double_t fCosThetaHEGen[3000];
    Double_t fPhiHEGen[3000];
-   Double_t fCostCSGen[3000];
+   Double_t fCosThetaCSGen[3000];
    Double_t fPhiCSGen[3000];
 
    Int_t fNDimuRec;
@@ -93,9 +112,9 @@ class AccxEffCalculator : public TObject
    Double_t fDimuYRec[3000];
    Double_t fDimuMassRec[3000];
    Int_t fDimuMatchRec[3000];
-   Double_t fCostHERec[3000];
+   Double_t fCosThetaHERec[3000];
    Double_t fPhiHERec[3000];
-   Double_t fCostCSRec[3000];
+   Double_t fCosThetaCSRec[3000];
    Double_t fPhiCSRec[3000];
 
    Int_t fNMuonsRec;

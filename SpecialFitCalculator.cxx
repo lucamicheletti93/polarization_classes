@@ -151,9 +151,9 @@ void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiP
   fPhiParametersList.push_back(fLambdaPhi);
   fErrorPhiParametersList.push_back(fErrorLambdaPhi);
 
-  //gStyle->SetOptFit(1111);
+  gStyle->SetOptFit(1111);
 
-  /*TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,700,700);
+  TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,700,700);
   canvas -> Divide(1,2);
 
   canvas -> cd(1);
@@ -171,7 +171,7 @@ void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiP
   histNJpsiPhiCorr -> Draw("E");
 
   canvas -> SaveAs(nameOutputPlot.c_str());
-  delete canvas;*/
+  delete canvas;
 }
 //______________________________________________________________________________
 void SpecialFitCalculator::SimultaneousFit2(TH1D *histNJpsiCostCorr, TH1D *histNJpsiPhiCorr, Double_t minFitRangeCost, Double_t maxFitRangeCost, string nameOutputPlot) {
@@ -239,7 +239,7 @@ void SpecialFitCalculator::SimultaneousFit2(TH1D *histNJpsiCostCorr, TH1D *histN
   fPhiParametersList.push_back(fLambdaPhi);
   fErrorPhiParametersList.push_back(fErrorLambdaPhi);
 
-  /*TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,700,700);
+  TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,700,700);
   canvas -> Divide(1,2);
 
   char title[100];
@@ -265,7 +265,7 @@ void SpecialFitCalculator::SimultaneousFit2(TH1D *histNJpsiCostCorr, TH1D *histN
   histNJpsiPhiCorr -> Draw("E");
 
   canvas -> SaveAs(nameOutputPlot.c_str());
-  delete canvas;*/
+  delete canvas;
 }
 //______________________________________________________________________________
 vector <Double_t> SpecialFitCalculator::GetCosThetaParametersList(){

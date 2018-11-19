@@ -3,6 +3,7 @@
 #include "TObject.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "THnSparse.h"
 #include "TFile.h"
 #include "TTree.h"
 #include <string>
@@ -13,14 +14,21 @@ class DataProcessor : public TObject
 
  public:
    DataProcessor();
+   DataProcessor(THnSparse *histNVarHE, THnSparse *histNVarCS);
    DataProcessor(TTree *treeData);
    virtual ~DataProcessor();
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Double_t> , vector <Double_t>);
+   void CreateTHnSparse(string strSample, string nameOutputFile);
+   //void CutTHnSparse(THnSparseD *histNVarHE, THnSparseD *histNVarCS, string nameOutputFile);
+   void CutTHnSparse(string nameOutputFile);
    void CreateFilteredTrees(string strSample, string nameOutputFile);
    void CreateInvMassHistograms(TFile *, string strSample);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
+   void CheckCMULTriggers();
+
+   Int_t GetCMUL7Triggers(){return fCMUL7Triggers;};
 
  private:
    Int_t fNPtBins;
@@ -32,6 +40,8 @@ class DataProcessor : public TObject
    Int_t fNPhiBins;
    vector <Double_t> fPhiValues;
 
+   THnSparse *fHistNVarHE;
+   THnSparse *fHistNVarCS;
    TTree *fTreeData;
 
    vector <Int_t> fListMuonId;
@@ -42,6 +52,10 @@ class DataProcessor : public TObject
    TH1D *fHistLowPtSMpDCA;
    TH1D *fHistAllPtSMpDCA;
    TH1D *fHistTriggerResponseFunctionSMpDCA;
+
+   TH1D *fHistCMUL7Triggers;
+
+   Int_t fCMUL7Triggers;
 
    char fTrigClass[500];
    Float_t fPercV0M, fPercCL0, fPercCL1;

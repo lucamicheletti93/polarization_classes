@@ -5,6 +5,7 @@
 #include "TObject.h"
 #include "TSystem.h"
 #include "TStyle.h"
+#include "TString.h"
 #include "TMath.h"
 #include "TCanvas.h"
 #include "TH1.h"
@@ -13,6 +14,7 @@
 #include "TTree.h"
 #include "TF1.h"
 #include "TFile.h"
+#include "THnSparse.h"
 #include "DataProcessor.h"
 
 ClassImp(DataProcessor)
@@ -20,6 +22,11 @@ ClassImp(DataProcessor)
 //______________________________________________________________________________
 DataProcessor::DataProcessor(): TObject() {
    // default constructor
+}
+//______________________________________________________________________________
+DataProcessor::DataProcessor(THnSparse *histNVarHE, THnSparse *histNVarCS): TObject() {
+  fHistNVarHE = (THnSparse*) histNVarHE -> Clone();
+  fHistNVarCS = (THnSparse*) histNVarCS -> Clone();
 }
 //______________________________________________________________________________
 DataProcessor::DataProcessor(TTree *treeData): TObject() {
@@ -78,6 +85,133 @@ void DataProcessor::SetBinning(vector <Double_t> CostValues, vector <Double_t> P
   fNPhiBins = fPhiValues.size() - 1;
 }
 //______________________________________________________________________________
+void DataProcessor::CreateTHnSparse(string strSample, string nameOutputFile) {
+  printf("--- pDCA included ---\n");
+  fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCA
+
+  double PI = TMath::Pi();
+  int nEvents = 0;
+  if(strSample == "FullStat"){nEvents = fTreeData -> GetEntries();}
+  if(strSample == "TestStat"){nEvents = 100000;}
+  printf("N events = %i \n",nEvents);
+
+  TFile *fileTHnSparse = new TFile(nameOutputFile.c_str(),"RECREATE");
+
+  // Defining the THnSparse
+  // varArray[4] = {DimuPt, DimuMass, DimuCost, DimuPhi}
+  const int nVar = 4;
+  int nBins[nVar] = {100,120,100,50};
+  double minVar[nVar] = {0.,2.,-1.,0.};
+  double maxVar[nVar] = {10.,5.,1.,PI};
+  double varArray[nVar];
+
+  THnSparseD *histNVarHE = new THnSparseD("histNVarHE","histNVarHE",nVar,nBins,minVar,maxVar);
+  THnSparseD *histNVarCS = new THnSparseD("histNVarCS","histNVarCS",nVar,nBins,minVar,maxVar);
+
+  bool goodMuon1 = kFALSE;
+  bool goodMuon2 = kFALSE;
+
+  for(int i = 0;i < nEvents;i++){
+    fTreeData -> GetEntry(i);
+    printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
+
+    for(int j = 0;j < fNDimu;j++){
+
+      if(fIsPhysSelected){
+        TString Trigger = fTrigClass;
+        Bool_t TriggerSelected = kFALSE;
+        if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")) TriggerSelected = kTRUE;
+        if(fDimuY[j] > -4. && fDimuY[j] < -2.5){
+          if(TriggerSelected){
+            if(fDimuMatch[j] == 2){
+              if(fDimuMass[j] > 2 && fDimuMass[j] < 5){
+                //printf("%i - %i (Dimu Px = %f) \n",fDimuMu[j][0],fDimuMu[j][1],fDimuPx[j]);
+                for(int k = 0;k < fNMuons;k++){
+                  if(fMuonId[k] == fDimuMu[j][0]){
+                    if(fPDCA[k] != 0){goodMuon1 = kTRUE;}
+                    //printf(" -> ok! (Px = %f) [%i] \n",Px[k],k);
+                  }
+                  if(fMuonId[k] == fDimuMu[j][1]){
+                    if(fPDCA[k] != 0){goodMuon2 = kTRUE;}
+                    //printf(" -> ok! (Px = %f) [%i] \n",Px[k],k);
+                  }
+                }
+                if(goodMuon1 == kTRUE && goodMuon2 == kTRUE){
+                  varArray[0] = fDimuPt[j];
+                  varArray[1] = fDimuMass[j];
+                  varArray[2] = fCostHE[j];
+                  varArray[3] = fPhiHE[j];
+
+                  histNVarHE -> Fill(varArray);
+
+                  varArray[0] = fDimuPt[j];
+                  varArray[1] = fDimuMass[j];
+                  varArray[2] = fCostCS[j];
+                  varArray[3] = fPhiCS[j];
+
+                  histNVarCS -> Fill(varArray);
+                  //printf("Both Good Muons! \n");
+                  //histMassPDCA -> Fill(DimuMass[j]);
+                }
+                //histMass -> Fill(DimuMass[j]);
+                goodMuon1 = kFALSE;
+                goodMuon2 = kFALSE;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  printf("\n");
+
+  fileTHnSparse -> cd();
+  histNVarHE -> Write();
+  histNVarCS -> Write();
+  fileTHnSparse -> Close();
+}
+//______________________________________________________________________________
+//void DataProcessor::CutTHnSparse(THnSparseD *histNVarHE, THnSparseD *histNVarCS, string nameOutputFile) {
+void DataProcessor::CutTHnSparse(string nameOutputFile) {
+
+  TFile *fileOutput = new TFile(nameOutputFile.c_str(),"RECREATE");
+  for(int i = 1;i < (int) fMinPt.size() - 1;i++){
+    //cout << fMinPt[i] << " - " << fMaxPt[i] << endl;
+    fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
+    fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
+    for(int j = 0;j < fNCostBins;j++){
+      //cout << fCostValues[j] << " " << fCostValues[j+1] << endl;
+
+      fHistNVarHE -> GetAxis(2) -> SetRange(fHistNVarHE -> GetAxis(2) -> FindBin(fCostValues[j]),fHistNVarHE -> GetAxis(2) -> FindBin(fCostValues[j+1])); // cut in CosTheta
+      fHistNVarHE -> GetAxis(3) -> SetRange(fHistNVarHE -> GetAxis(3) -> FindBin(fPhiValues[0]),fHistNVarHE -> GetAxis(3) -> FindBin(fPhiValues[fNPhiBins])); // cut in Phi
+      TH1D *histMassCosThetaHE = (TH1D*) fHistNVarHE -> Projection(1);
+      histMassCosThetaHE -> Write(Form("hist_%2.1f_pT_%2.1f__%3.2f_CosTheta_%3.2f",fMinPt[i],fMaxPt[i],fCostValues[j],fCostValues[j+1]));
+      delete histMassCosThetaHE;
+
+      fHistNVarCS -> GetAxis(2) -> SetRange(fHistNVarCS -> GetAxis(2) -> FindBin(fCostValues[j]),fHistNVarCS -> GetAxis(2) -> FindBin(fCostValues[j+1])); // cut in CosTheta
+      fHistNVarCS -> GetAxis(3) -> SetRange(fHistNVarCS -> GetAxis(3) -> FindBin(fPhiValues[0]),fHistNVarCS -> GetAxis(3) -> FindBin(fPhiValues[fNPhiBins])); // cut in Phi
+      TH1D *histMassCosThetaCS = (TH1D*) fHistNVarCS -> Projection(1);
+      histMassCosThetaCS -> Write(Form("hist_%2.1f_pT_%2.1f__%3.2f_CosTheta_%3.2f",fMinPt[i],fMaxPt[i],fCostValues[j],fCostValues[j+1]));
+      delete histMassCosThetaCS;
+    }
+    for(int j = 0;j < fNPhiBins;j++){
+      //cout << fPhiValues[j] << " " << fPhiValues[j+1] << endl;
+      fHistNVarHE -> GetAxis(2) -> SetRange(fHistNVarHE -> GetAxis(2) -> FindBin(fCostValues[0]),fHistNVarHE -> GetAxis(2) -> FindBin(fCostValues[fNCostBins])); // cut in CosTheta
+      fHistNVarHE -> GetAxis(3) -> SetRange(fHistNVarHE -> GetAxis(3) -> FindBin(fPhiValues[j]),fHistNVarHE -> GetAxis(3) -> FindBin(fPhiValues[j+1])); // cut in Phi
+      TH1D *histMassPhiHE = (TH1D*) fHistNVarHE -> Projection(1);
+      histMassPhiHE -> Write(Form("hist_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
+      delete histMassPhiHE;
+
+      fHistNVarCS -> GetAxis(2) -> SetRange(fHistNVarCS -> GetAxis(2) -> FindBin(fCostValues[0]),fHistNVarCS -> GetAxis(2) -> FindBin(fCostValues[fNCostBins])); // cut in CosTheta
+      fHistNVarCS -> GetAxis(3) -> SetRange(fHistNVarCS -> GetAxis(3) -> FindBin(fPhiValues[j]),fHistNVarCS -> GetAxis(3) -> FindBin(fPhiValues[j+1])); // cut in Phi
+      TH1D *histMassPhiCS = (TH1D*) fHistNVarCS -> Projection(1);
+      histMassPhiCS -> Write(Form("hist_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
+      delete histMassPhiCS;
+    }
+  }
+  fileOutput -> Close();
+}
+//______________________________________________________________________________
 void DataProcessor::CreateFilteredTrees(string strSample, string nameOutputFile) {
   int nEvents = 0;
   int indexPt = 0;
@@ -90,16 +224,20 @@ void DataProcessor::CreateFilteredTrees(string strSample, string nameOutputFile)
   printf("N events = %i \n",nEvents);
 
   TFile *fileTreeDataFiltered = new TFile(nameOutputFile.c_str(),"RECREATE");
-  double DimuMass, CostHE, PhiHE;
+  double DimuMass, CostHE, PhiHE, CostCS, PhiCS;
   TTree *treeDataFiltered[12];
-  TH3D *histDataFiltered[12];
+  TH3D *histDataFilteredHE[12];
+  TH3D *histDataFilteredCS[12];
   for(int i = 0;i < 12;i++){
     treeDataFiltered[i] = new TTree(Form("treeDataFiltered_%ipt%i",minPt[i],maxPt[i]),Form("treeDataFiltered_%ipt%i",minPt[i],maxPt[i]));
     treeDataFiltered[i] -> Branch("DimuMass",&DimuMass,"DimuMass/D");
     treeDataFiltered[i] -> Branch("CostHE",&CostHE,"CostHE/D");
     treeDataFiltered[i] -> Branch("PhiHE",&PhiHE,"PhiHE/D");
+    treeDataFiltered[i] -> Branch("CostCS",&CostCS,"CostCS/D");
+    treeDataFiltered[i] -> Branch("PhiCS",&PhiCS,"PhiCS/D");
 
-    histDataFiltered[i] = new TH3D(Form("histDataFiltered_%ipt%i",minPt[i],maxPt[i]),"",100,2,5,100,-1,1,50,0,PI);
+    histDataFilteredHE[i] = new TH3D(Form("histDataFilteredHE_%ipt%i",minPt[i],maxPt[i]),"",100,2,5,100,-1,1,50,0,PI);
+    histDataFilteredCS[i] = new TH3D(Form("histDataFilteredCS_%ipt%i",minPt[i],maxPt[i]),"",100,2,5,100,-1,1,50,0,PI);
   }
 
   for(int i = 0;i < nEvents;i++){
@@ -118,10 +256,13 @@ void DataProcessor::CreateFilteredTrees(string strSample, string nameOutputFile)
                 DimuMass = fDimuMass[k];
                 CostHE = fCostHE[k];
                 PhiHE = TMath::Abs(fPhiHE[k]);
+                CostCS = fCostCS[k];
+                PhiCS = TMath::Abs(fPhiCS[k]);
                 if(fDimuPt[k] > 0 && fDimuPt[k] <= 12){
                   while(fDimuPt[k] < minPt[indexPt] || fDimuPt[k] > maxPt[indexPt]){indexPt++;}
                   treeDataFiltered[indexPt] -> Fill();
-                  histDataFiltered[indexPt] -> Fill(DimuMass,CostHE,PhiHE);
+                  histDataFilteredHE[indexPt] -> Fill(DimuMass,CostHE,PhiHE);
+                  histDataFilteredCS[indexPt] -> Fill(DimuMass,CostCS,PhiCS);
                   indexPt = 0;
                 }
               }
@@ -136,7 +277,8 @@ void DataProcessor::CreateFilteredTrees(string strSample, string nameOutputFile)
   fileTreeDataFiltered -> cd();
   for(int i = 0;i < 12;i++){
     treeDataFiltered[i] -> Write();
-    histDataFiltered[i] -> Write();
+    histDataFilteredHE[i] -> Write();
+    histDataFilteredCS[i] -> Write();
   }
   fileTreeDataFiltered -> Close();
 }
@@ -209,6 +351,7 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
   fHistAllPtSMpDCA = new TH1D("fHistAllPtSMpDCA","",100,0,10);
   fHistAllPtSMpDCA -> Sumw2();
 
+  int counterCMUL7 = 0;
   vector <int> fListMuonId;
 
   for(int i = 0;i < nEvents;i++){
@@ -216,6 +359,7 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
     printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
     TString Trigger = fTrigClass;
     Bool_t TriggerSelected = kFALSE;
+    if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")){counterCMUL7++;}
     if(Trigger.Contains("CINT7-B-NOPF-MUFAST")){TriggerSelected = kTRUE;} // single muon trigger
     if(TriggerSelected){
       if(fIsPhysSelected){
@@ -256,22 +400,24 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
   }
   printf("\n");
 
-  TH1D *fHistTriggerResponseFunctionSM = new TH1D("histTriggerResponseFunctionSM","",100,0,10);
-  fHistTriggerResponseFunctionSM -> Divide(fHistLowPtSM,fHistAllPtSM,1,1,"B");
-  fHistTriggerResponseFunctionSM -> SetLineColor(kBlue);
+  //TH1D *fHistTriggerResponseFunctionSM = new TH1D("histTriggerResponseFunctionSM","",100,0,10);
+  //fHistTriggerResponseFunctionSM -> Divide(fHistLowPtSM,fHistAllPtSM,1,1,"B");
+  //fHistTriggerResponseFunctionSM -> SetLineColor(kBlue);
 
-  TH1D *fHistTriggerResponseFunctionSMpDCA = new TH1D("histTriggerResponseFunctionSMpDCA","",100,0,10);
-  fHistTriggerResponseFunctionSMpDCA -> Divide(fHistLowPtSMpDCA,fHistAllPtSMpDCA,1,1,"B");
-  fHistTriggerResponseFunctionSMpDCA -> SetLineColor(kRed);
-  fHistTriggerResponseFunctionSMpDCA -> SetMarkerStyle(20);
-  fHistTriggerResponseFunctionSMpDCA -> SetMarkerColor(kRed);
+  //TH1D *fHistTriggerResponseFunctionSMpDCA = new TH1D("histTriggerResponseFunctionSMpDCA","",100,0,10);
+  //fHistTriggerResponseFunctionSMpDCA -> Divide(fHistLowPtSMpDCA,fHistAllPtSMpDCA,1,1,"B");
+  //fHistTriggerResponseFunctionSMpDCA -> SetLineColor(kRed);
+  //fHistTriggerResponseFunctionSMpDCA -> SetMarkerStyle(20);
+  //fHistTriggerResponseFunctionSMpDCA -> SetMarkerColor(kRed);
+
+  fHistCMUL7Triggers = new TH1D("fHistCMUL7Triggers","",1,0,1);
+  fHistCMUL7Triggers -> SetBinContent(1,counterCMUL7);
 
   TFile *fileTriggerResponseFunction = new TFile(nameOutputFile.c_str(),"RECREATE");
   fHistAllPtSM -> Write();
   fHistLowPtSM -> Write();
   fHistAllPtSMpDCA -> Write();
   fHistLowPtSMpDCA -> Write();
-  fHistTriggerResponseFunctionSM -> Write();
-  fHistTriggerResponseFunctionSMpDCA -> Write();
+  fHistCMUL7Triggers -> Write();
   fileTriggerResponseFunction -> Close();
 }

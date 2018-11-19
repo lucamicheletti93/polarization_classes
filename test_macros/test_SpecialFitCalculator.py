@@ -33,7 +33,7 @@ for i in range(len(namePtRanges)):
 lambdaTheta = np.zeros((len(namePtRanges), len(nameIdIterations)+1))
 lambdaPhi = np.zeros((len(namePtRanges), len(nameIdIterations)+1))
 
-print "... Performing simultaneous fit (zero tep) ... "
+print "... Performing simultaneous fit (zero step) ... "
 for i in range(len(namePtRanges)):
     if os.path.isfile("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root"):
         fileNJpsi = TFile.Open("/afs/cern.ch/user/l/lmichele/private/Jpsi_polarization/signal_extraction_1D/" + minNamePt[i] + "pt" + maxNamePt[i] + ".root")  # lxplus

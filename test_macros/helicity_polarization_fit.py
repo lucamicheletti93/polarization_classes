@@ -78,22 +78,26 @@ for i in range(nPtRanges):
     # Deleting bad fit points
     if namePtRanges[i] == '2pt4':
         #histNJpsiSigmaFixed[i].SetBinContent(2,2,0.); histNJpsiSigmaFixed[i].SetBinError(2,2,0.);
-        histNJpsiSigmaFree[i].SetBinContent(2,2,0.); histNJpsiSigmaFree[i].SetBinError(2,2,0.);
+        ##histNJpsiSigmaFree[i].SetBinContent(2,2,0.); histNJpsiSigmaFree[i].SetBinError(2,2,0.);
 
-        histNJpsiSigmaFixed[i].SetBinContent(2,8,0.); histNJpsiSigmaFixed[i].SetBinError(2,8,0.);
-        histNJpsiSigmaFixed[i].SetBinContent(2,9,0.); histNJpsiSigmaFixed[i].SetBinError(2,9,0.);
+        ##histNJpsiSigmaFixed[i].SetBinContent(2,8,0.); histNJpsiSigmaFixed[i].SetBinError(2,8,0.);
+        histNJpsiSigmaFixed[i].SetBinContent(2,9,0.); histNJpsiSigmaFixed[i].SetBinError(2,9,0.);        # Da togliere -> sbagliato
+        ##histNJpsiSigmaFixed[i].SetBinContent(2,8,0.); histNJpsiSigmaFixed[i].SetBinError(2,8,0.);
         #histNJpsiSigmaFixed[i].SetBinContent(18,5,0.); histNJpsiSigmaFixed[i].SetBinError(18,5,0.);
-        histNJpsiSigmaFixed[i].SetBinContent(18,9,0.); histNJpsiSigmaFixed[i].SetBinError(18,9,0.);
+        ##histNJpsiSigmaFixed[i].SetBinContent(18,5,0.); histNJpsiSigmaFixed[i].SetBinError(18,5,0.);
+        ##histNJpsiSigmaFixed[i].SetBinContent(18,9,0.); histNJpsiSigmaFixed[i].SetBinError(18,9,0.);
 
-        histNJpsiSigmaFree[i].SetBinContent(2,9,0.); histNJpsiSigmaFree[i].SetBinError(2,9,0.);
-        histNJpsiSigmaFree[i].SetBinContent(18,9,0.); histNJpsiSigmaFree[i].SetBinError(18,9,0.);
+        ##histNJpsiSigmaFree[i].SetBinContent(2,9,0.); histNJpsiSigmaFree[i].SetBinError(2,9,0.);
+        ##histNJpsiSigmaFree[i].SetBinContent(18,9,0.); histNJpsiSigmaFree[i].SetBinError(18,9,0.);
 
-    if namePtRanges[i] == '6pt10':
-        histNJpsiSigmaFixed[i].SetBinContent(2,3,0.); histNJpsiSigmaFixed[i].SetBinError(2,3,0.);
-        histNJpsiSigmaFree[i].SetBinContent(2,3,0.); histNJpsiSigmaFree[i].SetBinError(2,3,0.);
+    #if namePtRanges[i] == '6pt10':
+        ##histNJpsiSigmaFixed[i].SetBinContent(2,3,0.); histNJpsiSigmaFixed[i].SetBinError(2,3,0.);
+        ##histNJpsiSigmaFixed[i].SetBinContent(2,5,0.); histNJpsiSigmaFixed[i].SetBinError(2,5,0.);
+        ##histNJpsiSigmaFree[i].SetBinContent(2,3,0.); histNJpsiSigmaFree[i].SetBinError(2,3,0.);
 
-        histNJpsiSigmaFixed[i].SetBinContent(18,9,0.); histNJpsiSigmaFixed[i].SetBinError(18,9,0.);
-        histNJpsiSigmaFree[i].SetBinContent(18,9,0.); histNJpsiSigmaFree[i].SetBinError(18,9,0.);
+        ##histNJpsiSigmaFixed[i].SetBinContent(18,6,0.); histNJpsiSigmaFixed[i].SetBinError(18,6,0.);
+        histNJpsiSigmaFixed[i].SetBinContent(18,9,0.); histNJpsiSigmaFixed[i].SetBinError(18,9,0.);     # Da togliere -> sbagliato
+        ##histNJpsiSigmaFree[i].SetBinContent(18,9,0.); histNJpsiSigmaFree[i].SetBinError(18,9,0.);
 
     histNJpsiSigmaFixedCorr.append(histNJpsiSigmaFixed[i].Clone("histNJpsiSigmaFixedCorr")); histNJpsiSigmaFixedCorr[i].SetTitle(titleHistPtRanges[i] + " #sigma_{J/#psi}^{Fixed}"); histNJpsiSigmaFixedCorr[i].SetDirectory(0);
     histNJpsiSigmaFixedCorr[i].Divide(histAccxEff[i])
@@ -132,6 +136,16 @@ for i in range(nPtRanges):
     fileNJpsiSigmaFixed.Close()
     fileNJpsiSigmaFree.Close()
     fileAccxEff.Close()
+
+# Control plots
+canvasNJpsi = TCanvas("canvasNJpsi","canvasNJpsi",20,20,1400,1200)
+canvasNJpsi.Divide(3,2)
+canvasNJpsi.cd(1); histNJpsiSigmaFixed[0].Draw("COLZtext");
+canvasNJpsi.cd(2); histNJpsiSigmaFixed[1].Draw("COLZtext");
+canvasNJpsi.cd(3); histNJpsiSigmaFixed[2].Draw("COLZtext");
+canvasNJpsi.cd(4); histAccxEff[0].Draw("COLZtext");
+canvasNJpsi.cd(5); histAccxEff[1].Draw("COLZtext");
+canvasNJpsi.cd(6); histAccxEff[2].Draw("COLZtext");
 
 # Control plots
 canvasNJpsiCorr = TCanvas("canvasNJpsiCorr","canvasNJpsiCorr",20,20,1400,1200)
@@ -190,7 +204,8 @@ for i in range(nPtRanges):
     funcPolProjectionCosThetaSigmaFixed[i].SetLineColor(kRed); funcPolProjectionCosThetaSigmaFixed[i].SetLineStyle(kDashed);
 
     parameters = SimFit2DProjectionSigmaFixed.GetPhiParametersList(); errorParameters = SimFit2DProjectionSigmaFixed.GetErrorPhiParametersList();
-    funcFit2DProjectionPhiSigmaFixed.append(TF1("funcFit2DProjectionPhiSigmaFixed_" + namePtRangesNew[i],MathFuncs.MyMathFuncs.MyFuncPolPhi,0.,PI,3))
+    #funcFit2DProjectionPhiSigmaFixed.append(TF1("funcFit2DProjectionPhiSigmaFixed_" + namePtRangesNew[i],MathFuncs.MyMathFuncs.MyFuncPolPhi,0.,PI,3))
+    funcFit2DProjectionPhiSigmaFixed.append(TF1("funcFit2DProjectionPhiSigmaFixed_" + namePtRangesNew[i],MathFuncs.MyMathFuncs.MyFuncPolPhi,minFitRangePhi,maxFitRangePhi,3))
     funcFit2DProjectionPhiSigmaFixed[i].SetLineColor(kRed)
     funcFit2DProjectionPhiSigmaFixed[i].SetParameter(0,parameters[0]); funcFit2DProjectionPhiSigmaFixed[i].SetParameter(1,parameters[1]); funcFit2DProjectionPhiSigmaFixed[i].SetParameter(2,parameters[2])
     histLambdaPhiFit2DProjectionSigmaFixed.SetBinContent(i+2,parameters[2]); histLambdaPhiFit2DProjectionSigmaFixed.SetBinError(i+2,errorParameters[2]);
@@ -216,7 +231,6 @@ for i in range(nPtRanges):
     del SimFit2DProjectionSigmaFixed
     #del SimFit2DProjectionSigmaFree
 
-# Control plots
 canvasProjNJpsiCorr = TCanvas("canvasProjNJpsiCorr","canvasProjNJpsiCorr",20,20,1400,1200)
 canvasProjNJpsiCorr.Divide(3,2)
 canvasProjNJpsiCorr.cd(1);
@@ -253,8 +267,8 @@ histLambdaPhiPure1D = TH1D("histLambdaPhiPure1D" + str(i+1),"",4,array('d',[0.,2
 
 for i in range(nPtRanges):
     fileNJpsi1D = TFile.Open("/home/luca/GITHUB/polarization/1D_approach/signal_extraction/binned_1D_"  + namePtRanges[i] +  "_test/"   + namePtRanges[i] +   ".root")
-    histNJpsiCost.append(fileNJpsi1D.Get("histNJpsiCost")); histNJpsiCost[i].SetDirectory(0);
-    histNJpsiPhi.append(fileNJpsi1D.Get("histNJpsiPhi")); histNJpsiPhi[i].SetDirectory(0);
+    histNJpsiCost.append(fileNJpsi1D.Get("histNJpsiCostHE")); histNJpsiCost[i].SetDirectory(0);
+    histNJpsiPhi.append(fileNJpsi1D.Get("histNJpsiPhiHE")); histNJpsiPhi[i].SetDirectory(0);
     fileAccxEff1D = TFile.Open("/home/luca/GITHUB/polarization_classes/test_macros/iterative_procedure/" + namePtRangesNew[i] + "/AccxEffReWeighted3rdStep.root")
     histAccxEffCost.append(fileAccxEff1D.Get("histAccxEffCostReWeighted_" + namePtRangesNew[i])); histAccxEffCost[i].SetLineColor(kBlack); histAccxEffCost[i].SetDirectory(0);
     histAccxEffPhi.append(fileAccxEff1D.Get("histAccxEffPhiReWeighted_" + namePtRangesNew[i])); histAccxEffPhi[i].SetLineColor(kBlack); histAccxEffPhi[i].SetDirectory(0);
