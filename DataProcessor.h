@@ -19,7 +19,7 @@ class DataProcessor : public TObject
    virtual ~DataProcessor();
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
-   void SetBinning(vector <Double_t> , vector <Double_t>);
+   void SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBinsMax, vector <Double_t> CostValues, vector <Int_t> PhiBinsMin, vector <Int_t> PhiBinsMax, vector <Double_t> PhiValues);
    void CreateTHnSparse(string strSample, string nameOutputFile);
    //void CutTHnSparse(THnSparseD *histNVarHE, THnSparseD *histNVarCS, string nameOutputFile);
    void CutTHnSparse(string nameOutputFile);
@@ -34,10 +34,16 @@ class DataProcessor : public TObject
    Int_t fNPtBins;
    vector <Double_t> fMinPt;
    vector <Double_t> fMaxPt;
+   vector <Int_t> fPtBinsMin;
+   vector <Int_t> fPtBinsMax;
 
    Int_t fNCostBins;
+   vector <Int_t> fCostBinsMin;
+   vector <Int_t> fCostBinsMax;
    vector <Double_t> fCostValues;
    Int_t fNPhiBins;
+   vector <Int_t> fPhiBinsMin;
+   vector <Int_t> fPhiBinsMax;
    vector <Double_t> fPhiValues;
 
    THnSparse *fHistNVarHE;
