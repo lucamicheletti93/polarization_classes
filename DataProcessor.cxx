@@ -179,7 +179,6 @@ void DataProcessor::CreateTHnSparse(string strSample, string nameOutputFile) {
   fileTHnSparse -> Close();
 }
 //______________________________________________________________________________
-//void DataProcessor::CutTHnSparse(THnSparseD *histNVarHE, THnSparseD *histNVarCS, string nameOutputFile) {
 void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
   TFile *fileOutput = new TFile(nameOutputFile.c_str(),"RECREATE");
@@ -195,29 +194,8 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
       //cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i] + 1.01*(fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))) << " - " << fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i]) << endl;
     }
 
-    TH1D *histMassHE = (TH1D*) fHistNVarHE -> Projection(1); histMassHE -> Write(Form("histHE_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); cout << histMassHE -> GetEntries() << endl; delete histMassHE;
+    TH1D *histMassHE = (TH1D*) fHistNVarHE -> Projection(1); histMassHE -> Write(Form("histHE_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); //cout << histMassHE -> GetEntries() << endl; delete histMassHE;
     TH1D *histMassCS = (TH1D*) fHistNVarCS -> Projection(1); histMassCS -> Write(Form("histCS_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); delete histMassCS;
-
-    for(int j = 0;j < fNPhiBins;j++){
-      //cout << fPhiValues[j] << " " << fPhiValues[j+1] << endl;
-
-      THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
-      //histNVarHEClone -> GetAxis(2) -> SetRange(fCostBinsMin[0],fCostBinsMax[fNCostBins]); // cut in CosTheta
-      histNVarHEClone -> GetAxis(3) -> SetRange(fPhiBinsMin[j],fPhiBinsMax[j]); // cut in Phi
-      TH1D *histMassPhiHE = (TH1D*) histNVarHEClone -> Projection(1);
-      cout << fPhiBinsMin[j] << " - " << fPhiBinsMax[j] << " || " << fPhiValues[j] << "," << fPhiValues[j+1] << " !! " << histMassPhiHE -> GetEntries() << endl;
-      histMassPhiHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
-      delete histMassPhiHE;
-      delete histNVarHEClone;
-
-      THnSparse *histNVarCSClone = (THnSparse*) fHistNVarCS -> Clone("histNVarCSClone");
-      //histNVarCSClone -> GetAxis(2) -> SetRange(fCostBinsMin[0],fCostBinsMax[fNCostBins]); // cut in CosTheta
-      histNVarCSClone -> GetAxis(3) -> SetRange(fPhiBinsMin[j],fPhiBinsMax[j]); // cut in Phi
-      TH1D *histMassPhiCS = (TH1D*) histNVarCSClone -> Projection(1);
-      histMassPhiCS -> Write(Form("histCS_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
-      delete histMassPhiCS;
-      delete histNVarCSClone;
-    }
 
     for(int j = 0;j < fNCostBins;j++){
       //cout << fCostValues[j] << " " << fCostValues[j+1] << endl;
@@ -227,7 +205,7 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
       //histNVarHEClone -> GetAxis(3) -> SetRange(fPhiBinsMin[0],fPhiBinsMax[fNPhiBins]); // cut in Phi
       TH1D *histMassCosThetaHE = (TH1D*) histNVarHEClone -> Projection(1);
       histMassCosThetaHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_CosTheta_%3.2f",fMinPt[i],fMaxPt[i],fCostValues[j],fCostValues[j+1]));
-      cout << histMassCosThetaHE -> GetEntries() << endl;
+      //cout << histMassCosThetaHE -> GetEntries() << endl;
       delete histMassCosThetaHE;
       delete histNVarHEClone;
 
@@ -247,7 +225,7 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
       //histNVarHEClone -> GetAxis(2) -> SetRange(fCostBinsMin[0],fCostBinsMax[fNCostBins]); // cut in CosTheta
       histNVarHEClone -> GetAxis(3) -> SetRange(fPhiBinsMin[j],fPhiBinsMax[j]); // cut in Phi
       TH1D *histMassPhiHE = (TH1D*) histNVarHEClone -> Projection(1);
-      cout << fPhiBinsMin[j] << " - " << fPhiBinsMax[j] << " || " << fPhiValues[j] << "," << fPhiValues[j+1] << " !! " << histMassPhiHE -> GetEntries() << endl;
+      //cout << fPhiBinsMin[j] << " - " << fPhiBinsMax[j] << " || " << fPhiValues[j] << "," << fPhiValues[j+1] << " !! " << histMassPhiHE -> GetEntries() << endl;
       histMassPhiHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
       delete histMassPhiHE;
       delete histNVarHEClone;
