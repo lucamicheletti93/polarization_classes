@@ -72,6 +72,7 @@ class DataProcessor : public TObject
    Int_t fDimuCharge[3000], fDimuMatch[3000];
    Int_t fDimuMu[3000][2];
    Double_t fCostHE[3000], fPhiHE[3000], fCostCS[3000], fPhiCS[3000];
+   Double_t fPhiTildeHE[3000], fPhiTildeCS[3000];
    UInt_t fInpmask;
    Bool_t fIsPhysSelected;
    Int_t fPDCA[300];

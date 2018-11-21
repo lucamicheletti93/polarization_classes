@@ -36,6 +36,8 @@ class AccxEffCalculator : public TObject
    Int_t fNPhiBins;
    vector <Double_t> fPhiValues;
 
+   double fPhiTilde;
+
    TTree *fTreeAccxEff;
 
    // Acc x Eff

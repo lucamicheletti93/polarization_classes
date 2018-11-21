@@ -107,10 +107,10 @@ void DataProcessor::CreateTHnSparse(string strSample, string nameOutputFile) {
 
   // Defining the THnSparse
   // varArray[4] = {DimuPt, DimuMass, DimuCost, DimuPhi}
-  const int nVar = 4;
-  int nBins[nVar] = {100,120,100,50};
-  double minVar[nVar] = {0.,2.,-1.,0.};
-  double maxVar[nVar] = {10.,5.,1.,PI};
+  const int nVar = 5;
+  int nBins[nVar] = {100,120,100,50,50};
+  double minVar[nVar] = {0.,2.,-1.,0.,0.};
+  double maxVar[nVar] = {10.,5.,1.,PI,PI};
   double varArray[nVar];
 
   THnSparseD *histNVarHE = new THnSparseD("histNVarHE","histNVarHE",nVar,nBins,minVar,maxVar);
@@ -149,15 +149,25 @@ void DataProcessor::CreateTHnSparse(string strSample, string nameOutputFile) {
                   varArray[1] = fDimuMass[j];
                   varArray[2] = fCostHE[j];
                   varArray[3] = TMath::Abs(fPhiHE[j]);
+                  if(fCostHE[j] < 0.){fPhiTildeHE[j] = fPhiHE[j] - (3./4.)*PI;}
+                  if(fCostHE[j] > 0.){fPhiTildeHE[j] = fPhiHE[j] - (1./4.)*PI;}
+                  if(fPhiTildeHE[j] < 0){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
+                  if(fPhiTildeHE[j] > PI){fPhiTildeHE[j] = 2*PI - fPhiTildeHE[j];}
+                  varArray[4] = fPhiTildeHE[j];
 
-                  histNVarHE -> Fill(varArray);
+                  histNVarHE -> Fill(varArray);                                 // Filling the THnSparse
 
                   varArray[0] = fDimuPt[j];
                   varArray[1] = fDimuMass[j];
                   varArray[2] = fCostCS[j];
                   varArray[3] = TMath::Abs(fPhiCS[j]);
+                  if(fCostCS[j] < 0.){fPhiTildeCS[j] = fPhiCS[j] - (3./4.)*PI;}
+                  if(fCostCS[j] > 0.){fPhiTildeCS[j] = fPhiCS[j] - (1./4.)*PI;}
+                  if(fPhiTildeCS[j] < 0){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
+                  if(fPhiTildeCS[j] > PI){fPhiTildeCS[j] = 2*PI - fPhiTildeCS[j];}
+                  varArray[4] = fPhiTildeCS[j];
 
-                  histNVarCS -> Fill(varArray);
+                  histNVarCS -> Fill(varArray);                                 // Filling the THnSparse
                   //printf("Both Good Muons! \n");
                   //histMassPDCA -> Fill(DimuMass[j]);
                 }
