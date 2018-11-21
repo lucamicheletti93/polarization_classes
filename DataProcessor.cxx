@@ -78,7 +78,7 @@ void DataProcessor::SetPtBins(Int_t nPtBins, Double_t minPtBin[],Double_t maxPtB
   }
 }
 //______________________________________________________________________________
-void DataProcessor::SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBinsMax, vector <Double_t> CostValues, vector <Int_t> PhiBinsMin, vector <Int_t> PhiBinsMax, vector <Double_t> PhiValues) {
+void DataProcessor::SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBinsMax, vector <Double_t> CostValues, vector <Int_t> PhiBinsMin, vector <Int_t> PhiBinsMax, vector <Double_t> PhiValues, vector <Int_t> PhiTildeBinsMin, vector <Int_t> PhiTildeBinsMax, vector <Double_t> PhiTildeValues) {
   for(int i = 0;i < (int) CostValues.size();i++){fCostValues.push_back(CostValues[i]);}
   fNCostBins = (int) fCostValues.size() - 1;
   for(int i = 0;i < fNCostBins;i++){
@@ -90,6 +90,12 @@ void DataProcessor::SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBi
   for(int i = 0;i < fNPhiBins;i++){
     fPhiBinsMin.push_back(PhiBinsMin[i]);
     fPhiBinsMax.push_back(PhiBinsMax[i]);
+  }
+  for(int i = 0;i < (int) PhiTildeValues.size();i++){fPhiTildeValues.push_back(PhiTildeValues[i]);}
+  fNPhiTildeBins = (int) fPhiTildeValues.size() - 1;
+  for(int i = 0;i < fNPhiTildeBins;i++){
+    fPhiTildeBinsMin.push_back(PhiTildeBinsMin[i]);
+    fPhiTildeBinsMax.push_back(PhiTildeBinsMax[i]);
   }
 }
 //______________________________________________________________________________
@@ -245,22 +251,22 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
       delete histNVarCSClone;
     }
 
-    for(int j = 0;j < fNPhiBins;j++){
-      //cout << fPhiValues[j] << " " << fPhiValues[j+1] << endl;
+    for(int j = 0;j < fNPhiTildeBins;j++){
+      //cout << fPhiTildeValues[j] << " " << fPhiTildeValues[j+1] << endl;
 
       THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
-      histNVarHEClone -> GetAxis(3) -> SetRange(fPhiBinsMin[j],fPhiBinsMax[j]); // cut in Phi
-      TH1D *histMassPhiHE = (TH1D*) histNVarHEClone -> Projection(1);
-      //cout << fPhiBinsMin[j] << " - " << fPhiBinsMax[j] << " || " << fPhiValues[j] << "," << fPhiValues[j+1] << " !! " << histMassPhiHE -> GetEntries() << endl;
-      histMassPhiHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
-      delete histMassPhiHE;
+      histNVarHEClone -> GetAxis(4) -> SetRange(fPhiTildeBinsMin[j],fPhiTildeBinsMax[j]); // cut in PhiTilde
+      TH1D *histMassPhiTildeHE = (TH1D*) histNVarHEClone -> Projection(1);
+      //cout << fPhiTildeBinsMin[j] << " - " << fPhiTildeBinsMax[j] << " || " << fPhiTildeValues[j] << "," << fPhiTildeValues[j+1] << " !! " << histMassPhiTildeHE -> GetEntries() << endl;
+      histMassPhiTildeHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_PhiTilde_%3.2f",fMinPt[i],fMaxPt[i],fPhiTildeValues[j],fPhiTildeValues[j+1]));
+      delete histMassPhiTildeHE;
       delete histNVarHEClone;
 
       THnSparse *histNVarCSClone = (THnSparse*) fHistNVarCS -> Clone("histNVarCSClone");
-      histNVarCSClone -> GetAxis(3) -> SetRange(fPhiBinsMin[j],fPhiBinsMax[j]); // cut in Phi
-      TH1D *histMassPhiCS = (TH1D*) histNVarCSClone -> Projection(1);
-      histMassPhiCS -> Write(Form("histCS_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
-      delete histMassPhiCS;
+      histNVarCSClone -> GetAxis(4) -> SetRange(fPhiTildeBinsMin[j],fPhiTildeBinsMax[j]); // cut in PhiTilde
+      TH1D *histMassPhiTildeCS = (TH1D*) histNVarCSClone -> Projection(1);
+      histMassPhiTildeCS -> Write(Form("histCS_%2.1f_pT_%2.1f__%3.2f_PhiTilde_%3.2f",fMinPt[i],fMaxPt[i],fPhiTildeValues[j],fPhiTildeValues[j+1]));
+      delete histMassPhiTildeCS;
       delete histNVarCSClone;
     }
   }
