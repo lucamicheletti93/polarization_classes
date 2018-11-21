@@ -20,36 +20,51 @@ Binning::~Binning() {
   // destructor
 }
 //______________________________________________________________________________
-void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsMax[], int NPhiBins, int PhiBinsMin[], int PhiBinsMax[]) {
+void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsMax[], int NPhiBins, int PhiBinsMin[], int PhiBinsMax[], int NPhiTildeBins, int PhiTildeBinsMin[], int PhiTildeBinsMax[]) {
 
   double PI = TMath::Pi();
-  TH2D *hist = new TH2D("hist","hist",100,-1.,1.,50,0.,PI);
   double bin;
 
-    fNCostBins = NCostBins;
-    for(int i = 0;i < NCostBins;i++){
-      bin = hist -> GetXaxis() -> GetBinLowEdge(CostBinsMin[i]);
-      fCostValues.push_back(bin);
-      fCostBinsMin.push_back(CostBinsMin[i]);
-      fCostBinsMax.push_back(CostBinsMax[i]);
-      //printf("CosTheta = %f \n",bin);
-    }
-    bin = hist -> GetXaxis() -> GetBinLowEdge(101);
-    fCostValues.push_back(bin);
-    //printf("CosTheta = %f \n",bin);
+  TH2D *hist = new TH2D("hist","hist",100,-1.,1.,50,0.,PI);
 
-    fNPhiBins = NPhiBins;
-    for(int i = 0;i < NPhiBins;i++){
-      bin = hist -> GetYaxis() -> GetBinLowEdge(PhiBinsMin[i]);
-      fPhiValues.push_back(bin);
-      fPhiBinsMin.push_back(PhiBinsMin[i]);
-      fPhiBinsMax.push_back(PhiBinsMax[i]);
-      //printf("Phi = %f \n",bin);
-    }
-    bin = hist -> GetYaxis() -> GetBinLowEdge(51);
+  fNCostBins = NCostBins;
+  for(int i = 0;i < NCostBins;i++){
+    bin = hist -> GetXaxis() -> GetBinLowEdge(CostBinsMin[i]);
+    fCostValues.push_back(bin);
+    fCostBinsMin.push_back(CostBinsMin[i]);
+    fCostBinsMax.push_back(CostBinsMax[i]);
+    //printf("CosTheta = %f \n",bin);
+  }
+  bin = hist -> GetXaxis() -> GetBinLowEdge(101);
+  fCostValues.push_back(bin);
+  //printf("CosTheta = %f \n",bin);
+
+  fNPhiBins = NPhiBins;
+  for(int i = 0;i < NPhiBins;i++){
+    bin = hist -> GetYaxis() -> GetBinLowEdge(PhiBinsMin[i]);
     fPhiValues.push_back(bin);
+    fPhiBinsMin.push_back(PhiBinsMin[i]);
+    fPhiBinsMax.push_back(PhiBinsMax[i]);
     //printf("Phi = %f \n",bin);
-    delete hist;
+  }
+  bin = hist -> GetYaxis() -> GetBinLowEdge(51);
+  fPhiValues.push_back(bin);
+  //printf("Phi = %f \n",bin);
+  delete hist;
+
+  TH1D *histPhiTilde = new TH1D("histPhiTilde","histPhiTilde",50,0.,PI);
+  fNPhiTildeBins = NPhiTildeBins;
+  for(int i = 0;i < NPhiTildeBins;i++){
+    bin = hist -> GetXaxis() -> GetBinLowEdge(PhiTildeBinsMin[i]);
+    fPhiTildeValues.push_back(bin);
+    fPhiTildeBinsMin.push_back(PhiTildeBinsMin[i]);
+    fPhiTildeBinsMax.push_back(PhiTildeBinsMax[i]);
+    //printf("PhiTilde = %f \n",bin);
+  }
+  bin = histPhiTilde -> GetXaxis() -> GetBinLowEdge(51);
+  //printf("PhiTilde = %f \n",bin);
+  fPhiTildeValues.push_back(bin);
+  delete histPhiTilde;
 }
 //______________________________________________________________________________
 void Binning::PrintBinValues() {
@@ -71,6 +86,10 @@ vector <Double_t> Binning::GetPhiValues(){
   return fPhiValues;
 }
 //______________________________________________________________________________
+vector <Double_t> Binning::GetPhiTildeValues(){
+  return fPhiTildeValues;
+}
+//______________________________________________________________________________
 vector <Double_t> Binning::GetCostWidth(){
   for(int i = 0;i < fNCostBins;i++){
     fCostWidth.push_back(fCostValues[i+1] - fCostValues[i]);
@@ -83,6 +102,13 @@ vector <Double_t> Binning::GetPhiWidth(){
     fPhiWidth.push_back(fPhiValues[i+1] - fPhiValues[i]);
   }
   return fPhiWidth;
+}
+//______________________________________________________________________________
+vector <Double_t> Binning::GetPhiTildeWidth(){
+  for(int i = 0;i < fNPhiTildeBins;i++){
+    fPhiTildeWidth.push_back(fPhiTildeValues[i+1] - fPhiTildeValues[i]);
+  }
+  return fPhiTildeWidth;
 }
 //______________________________________________________________________________
 vector <Int_t> Binning::GetCostBinsMin(){
@@ -99,6 +125,14 @@ vector <Int_t> Binning::GetPhiBinsMin(){
 //______________________________________________________________________________
 vector <Int_t> Binning::GetPhiBinsMax(){
   return fPhiBinsMax;
+}
+//______________________________________________________________________________
+vector <Int_t> Binning::GetPhiTildeBinsMin(){
+  return fPhiTildeBinsMin;
+}
+//______________________________________________________________________________
+vector <Int_t> Binning::GetPhiTildeBinsMax(){
+  return fPhiTildeBinsMax;
 }
 //______________________________________________________________________________
 vector < vector <Double_t> > Binning::GetCellAreaMatrix(){

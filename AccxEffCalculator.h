@@ -16,7 +16,7 @@ class AccxEffCalculator : public TObject
    virtual ~AccxEffCalculator();
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
-   void SetBinning(vector <Double_t> , vector <Double_t>);
+   void SetBinning(vector <Double_t> , vector <Double_t>, vector <Double_t>);
    void ComputeAccxEff(string strSample, string nameOutputFile);
    void ReWeightAccxEff(string refFrame, Double_t LambdaTheta, Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
@@ -35,6 +35,8 @@ class AccxEffCalculator : public TObject
    vector <Double_t> fCosThetaValues;
    Int_t fNPhiBins;
    vector <Double_t> fPhiValues;
+   Int_t fNPhiTildeBins;
+   vector <Double_t> fPhiTildeValues;
 
    double fPhiTilde;
 

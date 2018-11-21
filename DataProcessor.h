@@ -41,6 +41,10 @@ class DataProcessor : public TObject
    vector <Int_t> fPhiBinsMin;
    vector <Int_t> fPhiBinsMax;
    vector <Double_t> fPhiValues;
+   Int_t fNPhiTildeBins;
+   vector <Int_t> fPhiTildeBinsMin;
+   vector <Int_t> fPhiTildeBinsMax;
+   vector <Double_t> fPhiTildeValues;
 
    THnSparse *fHistNVarHE;
    THnSparse *fHistNVarCS;
