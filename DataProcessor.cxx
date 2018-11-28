@@ -99,7 +99,7 @@ void DataProcessor::SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBi
   }
 }
 //______________________________________________________________________________
-void DataProcessor::CreateTHnSparse(string strSample, string nameOutputFile) {
+void DataProcessor::CreateTHnSparse(string strSample, bool_t pDCAapplied, string nameOutputFile) {
   printf("--- pDCA included ---\n");
   fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCA
 
@@ -149,6 +149,10 @@ void DataProcessor::CreateTHnSparse(string strSample, string nameOutputFile) {
                     if(fPDCA[k] != 0){goodMuon2 = kTRUE;}
                     //printf(" -> ok! (Px = %f) [%i] \n",Px[k],k);
                   }
+                }
+                if(pDCAapplied == kFALSE){
+                  goodMuon1 = kTRUE;
+                  goodMuon2 = kTRUE;
                 }
                 if(goodMuon1 == kTRUE && goodMuon2 == kTRUE){
                   varArray[0] = fDimuPt[j];
