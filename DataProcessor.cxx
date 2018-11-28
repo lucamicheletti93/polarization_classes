@@ -99,7 +99,7 @@ void DataProcessor::SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBi
   }
 }
 //______________________________________________________________________________
-void DataProcessor::CreateTHnSparse(string strSample, bool_t pDCAapplied, string nameOutputFile) {
+void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string nameOutputFile) {
   printf("--- pDCA included ---\n");
   fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCA
 
