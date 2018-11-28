@@ -273,6 +273,11 @@ void AccxEffCalculator::ReWeightAccxEff(string refFrame, Double_t LambdaTheta,Do
   if(strSample == "TestStat"){nEvents = 100000;}
   printf("N events = %i \n",nEvents);
 
+  double CosThetaGen = 0;
+  double CosThetaRec = 0;
+  double PhiGen = 0;
+  double PhiRec = 0;
+
   double weightCosTheta = 0;
   double weightPhi = 0;
   double weightCosThetaPhi = 0;
@@ -300,14 +305,18 @@ void AccxEffCalculator::ReWeightAccxEff(string refFrame, Double_t LambdaTheta,Do
         if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
             if(refFrame == "HE"){
               weightCosTheta = (funcCosTheta -> Eval(fCosThetaHEGen[j]))/(funcCosTheta -> GetMaximum());
+              CosThetaGen = fCosThetaHEGen[j];
               weightPhi = (funcPhi -> Eval(fPhiHEGen[j]))/(funcPhi -> GetMaximum());
+              PhiGen = fPhiHEGen[j];
             }
             if(refFrame == "CS"){
               weightCosTheta = (funcCosTheta -> Eval(fCosThetaCSGen[j]))/(funcCosTheta -> GetMaximum());
+              CosThetaGen = fCosThetaCSGen[j];
               weightPhi = (funcPhi -> Eval(fPhiCSGen[j]))/(funcPhi -> GetMaximum());
+              PhiGen = fPhiCSGen[j];
             }
-            fHistGenCosThetaReWeighted[0] -> Fill(fCosThetaHEGen[j],weightCosTheta);
-            fHistGenPhiReWeighted[0] -> Fill(TMath::Abs(fPhiHEGen[j]),weightPhi);
+            fHistGenCosThetaReWeighted[0] -> Fill(CosThetaGen,weightCosTheta);
+            fHistGenPhiReWeighted[0] -> Fill(TMath::Abs(PhiGen),weightPhi);
         }
       }
     }
