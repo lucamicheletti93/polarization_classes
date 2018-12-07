@@ -100,8 +100,11 @@ void DataProcessor::SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBi
 }
 //______________________________________________________________________________
 void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string nameOutputFile) {
-  printf("--- pDCA included ---\n");
-  fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCA
+  if(pDCAapplied){
+    printf("--- pDCA included ---\n");
+    fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCAs
+  }
+  else{printf("--- pDCA not included ---\n");}
 
   double PI = TMath::Pi();
   int nEvents = 0;
@@ -112,7 +115,7 @@ void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string
   TFile *fileTHnSparse = new TFile(nameOutputFile.c_str(),"RECREATE");
 
   // Defining the THnSparse
-  // varArray[4] = {DimuPt, DimuMass, DimuCost, DimuPhi}
+  // varArray[4] = {DimuPt, DimuMass, DimuCost, DimuPhi, DimuPhiTilde}
   const int nVar = 5;
   int nBins[nVar] = {100,120,100,50,50};
   double minVar[nVar] = {0.,2.,-1.,0.,0.};
@@ -203,16 +206,8 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
   TFile *fileOutput = new TFile(nameOutputFile.c_str(),"RECREATE");
   for(int i = 1;i < (int) fMinPt.size() - 1;i++){
-    if(i == 1){
-      fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
-      fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
-      //cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]) << " - " << fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i]) << endl;
-    }
-    else{
-      fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i] + 1.01*(fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
-      fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i] + 1.01*(fHistNVarCS -> GetAxis(0) -> GetBinWidth(1))),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
-      //cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i] + 1.01*(fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))) << " - " << fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i]) << endl;
-    }
+    fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))); // cut in pT
+    fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarCS -> GetAxis(0) -> GetBinWidth(1))); // cut in pT
 
     TH1D *histMassHE = (TH1D*) fHistNVarHE -> Projection(1); histMassHE -> Write(Form("histHE_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); delete histMassHE;
     TH1D *histMassCS = (TH1D*) fHistNVarCS -> Projection(1); histMassCS -> Write(Form("histCS_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); delete histMassCS;
@@ -222,9 +217,9 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
       THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
       histNVarHEClone -> GetAxis(2) -> SetRange(fCostBinsMin[j],fCostBinsMax[j]); // cut in CosTheta
+      cout << fCostBinsMin[j] << " - " << fCostBinsMax[j] << endl;
       TH1D *histMassCosThetaHE = (TH1D*) histNVarHEClone -> Projection(1);
       histMassCosThetaHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_CosTheta_%3.2f",fMinPt[i],fMaxPt[i],fCostValues[j],fCostValues[j+1]));
-      //cout << histMassCosThetaHE -> GetEntries() << endl;
       delete histMassCosThetaHE;
       delete histNVarHEClone;
 
@@ -242,7 +237,6 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
       THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
       histNVarHEClone -> GetAxis(3) -> SetRange(fPhiBinsMin[j],fPhiBinsMax[j]); // cut in Phi
       TH1D *histMassPhiHE = (TH1D*) histNVarHEClone -> Projection(1);
-      //cout << fPhiBinsMin[j] << " - " << fPhiBinsMax[j] << " || " << fPhiValues[j] << "," << fPhiValues[j+1] << " !! " << histMassPhiHE -> GetEntries() << endl;
       histMassPhiHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fPhiValues[j],fPhiValues[j+1]));
       delete histMassPhiHE;
       delete histNVarHEClone;
@@ -281,7 +275,6 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
       THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
       histNVarHEClone -> GetAxis(4) -> SetRange(fPhiTildeBinsMin[j],fPhiTildeBinsMax[j]); // cut in PhiTilde
       TH1D *histMassPhiTildeHE = (TH1D*) histNVarHEClone -> Projection(1);
-      //cout << fPhiTildeBinsMin[j] << " - " << fPhiTildeBinsMax[j] << " || " << fPhiTildeValues[j] << "," << fPhiTildeValues[j+1] << " !! " << histMassPhiTildeHE -> GetEntries() << endl;
       histMassPhiTildeHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_PhiTilde_%3.2f",fMinPt[i],fMaxPt[i],fPhiTildeValues[j],fPhiTildeValues[j+1]));
       delete histMassPhiTildeHE;
       delete histNVarHEClone;
