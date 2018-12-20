@@ -13,6 +13,7 @@
 #include "TF1.h"
 #include "TF2.h"
 #include "TFile.h"
+#include "THnSparse.h"
 #include "AccxEffCalculator.h"
 
 ClassImp(AccxEffCalculator)
@@ -71,12 +72,64 @@ void AccxEffCalculator::SetBinning(vector <Double_t> CosThetaValues, vector <Dou
   fNPhiTildeBins = fPhiTildeValues.size() - 1;
 }
 //______________________________________________________________________________
+/*void AccxEffCalculator::ComputeResolution(string strSample, string nameOutputFile){
+  int nEvents = 0;
+
+  if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
+  if(strSample == "TestStat"){nEvents = 1000000;}
+  printf("N events = %i \n",nEvents);
+
+  for(int i = 0;i < fNPtBins;i++){
+    // HELICITY
+    fHistGenCosThetaHE[i] = new TH1D(Form("histGenCosThetaHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaHE[i] -> Sumw2();
+
+    fHistResolutionCosTheta[i]] = new TH1D(
+   fHistResolutionPhi[i]] = new TH1D(
+   fHistResolutionCosThetaPhi[i]] = new TH2D(
+  }
+
+  for(int i = 0;i < nEvents;i++){
+    printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
+    fTreeAccxEff -> GetEntry(i);
+
+    if(fNDimuRec != 0){
+      for(int j = 0;j < fNDimuGen;j++){
+        if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
+          while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+        }
+      }
+    }
+    else{continue;}
+
+  }
+
+}*/
+//______________________________________________________________________________
 void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) {
   int nEvents = 0;
   int indexPt = 0;
 
+  const int nVar = 4;
+  int nBins[nVar] = {100,120,100,50};
+  double minVar[nVar] = {0.,2.,-1.,0.};
+  double maxVar[nVar] = {10.,5.,1.,fPi};
+  double varArray[nVar];
+
+  const int nVarTest = 4;
+  int nBinsTest[nVarTest] = {100,100,100,100};
+  double minVarTest[nVarTest] = {0.,-1.,-fPi,0.};
+  double maxVarTest[nVarTest] = {10.,1.,fPi,2*fPi};
+  double varArrayTest[nVarTest];
+
+  THnSparseD *histNVarHE = new THnSparseD("histNVarHE","histNVarHE",nVar,nBins,minVar,maxVar);
+  THnSparseD *histNVarCS = new THnSparseD("histNVarCS","histNVarCS",nVar,nBins,minVar,maxVar);
+  THnSparseD *histNVarTestGenHE = new THnSparseD("histNVarTestGenHE","histNVarTestGenHE",nVarTest,nBinsTest,minVarTest,maxVarTest);
+  THnSparseD *histNVarTestGenCS = new THnSparseD("histNVarTestGenCS","histNVarTestGenCS",nVarTest,nBinsTest,minVarTest,maxVarTest);
+  THnSparseD *histNVarTestRecHE = new THnSparseD("histNVarTestRecHE","histNVarTestRecHE",nVarTest,nBinsTest,minVarTest,maxVarTest);
+  THnSparseD *histNVarTestRecCS = new THnSparseD("histNVarTestRecCS","histNVarTestRecCS",nVarTest,nBinsTest,minVarTest,maxVarTest);
+
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
-  if(strSample == "TestStat"){nEvents = 1000000;}
+  if(strSample == "TestStat"){nEvents = 5000000;}
   printf("N events = %i \n",nEvents);
 
   for(int i = 0;i < fNPtBins;i++){
@@ -90,6 +143,16 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
     fHistGenCosThetaPhiHE[i] = new TH2D(Form("histGenCosThetaPhiHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]); fHistGenCosThetaPhiHE[i] -> Sumw2();
     fHistRecCosThetaPhiHE[i] = new TH2D(Form("histRecCosThetaPhiHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]); fHistRecCosThetaPhiHE[i] -> Sumw2();
 
+    fHistGenPhiTildeNarrowHE[i] = new TH1D(Form("histGenPhiTildeNarrowHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistGenPhiTildeNarrowHE[i] -> Sumw2();
+    fHistRecPhiTildeNarrowHE[i] = new TH1D(Form("histRecPhiTildeNarrowHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowHE[i] -> Sumw2();
+
+    fHistRecPhiTildeNarrowLeftBellHE[i] = new TH1D(Form("histRecPhiTildeNarrowLeftBellHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowLeftBellHE[i] -> Sumw2();
+    fHistRecPhiTildeNarrowRightBellHE[i] = new TH1D(Form("histRecPhiTildeNarrowRightBellHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowRightBellHE[i] -> Sumw2();
+    fHistRecPhiTildeNarrowAllBellHE[i] = new TH1D(Form("histRecPhiTildeNarrowAllBellHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowAllBellHE[i] -> Sumw2();
+
+    fHistGenCosThetaPhiNarrowHE[i] = new TH2D(Form("histGenCosThetaPhiNarrowHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-1.,1.,100,-fPi,fPi); fHistGenCosThetaPhiNarrowHE[i] -> Sumw2();
+    fHistRecCosThetaPhiNarrowHE[i] = new TH2D(Form("histRecCosThetaPhiNarrowHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-1.,1.,100,-fPi,fPi); fHistRecCosThetaPhiNarrowHE[i] -> Sumw2();
+
     // COLLINS-SOPER
     fHistGenCosThetaCS[i] = new TH1D(Form("histGenCosThetaCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaCS[i] -> Sumw2();
     fHistRecCosThetaCS[i] = new TH1D(Form("histRecCosThetaCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistRecCosThetaCS[i] -> Sumw2();
@@ -99,17 +162,33 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
     fHistRecPhiTildeCS[i] = new TH1D(Form("histRecPhiTildeCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistRecPhiTildeCS[i] -> Sumw2();
     fHistGenCosThetaPhiCS[i] = new TH2D(Form("histGenCosThetaPhiCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]); fHistGenCosThetaPhiCS[i] -> Sumw2();
     fHistRecCosThetaPhiCS[i] = new TH2D(Form("histRecCosThetaPhiCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]); fHistRecCosThetaPhiCS[i] -> Sumw2();
+
+    fHistGenPhiTildeNarrowCS[i] = new TH1D(Form("histGenPhiTildeNarrowCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistGenPhiTildeNarrowCS[i] -> Sumw2();
+    fHistRecPhiTildeNarrowCS[i] = new TH1D(Form("histRecPhiTildeNarrowCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowCS[i] -> Sumw2();
+
+    fHistRecPhiTildeNarrowLeftBellCS[i] = new TH1D(Form("histRecPhiTildeNarrowLeftBellCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowLeftBellCS[i] -> Sumw2();
+    fHistRecPhiTildeNarrowRightBellCS[i] = new TH1D(Form("histRecPhiTildeNarrowRightBellCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowRightBellCS[i] -> Sumw2();
+    fHistRecPhiTildeNarrowAllBellCS[i] = new TH1D(Form("histRecPhiTildeNarrowAllBellCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); fHistRecPhiTildeNarrowAllBellCS[i] -> Sumw2();
+
+    fHistGenCosThetaPhiNarrowCS[i] = new TH2D(Form("histGenCosThetaPhiNarrowCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-1.,1.,100,-fPi,fPi); fHistGenCosThetaPhiNarrowCS[i] -> Sumw2();
+    fHistRecCosThetaPhiNarrowCS[i] = new TH2D(Form("histRecCosThetaPhiNarrowCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-1.,1.,100,-fPi,fPi); fHistRecCosThetaPhiNarrowCS[i] -> Sumw2();
   }
 
   fHistGenCosThetaHEPt = new TH2D("histGenCosThetaHEPt","",100,-1,1,100,0,10); fHistGenCosThetaHEPt -> Sumw2();
   fHistRecCosThetaHEPt = new TH2D("histRecCosThetaHEPt","",100,-1,1,100,0,10); fHistRecCosThetaHEPt -> Sumw2();
   fHistGenPhiHEPt = new TH2D("histGenPhiHEPt","",100,0,fPi,100,0,10); fHistGenPhiHEPt -> Sumw2();
   fHistRecPhiHEPt = new TH2D("histRecPhiHEPt","",100,0,fPi,100,0,10); fHistRecPhiHEPt -> Sumw2();
+  fHistGenPhiTildeHEPt = new TH2D("histGenPhiTildeHEPt","",100,0.,2*fPi,100,0,15); fHistGenPhiTildeHEPt -> Sumw2();
+  fHistRecPhiTildeHEPt = new TH2D("histRecPhiTildeHEPt","",100,0.,2*fPi,100,0,15); fHistRecPhiTildeHEPt -> Sumw2();
 
   fHistGenCosThetaCSPt = new TH2D("histGenCosThetaCSPt","",100,-1,1,100,0,10); fHistGenCosThetaCSPt -> Sumw2();
   fHistRecCosThetaCSPt = new TH2D("histRecCosThetaCSPt","",100,-1,1,100,0,10); fHistRecCosThetaCSPt -> Sumw2();
   fHistGenPhiCSPt = new TH2D("histGenPhiCSPt","",100,0,fPi,100,0,10); fHistGenPhiCSPt -> Sumw2();
   fHistRecPhiCSPt = new TH2D("histRecPhiCSPt","",100,0,fPi,100,0,10); fHistRecPhiCSPt -> Sumw2();
+  fHistGenPhiTildeCSPt = new TH2D("histGenPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistGenPhiTildeCSPt -> Sumw2();
+  fHistRecPhiTildeCSPt = new TH2D("histRecPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistRecPhiTildeCSPt -> Sumw2();
+
+  double tmpVar = 0;
 
   for(int i = 0;i < nEvents;i++){
     printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
@@ -125,20 +204,58 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
         // 1D approach
         fHistGenCosThetaHE[indexPt] -> Fill(fCosThetaHEGen[j]);
         fHistGenPhiHE[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]));
-        if(fCosThetaHEGen[j] < 0.){fPhiTilde = fPhiHEGen[j] - (3./4.)*fPi;}
-        if(fCosThetaHEGen[j] > 0.){fPhiTilde = fPhiHEGen[j] - (1./4.)*fPi;}
-        if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
-        if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+
+        //if(fPhiHEGen[j] < 0){tmpVar = TMath::Abs(fPhiHEGen[j]) + fPi;}
+        //else{tmpVar = fPhiHEGen[j];}
+        tmpVar = fPhiHEGen[j] + fPi;
+
+        if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+        if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+        //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}                     // my condition
+        //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+        //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+        //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
         fHistGenPhiTildeHE[indexPt] -> Fill(fPhiTilde);
+        fHistGenPhiTildeNarrowHE[indexPt] -> Fill(fPhiTilde);
+        fHistGenPhiTildeHEPt -> Fill(fPhiTilde,fDimuPtGen[j]);
+
+        varArrayTest[0] = fDimuPtGen[j];
+        varArrayTest[1] = fCosThetaHEGen[j];
+        varArrayTest[2] = fPhiHEGen[j];
+        varArrayTest[3] = fPhiTilde;
+        histNVarTestGenHE -> Fill(varArrayTest);
 
         fHistGenCosThetaCS[indexPt] -> Fill(fCosThetaCSGen[j]);
         fHistGenPhiCS[indexPt] -> Fill(TMath::Abs(fPhiCSGen[j]));
-        if(fCosThetaCSGen[j] < 0.){fPhiTilde = fPhiCSGen[j] - (3./4.)*fPi;}
-        if(fCosThetaCSGen[j] > 0.){fPhiTilde = fPhiCSGen[j] - (1./4.)*fPi;}
-        if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
-        if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+
+        //if(fPhiCSGen[j] < 0){tmpVar = TMath::Abs(fPhiCSGen[j]) + fPi;}
+        //else{tmpVar = fPhiCSGen[j];}
+        tmpVar = fPhiCSGen[j] + fPi;
+
+        if(fCosThetaCSGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+        if(fCosThetaCSGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+        //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}                     // my condition
+        //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+        //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+        //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
         fHistGenPhiTildeCS[indexPt] -> Fill(fPhiTilde);
+        fHistGenPhiTildeNarrowCS[indexPt] -> Fill(fPhiTilde);
+        fHistGenPhiTildeCSPt -> Fill(fPhiTilde,fDimuPtGen[j]);
+
+        varArrayTest[0] = fDimuPtGen[j];
+        varArrayTest[1] = fCosThetaCSGen[j];
+        varArrayTest[2] = fPhiCSGen[j];
+        varArrayTest[3] = fPhiTilde;
+        histNVarTestGenCS -> Fill(varArrayTest);
+
         // 2D approach
+        fHistGenCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHEGen[j],fPhiHEGen[j]);
+        fHistGenCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSGen[j],fPhiCSGen[j]);
+
         fHistGenCosThetaPhiHE[indexPt] -> Fill(fCosThetaHEGen[j],TMath::Abs(fPhiHEGen[j]));
         fHistGenCosThetaPhiCS[indexPt] -> Fill(fCosThetaCSGen[j],TMath::Abs(fPhiCSGen[j]));
         indexPt = 0;
@@ -149,6 +266,21 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
       if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
         if(fDimuMatchRec[j] == 2){
           if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+            ////////////////////////////////////////////////////////////////////
+            //Filling the THnSparse
+            varArray[0] = fDimuPtRec[j];
+            varArray[1] = fDimuMassRec[j];
+            varArray[2] = fCosThetaHERec[j];
+            varArray[3] = TMath::Abs(fPhiHERec[j]);
+            histNVarHE -> Fill(varArray);
+
+            varArray[0] = fDimuPtRec[j];
+            varArray[1] = fDimuMassRec[j];
+            varArray[2] = fCosThetaCSRec[j];
+            varArray[3] = TMath::Abs(fPhiCSRec[j]);
+            histNVarCS -> Fill(varArray);
+            ////////////////////////////////////////////////////////////////////
+
             fHistRecCosThetaHEPt -> Fill(fCosThetaHERec[j],fDimuPtRec[j]);
             fHistRecPhiHEPt -> Fill(TMath::Abs(fPhiHERec[j]),fDimuPtRec[j]);
             fHistRecCosThetaCSPt -> Fill(fCosThetaCSRec[j],fDimuPtRec[j]);
@@ -157,20 +289,63 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
             // 1D approach
             fHistRecCosThetaHE[indexPt] -> Fill(fCosThetaHERec[j]);
             fHistRecPhiHE[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]));
-            if(fCosThetaHERec[j] < 0.){fPhiTilde = fPhiHERec[j] - (3./4.)*fPi;}
-            if(fCosThetaHERec[j] > 0.){fPhiTilde = fPhiHERec[j] - (1./4.)*fPi;}
-            if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
-            if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+
+            //if(fPhiHERec[j] < 0){tmpVar = TMath::Abs(fPhiHERec[j]) + fPi;}
+            //else{tmpVar = fPhiHERec[j];}
+            tmpVar = fPhiHERec[j] + fPi;
+
+            if(fCosThetaHERec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+            if(fCosThetaHERec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+            if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+            if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+            //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
+            //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+            //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+            //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
             fHistRecPhiTildeHE[indexPt] -> Fill(fPhiTilde);
+            fHistRecPhiTildeNarrowHE[indexPt] -> Fill(fPhiTilde);
+            if(fCosThetaHERec[j] < 0.){fHistRecPhiTildeNarrowLeftBellHE[indexPt] -> Fill(fPhiHERec[j]);}
+            if(fCosThetaHERec[j] > 0.){fHistRecPhiTildeNarrowRightBellHE[indexPt] -> Fill(fPhiHERec[j]);}
+            fHistRecPhiTildeNarrowAllBellHE[indexPt] -> Fill(fPhiHERec[j]);
+            fHistRecPhiTildeHEPt -> Fill(fPhiTilde,fDimuPtRec[j]);
+
+            varArrayTest[0] = fDimuPtRec[j];
+            varArrayTest[1] = fCosThetaHERec[j];
+            varArrayTest[2] = fPhiHERec[j];
+            varArrayTest[3] = fPhiTilde;
+            histNVarTestRecHE -> Fill(varArrayTest);
 
             fHistRecCosThetaCS[indexPt] -> Fill(fCosThetaCSRec[j]);
             fHistRecPhiCS[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]));
-            if(fCosThetaCSRec[j] < 0.){fPhiTilde = fPhiCSRec[j] - (3./4.)*fPi;}
-            if(fCosThetaCSRec[j] > 0.){fPhiTilde = fPhiCSRec[j] - (1./4.)*fPi;}
-            if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
-            if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+
+            //if(fPhiCSRec[j] < 0){tmpVar = TMath::Abs(fPhiCSRec[j]) + fPi;}
+            //else{tmpVar = fPhiCSRec[j];}
+            tmpVar = fPhiCSRec[j] + fPi;
+
+            if(fCosThetaCSRec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+            if(fCosThetaCSRec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+            if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+            if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+            //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
+            //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+            //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+            //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
             fHistRecPhiTildeCS[indexPt] -> Fill(fPhiTilde);
+            fHistRecPhiTildeNarrowCS[indexPt] -> Fill(fPhiTilde);
+            if(fCosThetaCSRec[j] < 0.){fHistRecPhiTildeNarrowLeftBellCS[indexPt] -> Fill(fPhiCSRec[j]);}
+            if(fCosThetaCSRec[j] > 0.){fHistRecPhiTildeNarrowRightBellCS[indexPt] -> Fill(fPhiCSRec[j]);}
+            fHistRecPhiTildeNarrowAllBellCS[indexPt] -> Fill(fPhiCSRec[j]);
+            fHistRecPhiTildeCSPt -> Fill(fPhiTilde,fDimuPtRec[j]);
+
+            varArrayTest[0] = fDimuPtRec[j];
+            varArrayTest[1] = fCosThetaCSRec[j];
+            varArrayTest[2] = fPhiCSRec[j];
+            varArrayTest[3] = fPhiTilde;
+            histNVarTestRecCS -> Fill(varArrayTest);
+
             // 2D approach
+            fHistRecCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHERec[j],fPhiHERec[j]);
+            fHistRecCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSRec[j],fPhiCSRec[j]);
             fHistRecCosThetaPhiHE[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]));
             fHistRecCosThetaPhiCS[indexPt] -> Fill(fCosThetaCSRec[j],TMath::Abs(fPhiCSRec[j]));
             indexPt = 0;
@@ -193,10 +368,16 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
     fHistAccxEffPhiTildeHE[i] = new TH1D(Form("histAccxEffPhiTildeHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
     fHistAccxEffPhiTildeHE[i] -> Divide(fHistRecPhiTildeHE[i],fHistGenPhiTildeHE[i],1,1,"B");
 
+    fHistAccxEffPhiTildeNarrowHE[i] = new TH1D(Form("histAccxEffPhiTildeNarrowHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); //
+    fHistAccxEffPhiTildeNarrowHE[i] -> Divide(fHistRecPhiTildeNarrowHE[i],fHistGenPhiTildeNarrowHE[i],1,1,"B");                     //
+
     fHistAccxEffCosThetaPhiHE[i] = new TH2D(Form("histAccxEffCosThetaPhiHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
     fHistAccxEffCosThetaPhiHE[i] -> Divide(fHistRecCosThetaPhiHE[i],fHistGenCosThetaPhiHE[i],1,1,"B");
 
     fHistAccxEffCosThetaPhiStatRelHE[i] = new TH2D(Form("histAccxEffCosThetaPhiStatRelHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
+
+    fHistAccxEffCosThetaPhiNarrowHE[i] = new TH2D(Form("histAccxEffCosThetaPhiNarrowHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-1.,1.,100,-fPi,fPi);
+    fHistAccxEffCosThetaPhiNarrowHE[i] -> Divide(fHistRecCosThetaPhiNarrowHE[i],fHistGenCosThetaPhiNarrowHE[i],1,1,"B");
 
     // COLLINS-SOPER
     fHistAccxEffCosThetaCS[i] = new TH1D(Form("histAccxEffCosThetaCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
@@ -208,21 +389,31 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
     fHistAccxEffPhiTildeCS[i] = new TH1D(Form("histAccxEffPhiTildeCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
     fHistAccxEffPhiTildeCS[i] -> Divide(fHistRecPhiTildeCS[i],fHistGenPhiTildeCS[i],1,1,"B");
 
+    fHistAccxEffPhiTildeNarrowCS[i] = new TH1D(Form("histAccxEffPhiTildeNarrowCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",200,-2*fPi,2*fPi); //
+    fHistAccxEffPhiTildeNarrowCS[i] -> Divide(fHistRecPhiTildeNarrowCS[i],fHistGenPhiTildeNarrowCS[i],1,1,"B");                     //
+
     fHistAccxEffCosThetaPhiCS[i] = new TH2D(Form("histAccxEffCosThetaPhiCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
     fHistAccxEffCosThetaPhiCS[i] -> Divide(fHistRecCosThetaPhiCS[i],fHistGenCosThetaPhiCS[i],1,1,"B");
 
     fHistAccxEffCosThetaPhiStatRelCS[i] = new TH2D(Form("histAccxEffCosThetaPhiStatRelCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
+
+    fHistAccxEffCosThetaPhiNarrowCS[i] = new TH2D(Form("histAccxEffCosThetaPhiNarrowCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",100,-1.,1.,100,-fPi,fPi);
+    fHistAccxEffCosThetaPhiNarrowCS[i] -> Divide(fHistRecCosThetaPhiNarrowCS[i],fHistGenCosThetaPhiNarrowCS[i],1,1,"B");
   }
 
   fHistAccxEffCosThetaHEPt = new TH2D("histAccxEffCosThetaHEPt","",100,-1,1,100,0,10);
   fHistAccxEffCosThetaHEPt -> Divide(fHistRecCosThetaHEPt,fHistGenCosThetaHEPt,1,1,"B");
   fHistAccxEffPhiHEPt = new TH2D("histAccxEffPhiHEPt","",100,0,fPi,100,0,10);
   fHistAccxEffPhiHEPt -> Divide(fHistRecPhiHEPt,fHistGenPhiHEPt,1,1,"B");
+  fHistAccxEffPhiTildeHEPt = new TH2D("histAccxEffPhiTildeHEPt","",100,0.,2*fPi,100,0,15);
+  fHistAccxEffPhiTildeHEPt -> Divide(fHistRecPhiTildeHEPt,fHistGenPhiTildeHEPt,1,1,"B");
 
   fHistAccxEffCosThetaCSPt = new TH2D("histAccxEffCosThetaCSPt","",100,-1,1,100,0,10);
   fHistAccxEffCosThetaCSPt -> Divide(fHistRecCosThetaCSPt,fHistGenCosThetaCSPt,1,1,"B");
   fHistAccxEffPhiCSPt = new TH2D("histAccxEffPhiCSPt","",100,0,fPi,100,0,10);
   fHistAccxEffPhiCSPt -> Divide(fHistRecPhiCSPt,fHistGenPhiCSPt,1,1,"B");
+  fHistAccxEffPhiTildeCSPt = new TH2D("histAccxEffPhiTildeCSPt","",100,0.,2*fPi,100,0,15);
+  fHistAccxEffPhiTildeCSPt -> Divide(fHistRecPhiTildeCSPt,fHistGenPhiTildeCSPt,1,1,"B");
 
   for(int i = 0;i < fNPtBins;i++){
     for(int j = 0;j < fNCosThetaBins;j++){
@@ -234,6 +425,12 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
   }
 
   TFile *fileAccxEff = new TFile(nameOutputFile.c_str(),"RECREATE");
+  histNVarHE -> Write();
+  histNVarCS -> Write();
+  histNVarTestGenHE -> Write();
+  histNVarTestGenCS -> Write();
+  histNVarTestRecHE -> Write();
+  histNVarTestRecCS -> Write();
   for(int i = 0;i < fNPtBins;i++){
     fHistGenCosThetaHE[i] -> Write(); fHistRecCosThetaHE[i] -> Write(); fHistAccxEffCosThetaHE[i] -> Write();
     fHistGenPhiHE[i] -> Write(); fHistRecPhiHE[i] -> Write(); fHistAccxEffPhiHE[i] -> Write();
@@ -246,12 +443,34 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
     fHistGenPhiTildeCS[i] -> Write(); fHistRecPhiTildeCS[i] -> Write(); fHistAccxEffPhiTildeCS[i] -> Write();
     fHistGenCosThetaPhiCS[i] -> Write(); fHistRecCosThetaPhiCS[i] -> Write(); fHistAccxEffCosThetaPhiCS[i] -> Write();
     fHistAccxEffCosThetaPhiStatRelCS[i] -> Write();
+
+    fHistGenPhiTildeNarrowHE[i] -> Write();
+    fHistRecPhiTildeNarrowHE[i] -> Write();
+    fHistAccxEffPhiTildeNarrowHE[i] -> Write();
+
+    fHistGenPhiTildeNarrowCS[i] -> Write();
+    fHistRecPhiTildeNarrowCS[i] -> Write();
+    fHistAccxEffPhiTildeNarrowCS[i] -> Write();
+
+    fHistRecPhiTildeNarrowLeftBellHE[i] -> Write();
+    fHistRecPhiTildeNarrowRightBellHE[i] -> Write();
+    fHistRecPhiTildeNarrowAllBellHE[i] -> Write();
+    fHistRecPhiTildeNarrowLeftBellCS[i] -> Write();
+    fHistRecPhiTildeNarrowRightBellCS[i] -> Write();
+    fHistRecPhiTildeNarrowAllBellCS[i] -> Write();
+
+    fHistAccxEffCosThetaPhiNarrowHE[i] -> Write();
+    fHistAccxEffCosThetaPhiNarrowCS[i] -> Write();
   }
   fHistGenCosThetaHEPt -> Write(); fHistGenPhiHEPt -> Write(); fHistAccxEffCosThetaHEPt -> Write();
   fHistRecCosThetaHEPt -> Write(); fHistRecPhiHEPt -> Write(); fHistAccxEffPhiHEPt -> Write();
 
   fHistGenCosThetaCSPt -> Write(); fHistGenPhiCSPt -> Write(); fHistAccxEffCosThetaCSPt -> Write();
   fHistRecCosThetaCSPt -> Write(); fHistRecPhiCSPt -> Write(); fHistAccxEffPhiCSPt -> Write();
+
+  fHistGenPhiTildeHEPt -> Write(); fHistRecPhiTildeHEPt -> Write(); fHistAccxEffPhiTildeHEPt -> Write();
+  fHistGenPhiTildeCSPt -> Write(); fHistRecPhiTildeCSPt -> Write(); fHistAccxEffPhiTildeCSPt -> Write();
+
   fileAccxEff -> Close();
 }
 //______________________________________________________________________________

@@ -121,6 +121,7 @@ void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string
   double minVar[nVar] = {0.,2.,-1.,0.,0.};
   double maxVar[nVar] = {10.,5.,1.,PI,PI};
   double varArray[nVar];
+  double tmpVar = 0;    // variable used to store the value of Phi for PhiTilde calculation
 
   THnSparseD *histNVarHE = new THnSparseD("histNVarHE","histNVarHE",nVar,nBins,minVar,maxVar);
   THnSparseD *histNVarCS = new THnSparseD("histNVarCS","histNVarCS",nVar,nBins,minVar,maxVar);
@@ -162,10 +163,15 @@ void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string
                   varArray[1] = fDimuMass[j];
                   varArray[2] = fCostHE[j];
                   varArray[3] = TMath::Abs(fPhiHE[j]);
-                  if(fCostHE[j] < 0.){fPhiTildeHE[j] = fPhiHE[j] - (3./4.)*PI;}
-                  if(fCostHE[j] > 0.){fPhiTildeHE[j] = fPhiHE[j] - (1./4.)*PI;}
-                  if(fPhiTildeHE[j] < 0){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
-                  if(fPhiTildeHE[j] > PI){fPhiTildeHE[j] = 2*PI - fPhiTildeHE[j];}
+                  tmpVar = fPhiHE[j] + PI;
+                  //if(fCostHE[j] < 0.){fPhiTildeHE[j] = fPhiHE[j] - (3./4.)*PI;}
+                  //if(fCostHE[j] > 0.){fPhiTildeHE[j] = fPhiHE[j] - (1./4.)*PI;}
+                  if(fCostHE[j] < 0.){fPhiTildeHE[j] = tmpVar - (3./4.)*PI;}
+                  if(fCostHE[j] > 0.){fPhiTildeHE[j] = tmpVar - (1./4.)*PI;}
+                  //if(fPhiTildeHE[j] < 0){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
+                  //if(fPhiTildeHE[j] > PI){fPhiTildeHE[j] = 2*PI - fPhiTildeHE[j];}
+                  if(fPhiTildeHE[j] > 2*PI){fPhiTildeHE[j] = fPhiTildeHE[j] - 2*PI;}
+                  if(fPhiTildeHE[j] < 0.){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
                   varArray[4] = fPhiTildeHE[j];
 
                   histNVarHE -> Fill(varArray);                                 // Filling the THnSparse
@@ -174,10 +180,15 @@ void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string
                   varArray[1] = fDimuMass[j];
                   varArray[2] = fCostCS[j];
                   varArray[3] = TMath::Abs(fPhiCS[j]);
-                  if(fCostCS[j] < 0.){fPhiTildeCS[j] = fPhiCS[j] - (3./4.)*PI;}
-                  if(fCostCS[j] > 0.){fPhiTildeCS[j] = fPhiCS[j] - (1./4.)*PI;}
-                  if(fPhiTildeCS[j] < 0){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
-                  if(fPhiTildeCS[j] > PI){fPhiTildeCS[j] = 2*PI - fPhiTildeCS[j];}
+                  tmpVar = fPhiCS[j] + PI;
+                  //if(fCostCS[j] < 0.){fPhiTildeCS[j] = fPhiCS[j] - (3./4.)*PI;}
+                  //if(fCostCS[j] > 0.){fPhiTildeCS[j] = fPhiCS[j] - (1./4.)*PI;}
+                  if(fCostCS[j] < 0.){fPhiTildeCS[j] = tmpVar - (3./4.)*PI;}
+                  if(fCostCS[j] > 0.){fPhiTildeCS[j] = tmpVar - (1./4.)*PI;}
+                  //if(fPhiTildeCS[j] < 0){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
+                  //if(fPhiTildeCS[j] > PI){fPhiTildeCS[j] = 2*PI - fPhiTildeCS[j];}
+                  if(fPhiTildeCS[j] > 2*PI){fPhiTildeCS[j] = fPhiTildeCS[j] - 2*PI;}
+                  if(fPhiTildeCS[j] < 0.){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
                   varArray[4] = fPhiTildeCS[j];
 
                   histNVarCS -> Fill(varArray);                                 // Filling the THnSparse

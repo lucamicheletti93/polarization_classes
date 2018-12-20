@@ -43,6 +43,10 @@ class AccxEffCalculator : public TObject
    TTree *fTreeAccxEff;
 
    // Acc x Eff
+   TH1D *fHistResolutionCosTheta[13];
+   TH1D *fHistResolutionPhi[13];
+   TH2D *fHistResolutionCosThetaPhi[13];
+
    // cos(theta)
    TH1D *fHistGenCosThetaHE[13];
    TH1D *fHistRecCosThetaHE[13];
@@ -64,11 +68,37 @@ class AccxEffCalculator : public TObject
    TH1D *fHistGenPhiTildeCS[13];
    TH1D *fHistRecPhiTildeCS[13];
    TH1D *fHistAccxEffPhiTildeCS[13];
+
+   /////////////////////////////////////////////////////////////////////////////
+   TH1D *fHistGenPhiTildeNarrowHE[13];
+   TH1D *fHistRecPhiTildeNarrowHE[13];
+   TH1D *fHistAccxEffPhiTildeNarrowHE[13];
+   TH1D *fHistRecPhiTildeNarrowLeftBellHE[13];
+   TH1D *fHistRecPhiTildeNarrowRightBellHE[13];
+   TH1D *fHistRecPhiTildeNarrowAllBellHE[13];
+
+   TH1D *fHistGenPhiTildeNarrowCS[13];
+   TH1D *fHistRecPhiTildeNarrowCS[13];
+   TH1D *fHistAccxEffPhiTildeNarrowCS[13];
+   TH1D *fHistRecPhiTildeNarrowLeftBellCS[13];
+   TH1D *fHistRecPhiTildeNarrowRightBellCS[13];
+   TH1D *fHistRecPhiTildeNarrowAllBellCS[13];
+   /////////////////////////////////////////////////////////////////////////////
+
    // cos(theta),phi
+   TH2D *fHistGenCosThetaPhiNarrowHE[13];
+   TH2D *fHistRecCosThetaPhiNarrowHE[13];
+   TH2D *fHistAccxEffCosThetaPhiNarrowHE[13];
+
    TH2D *fHistGenCosThetaPhiHE[13];
    TH2D *fHistRecCosThetaPhiHE[13];
    TH2D *fHistAccxEffCosThetaPhiHE[13];
    TH2D *fHistAccxEffCosThetaPhiStatRelHE[13];
+
+   TH2D *fHistGenCosThetaPhiNarrowCS[13];
+   TH2D *fHistRecCosThetaPhiNarrowCS[13];
+   TH2D *fHistAccxEffCosThetaPhiNarrowCS[13];
+
    TH2D *fHistGenCosThetaPhiCS[13];
    TH2D *fHistRecCosThetaPhiCS[13];
    TH2D *fHistAccxEffCosThetaPhiCS[13];
@@ -87,6 +117,13 @@ class AccxEffCalculator : public TObject
    TH2D *fHistGenPhiCSPt;
    TH2D *fHistRecPhiCSPt;
    TH2D *fHistAccxEffPhiCSPt;
+   // phiTilde,pT
+   TH2D *fHistGenPhiTildeHEPt;
+   TH2D *fHistRecPhiTildeHEPt;
+   TH2D *fHistAccxEffPhiTildeHEPt;
+   TH2D *fHistGenPhiTildeCSPt;
+   TH2D *fHistRecPhiTildeCSPt;
+   TH2D *fHistAccxEffPhiTildeCSPt;
 
    // cos(theta)
    TH1D *fHistGenCosThetaReWeighted[13];
