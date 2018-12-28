@@ -106,6 +106,11 @@ void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string
   }
   else{printf("--- pDCA not included ---\n");}
 
+  printf("_____________Configure Fiducial Box_______________ \n");
+  printf("%f < CosTheta < %f \n",fCostValues[1],fCostValues[fNCostBins-1]);
+  printf("%f < |Phi| < %f \n",fPhiValues[1],fPhiValues[fNPhiBins-1]);
+  printf("__________________________________________________ \n");
+
   double PI = TMath::Pi();
   int nEvents = 0;
   if(strSample == "FullStat"){nEvents = fTreeData -> GetEntries();}
@@ -119,7 +124,7 @@ void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string
   const int nVar = 5;
   int nBins[nVar] = {100,120,100,50,50};
   double minVar[nVar] = {0.,2.,-1.,0.,0.};
-  double maxVar[nVar] = {10.,5.,1.,PI,PI};
+  double maxVar[nVar] = {10.,5.,1.,PI,2*PI};
   double varArray[nVar];
   double tmpVar = 0;    // variable used to store the value of Phi for PhiTilde calculation
 
@@ -159,41 +164,49 @@ void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string
                   goodMuon2 = kTRUE;
                 }
                 if(goodMuon1 == kTRUE && goodMuon2 == kTRUE){
-                  varArray[0] = fDimuPt[j];
-                  varArray[1] = fDimuMass[j];
-                  varArray[2] = fCostHE[j];
-                  varArray[3] = TMath::Abs(fPhiHE[j]);
-                  tmpVar = fPhiHE[j] + PI;
-                  //if(fCostHE[j] < 0.){fPhiTildeHE[j] = fPhiHE[j] - (3./4.)*PI;}
-                  //if(fCostHE[j] > 0.){fPhiTildeHE[j] = fPhiHE[j] - (1./4.)*PI;}
-                  if(fCostHE[j] < 0.){fPhiTildeHE[j] = tmpVar - (3./4.)*PI;}
-                  if(fCostHE[j] > 0.){fPhiTildeHE[j] = tmpVar - (1./4.)*PI;}
-                  //if(fPhiTildeHE[j] < 0){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
-                  //if(fPhiTildeHE[j] > PI){fPhiTildeHE[j] = 2*PI - fPhiTildeHE[j];}
-                  if(fPhiTildeHE[j] > 2*PI){fPhiTildeHE[j] = fPhiTildeHE[j] - 2*PI;}
-                  if(fPhiTildeHE[j] < 0.){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
-                  varArray[4] = fPhiTildeHE[j];
+                  if(TMath::Abs(fPhiHE[j]) > fPhiValues[1] && TMath::Abs(fPhiHE[j]) < fPhiValues[fNPhiBins-1]){
+                    if(fCostHE[j] > fCostValues[1] && fCostHE[j] < fCostValues[fNCostBins-1]){
+                      varArray[0] = fDimuPt[j];
+                      varArray[1] = fDimuMass[j];
+                      varArray[2] = fCostHE[j];
+                      varArray[3] = TMath::Abs(fPhiHE[j]);
+                      tmpVar = fPhiHE[j] + PI;
+                      //if(fCostHE[j] < 0.){fPhiTildeHE[j] = fPhiHE[j] - (3./4.)*PI;}
+                      //if(fCostHE[j] > 0.){fPhiTildeHE[j] = fPhiHE[j] - (1./4.)*PI;}
+                      if(fCostHE[j] < 0.){fPhiTildeHE[j] = tmpVar - (3./4.)*PI;}
+                      if(fCostHE[j] > 0.){fPhiTildeHE[j] = tmpVar - (1./4.)*PI;}
+                      //if(fPhiTildeHE[j] < 0){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
+                      //if(fPhiTildeHE[j] > PI){fPhiTildeHE[j] = 2*PI - fPhiTildeHE[j];}
+                      if(fPhiTildeHE[j] > 2*PI){fPhiTildeHE[j] = fPhiTildeHE[j] - 2*PI;}
+                      if(fPhiTildeHE[j] < 0.){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
+                      varArray[4] = fPhiTildeHE[j];
 
-                  histNVarHE -> Fill(varArray);                                 // Filling the THnSparse
+                      histNVarHE -> Fill(varArray);                                 // Filling the THnSparse
+                    }
+                  }
 
-                  varArray[0] = fDimuPt[j];
-                  varArray[1] = fDimuMass[j];
-                  varArray[2] = fCostCS[j];
-                  varArray[3] = TMath::Abs(fPhiCS[j]);
-                  tmpVar = fPhiCS[j] + PI;
-                  //if(fCostCS[j] < 0.){fPhiTildeCS[j] = fPhiCS[j] - (3./4.)*PI;}
-                  //if(fCostCS[j] > 0.){fPhiTildeCS[j] = fPhiCS[j] - (1./4.)*PI;}
-                  if(fCostCS[j] < 0.){fPhiTildeCS[j] = tmpVar - (3./4.)*PI;}
-                  if(fCostCS[j] > 0.){fPhiTildeCS[j] = tmpVar - (1./4.)*PI;}
-                  //if(fPhiTildeCS[j] < 0){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
-                  //if(fPhiTildeCS[j] > PI){fPhiTildeCS[j] = 2*PI - fPhiTildeCS[j];}
-                  if(fPhiTildeCS[j] > 2*PI){fPhiTildeCS[j] = fPhiTildeCS[j] - 2*PI;}
-                  if(fPhiTildeCS[j] < 0.){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
-                  varArray[4] = fPhiTildeCS[j];
+                  if(TMath::Abs(fPhiCS[j]) > fPhiValues[1] && TMath::Abs(fPhiCS[j]) < fPhiValues[fNPhiBins-1]){
+                    if(fCostCS[j] > fCostValues[1] && fCostCS[j] < fCostValues[fNCostBins-1]){
+                      varArray[0] = fDimuPt[j];
+                      varArray[1] = fDimuMass[j];
+                      varArray[2] = fCostCS[j];
+                      varArray[3] = TMath::Abs(fPhiCS[j]);
+                      tmpVar = fPhiCS[j] + PI;
+                      //if(fCostCS[j] < 0.){fPhiTildeCS[j] = fPhiCS[j] - (3./4.)*PI;}
+                      //if(fCostCS[j] > 0.){fPhiTildeCS[j] = fPhiCS[j] - (1./4.)*PI;}
+                      if(fCostCS[j] < 0.){fPhiTildeCS[j] = tmpVar - (3./4.)*PI;}
+                      if(fCostCS[j] > 0.){fPhiTildeCS[j] = tmpVar - (1./4.)*PI;}
+                      //if(fPhiTildeCS[j] < 0){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
+                      //if(fPhiTildeCS[j] > PI){fPhiTildeCS[j] = 2*PI - fPhiTildeCS[j];}
+                      if(fPhiTildeCS[j] > 2*PI){fPhiTildeCS[j] = fPhiTildeCS[j] - 2*PI;}
+                      if(fPhiTildeCS[j] < 0.){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
+                      varArray[4] = fPhiTildeCS[j];
 
-                  histNVarCS -> Fill(varArray);                                 // Filling the THnSparse
-                  //printf("Both Good Muons! \n");
-                  //histMassPDCA -> Fill(DimuMass[j]);
+                      histNVarCS -> Fill(varArray);                                 // Filling the THnSparse
+                      //printf("Both Good Muons! \n");
+                      //histMassPDCA -> Fill(DimuMass[j]);
+                    }
+                  }
                 }
                 //histMass -> Fill(DimuMass[j]);
                 goodMuon1 = kFALSE;
@@ -217,8 +230,20 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
   TFile *fileOutput = new TFile(nameOutputFile.c_str(),"RECREATE");
   for(int i = 1;i < (int) fMinPt.size() - 1;i++){
+    /*if(i == 1){
+     fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
+     fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
+     cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]) << " - " << fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i]) << endl;
+   }
+   else{
+     fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i] + 1.01*(fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
+     fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i] + 1.01*(fHistNVarCS -> GetAxis(0) -> GetBinWidth(1))),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
+     cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i] + 1.01*(fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))) << " - " << fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i]) << endl;
+   }*/
+
     fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))); // cut in pT
     fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarCS -> GetAxis(0) -> GetBinWidth(1))); // cut in pT
+    cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]) << " - " << fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarCS -> GetAxis(0) -> GetBinWidth(1)) << endl;
 
     TH1D *histMassHE = (TH1D*) fHistNVarHE -> Projection(1); histMassHE -> Write(Form("histHE_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); delete histMassHE;
     TH1D *histMassCS = (TH1D*) fHistNVarCS -> Projection(1); histMassCS -> Write(Form("histCS_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); delete histMassCS;
@@ -301,59 +326,109 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
   fileOutput -> Close();
 }
 //______________________________________________________________________________
-void DataProcessor::CreateFilteredTrees(string strSample, string nameOutputFile) {
-  int nEvents = 0;
-  int indexPt = 0;
-  double PI = TMath::Pi();
-  int minPt[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
-  int maxPt[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
+void DataProcessor::CreateFilteredTree(string strSample,  Bool_t pDCAapplied, string nameOutputFile) {
 
+  if(pDCAapplied){
+    printf("--- pDCA included ---\n");
+    fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCAs
+  }
+  else{printf("--- pDCA not included ---\n");}
+
+  printf("_____________Configure Fiducial Box_______________ \n");
+  printf("%f < CosTheta < %f \n",fCostValues[1],fCostValues[fNCostBins-1]);
+  printf("%f < |Phi| < %f \n",fPhiValues[1],fPhiValues[fNPhiBins-1]);
+  printf("__________________________________________________ \n");
+
+  double PI = TMath::Pi();
+  int nEvents = 0;
   if(strSample == "FullStat"){nEvents = fTreeData -> GetEntries();}
   if(strSample == "TestStat"){nEvents = 100000;}
   printf("N events = %i \n",nEvents);
 
-  TFile *fileTreeDataFiltered = new TFile(nameOutputFile.c_str(),"RECREATE");
-  double DimuMass, CostHE, PhiHE, CostCS, PhiCS;
-  TTree *treeDataFiltered[12];
-  TH3D *histDataFilteredHE[12];
-  TH3D *histDataFilteredCS[12];
-  for(int i = 0;i < 12;i++){
-    treeDataFiltered[i] = new TTree(Form("treeDataFiltered_%ipt%i",minPt[i],maxPt[i]),Form("treeDataFiltered_%ipt%i",minPt[i],maxPt[i]));
-    treeDataFiltered[i] -> Branch("DimuMass",&DimuMass,"DimuMass/D");
-    treeDataFiltered[i] -> Branch("CostHE",&CostHE,"CostHE/D");
-    treeDataFiltered[i] -> Branch("PhiHE",&PhiHE,"PhiHE/D");
-    treeDataFiltered[i] -> Branch("CostCS",&CostCS,"CostCS/D");
-    treeDataFiltered[i] -> Branch("PhiCS",&PhiCS,"PhiCS/D");
+  double tmpVar = 0;    // variable used to store the value of Phi for PhiTilde calculation
 
-    histDataFilteredHE[i] = new TH3D(Form("histDataFilteredHE_%ipt%i",minPt[i],maxPt[i]),"",100,2,5,100,-1,1,50,0,PI);
-    histDataFilteredCS[i] = new TH3D(Form("histDataFilteredCS_%ipt%i",minPt[i],maxPt[i]),"",100,2,5,100,-1,1,50,0,PI);
-  }
+  TFile *fileTreeDataFiltered = new TFile(nameOutputFile.c_str(),"RECREATE");
+
+  double DimuMass, DimuPt, CosThetaHE, CosThetaCS, PhiHE, PhiCS,PhiTildeHE, PhiTildeCS;
+
+  TTree *treeDataFilteredHE = new TTree("treeDataFilteredHE","treeDataFilteredHE");
+  treeDataFilteredHE -> Branch("DimuPt",&DimuPt,"DimuPt/D");
+  treeDataFilteredHE -> Branch("DimuMass",&DimuMass,"DimuMass/D");
+  treeDataFilteredHE -> Branch("CosThetaHE",&CosThetaHE,"CosThetaHE/D");
+  treeDataFilteredHE -> Branch("PhiHE",&PhiHE,"PhiHE/D");
+  treeDataFilteredHE -> Branch("PhiTildeHE",&PhiTildeHE,"PhiTildeHE/D");
+
+  TTree *treeDataFilteredCS = new TTree("treeDataFilteredCS","treeDataFilteredCS");
+  treeDataFilteredCS -> Branch("DimuPt",&DimuPt,"DimuPt/D");
+  treeDataFilteredCS -> Branch("DimuMass",&DimuMass,"DimuMass/D");
+  treeDataFilteredCS -> Branch("CosThetaCS",&CosThetaCS,"CosThetaCS/D");
+  treeDataFilteredCS -> Branch("PhiCS",&PhiCS,"PhiCS/D");
+  treeDataFilteredCS -> Branch("PhiTildeCS",&PhiTildeCS,"PhiTildeCS/D");
+
+  bool goodMuon1 = kFALSE;
+  bool goodMuon2 = kFALSE;
 
   for(int i = 0;i < nEvents;i++){
-    printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
     fTreeData -> GetEntry(i);
-    for(int k = 0;k < fNDimu;k++){
+    printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
+
+    for(int j = 0;j < fNDimu;j++){
 
       if(fIsPhysSelected){
         TString Trigger = fTrigClass;
         Bool_t TriggerSelected = kFALSE;
         if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")) TriggerSelected = kTRUE;
-        if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
+        if(fDimuY[j] > -4. && fDimuY[j] < -2.5){
           if(TriggerSelected){
-            if(fDimuMatch[k] == 2){
-              if(fDimuMass[k] > 2 && fDimuMass[k] < 5){
-                DimuMass = fDimuMass[k];
-                CostHE = fCostHE[k];
-                PhiHE = TMath::Abs(fPhiHE[k]);
-                CostCS = fCostCS[k];
-                PhiCS = TMath::Abs(fPhiCS[k]);
-                if(fDimuPt[k] > 0 && fDimuPt[k] <= 12){
-                  while(fDimuPt[k] < minPt[indexPt] || fDimuPt[k] > maxPt[indexPt]){indexPt++;}
-                  treeDataFiltered[indexPt] -> Fill();
-                  histDataFilteredHE[indexPt] -> Fill(DimuMass,CostHE,PhiHE);
-                  histDataFilteredCS[indexPt] -> Fill(DimuMass,CostCS,PhiCS);
-                  indexPt = 0;
+            if(fDimuMatch[j] == 2){
+              if(fDimuMass[j] > 2 && fDimuMass[j] < 5){
+                for(int k = 0;k < fNMuons;k++){
+                  if(fMuonId[k] == fDimuMu[j][0]){
+                    if(fPDCA[k] != 0){goodMuon1 = kTRUE;}
+                  }
+                  if(fMuonId[k] == fDimuMu[j][1]){
+                    if(fPDCA[k] != 0){goodMuon2 = kTRUE;}
+                  }
                 }
+                if(pDCAapplied == kFALSE){
+                  goodMuon1 = kTRUE;
+                  goodMuon2 = kTRUE;
+                }
+                if(goodMuon1 == kTRUE && goodMuon2 == kTRUE){
+                  if(TMath::Abs(fPhiHE[j]) > fPhiValues[1] && TMath::Abs(fPhiHE[j]) < fPhiValues[fNPhiBins-1]){
+                    if(fCostHE[j] > fCostValues[1] && fCostHE[j] < fCostValues[fNCostBins-1]){
+                      DimuPt = fDimuPt[j];
+                      DimuMass = fDimuMass[j];
+                      CosThetaHE = fCostHE[j];
+                      PhiHE = TMath::Abs(fPhiHE[j]);
+                      tmpVar = fPhiHE[j] + PI;
+                      if(fCostHE[j] < 0.){fPhiTildeHE[j] = tmpVar - (3./4.)*PI;}
+                      if(fCostHE[j] > 0.){fPhiTildeHE[j] = tmpVar - (1./4.)*PI;}
+                      if(fPhiTildeHE[j] > 2*PI){fPhiTildeHE[j] = fPhiTildeHE[j] - 2*PI;}
+                      if(fPhiTildeHE[j] < 0.){fPhiTildeHE[j] = 2*PI + fPhiTildeHE[j];}
+                      PhiTildeHE = fPhiTildeHE[j];
+                      treeDataFilteredHE -> Fill();                                 // Filling the THnSparse
+                    }
+                  }
+
+                  if(TMath::Abs(fPhiCS[j]) > fPhiValues[1] && TMath::Abs(fPhiCS[j]) < fPhiValues[fNPhiBins-1]){
+                    if(fCostCS[j] > fCostValues[1] && fCostCS[j] < fCostValues[fNCostBins-1]){
+                      DimuPt = fDimuPt[j];
+                      DimuMass = fDimuMass[j];
+                      CosThetaCS = fCostCS[j];
+                      PhiCS = TMath::Abs(fPhiCS[j]);
+                      tmpVar = fPhiCS[j] + PI;
+                      if(fCostCS[j] < 0.){fPhiTildeCS[j] = tmpVar - (3./4.)*PI;}
+                      if(fCostCS[j] > 0.){fPhiTildeCS[j] = tmpVar - (1./4.)*PI;}
+                      if(fPhiTildeCS[j] > 2*PI){fPhiTildeCS[j] = fPhiTildeCS[j] - 2*PI;}
+                      if(fPhiTildeCS[j] < 0.){fPhiTildeCS[j] = 2*PI + fPhiTildeCS[j];}
+                      PhiTildeCS = fPhiTildeCS[j];
+                      treeDataFilteredCS -> Fill();                                 // Filling the THnSparse
+                    }
+                  }
+                }
+                goodMuon1 = kFALSE;
+                goodMuon2 = kFALSE;
               }
             }
           }
@@ -364,11 +439,8 @@ void DataProcessor::CreateFilteredTrees(string strSample, string nameOutputFile)
   printf("\n");
 
   fileTreeDataFiltered -> cd();
-  for(int i = 0;i < 12;i++){
-    treeDataFiltered[i] -> Write();
-    histDataFilteredHE[i] -> Write();
-    histDataFilteredCS[i] -> Write();
-  }
+  treeDataFilteredHE -> Write();
+  treeDataFilteredCS -> Write();
   fileTreeDataFiltered -> Close();
 }
 //______________________________________________________________________________

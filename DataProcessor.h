@@ -20,9 +20,9 @@ class DataProcessor : public TObject
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBinsMax, vector <Double_t> CostValues, vector <Int_t> PhiBinsMin, vector <Int_t> PhiBinsMax, vector <Double_t> PhiValues, vector <Int_t> PhiTildeBinsMin, vector <Int_t> PhiTildeBinsMax, vector <Double_t> PhiTildeValues);
-   void CreateTHnSparse(string strSample,Bool_t pDCAapplied, string nameOutputFile);
+   void CreateTHnSparse(string strSample, Bool_t pDCAapplied, string nameOutputFile);
    void CutTHnSparse(string nameOutputFile);
-   void CreateFilteredTrees(string strSample, string nameOutputFile);
+   void CreateFilteredTree(string strSample, Bool_t pDCAapplied, string nameOutputFile);
    void CreateInvMassHistograms(TFile *, string strSample);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
