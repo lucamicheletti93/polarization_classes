@@ -14,6 +14,13 @@ ClassImp(Binning)
 //______________________________________________________________________________
 Binning::Binning(): TObject() {
    // default constructor
+   double gPi = TMath::Pi();
+   fCosThetaMin = -1.;
+   fCosThetaMax = 1.;
+   fPhiMin = 0.;
+   fPhiMax = gPi;
+   fPhiTildeMin = 0.;
+   fPhiTildeMax = 2*gPi;
 }
 //______________________________________________________________________________
 Binning::~Binning() {
@@ -22,10 +29,16 @@ Binning::~Binning() {
 //______________________________________________________________________________
 void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsMax[], int NPhiBins, int PhiBinsMin[], int PhiBinsMax[], int NPhiTildeBins, int PhiTildeBinsMin[], int PhiTildeBinsMax[]) {
 
-  double PI = TMath::Pi();
+  double gPi = TMath::Pi();
   double bin;
 
-  TH2D *hist = new TH2D("hist","hist",100,-1.,1.,50,0.,PI);
+  printf("_______________Range Configuration________________ \n");
+  printf("%f < CosTheta < %f \n",fCosThetaMin,fCosThetaMax);
+  printf("%f < |Phi| < %f \n",fPhiMin,fPhiMax);
+  printf("%f < PhiTilde < %f \n",fPhiTildeMin,fPhiTildeMax);
+  printf("__________________________________________________ \n");
+  //TH2D *hist = new TH2D("hist","hist",100,-1.,1.,50,0.,gPi);
+  TH2D *hist = new TH2D("hist","hist",100,fCosThetaMin,fCosThetaMax,50,fPhiMin,fPhiMax);
 
   fNCostBins = NCostBins;
   for(int i = 0;i < NCostBins;i++){
@@ -52,10 +65,13 @@ void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsM
   //printf("Phi = %f \n",bin);
   delete hist;
 
-  TH1D *histPhiTilde = new TH1D("histPhiTilde","histPhiTilde",50,0.,PI);
+  //TH1D *histPhiTilde = new TH1D("histPhiTilde","histPhiTilde",50,0.,gPi);    // old binning
+  //TH1D *histPhiTilde = new TH1D("histPhiTilde","histPhiTilde",50,0.,2*gPi);      // new binning
+  TH1D *histPhiTilde = new TH1D("histPhiTilde","histPhiTilde",50,fPhiTildeMin,fPhiTildeMax);      // new binning
+
   fNPhiTildeBins = NPhiTildeBins;
   for(int i = 0;i < NPhiTildeBins;i++){
-    bin = hist -> GetXaxis() -> GetBinLowEdge(PhiTildeBinsMin[i]);
+    bin = histPhiTilde -> GetXaxis() -> GetBinLowEdge(PhiTildeBinsMin[i]);
     fPhiTildeValues.push_back(bin);
     fPhiTildeBinsMin.push_back(PhiTildeBinsMin[i]);
     fPhiTildeBinsMax.push_back(PhiTildeBinsMax[i]);
@@ -68,14 +84,18 @@ void Binning::ConfigureBinValues(int NCostBins, int CostBinsMin[], int CostBinsM
 }
 //______________________________________________________________________________
 void Binning::PrintBinValues() {
-  double PI = TMath::Pi();
+  double gPi = TMath::Pi();
   printf("CostValues[%i] = {",fNCostBins+1);
   for(int i = 0;i < fNCostBins-1;i++) printf("%3.2f,",fCostValues[i]);
   printf("%3.2f,%3.2f}\n",fCostValues[fNCostBins-1],1.);
 
   printf("PhiValues[%i] = {",fNPhiBins+1);
   for(int i = 0;i < fNPhiBins-1;i++) printf("%f,",fPhiValues[i]);
-  printf("%f,%f}\n",fPhiValues[fNPhiBins-1],PI);
+  printf("%f,%f}\n",fPhiValues[fNPhiBins-1],gPi);
+
+  printf("PhiTildeValues[%i] = {",fNPhiTildeBins+1);
+  for(int i = 0;i < fNPhiTildeBins-1;i++) printf("%f,",fPhiTildeValues[i]);
+  printf("%f,%f}\n",fPhiTildeValues[fNPhiTildeBins-1],2*gPi);
 }
 //______________________________________________________________________________
 vector <Double_t> Binning::GetCostValues(){

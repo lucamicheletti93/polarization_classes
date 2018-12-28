@@ -34,6 +34,12 @@ class Binning : public TObject
 
 
  private:
+   Double_t fCosThetaMin;
+   Double_t fCosThetaMax;
+   Double_t fPhiMin;
+   Double_t fPhiMax;
+   Double_t fPhiTildeMin;
+   Double_t fPhiTildeMax;
    Int_t fNCostBins;
    Int_t fNPhiBins;
    Int_t fNPhiTildeBins;
