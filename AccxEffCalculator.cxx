@@ -188,6 +188,10 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
   fHistGenPhiTildeCSPt = new TH2D("histGenPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistGenPhiTildeCSPt -> Sumw2();
   fHistRecPhiTildeCSPt = new TH2D("histRecPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistRecPhiTildeCSPt -> Sumw2();
 
+  printf("- Configuring Fiducial Box \n");
+  printf("%f < CosTheta < %f \n",fCosThetaValues[1],fCosThetaValues[fNCosThetaBins-1]);
+  printf("%f < |Phi| < %f \n",fPhiValues[1],fPhiValues[fNPhiBins-1]);
+
   double tmpVar = 0;
 
   for(int i = 0;i < nEvents;i++){
@@ -196,69 +200,75 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
 
     for(int j = 0;j < fNDimuGen;j++){
       if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
-        fHistGenCosThetaHEPt -> Fill(fCosThetaHEGen[j],fDimuPtGen[j]);
-        fHistGenPhiHEPt -> Fill(TMath::Abs(fPhiHEGen[j]),fDimuPtGen[j]);
-        fHistGenCosThetaCSPt -> Fill(fCosThetaCSGen[j],fDimuPtGen[j]);
-        fHistGenPhiCSPt -> Fill(TMath::Abs(fPhiCSGen[j]),fDimuPtGen[j]);
-        while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
-        // 1D approach
-        fHistGenCosThetaHE[indexPt] -> Fill(fCosThetaHEGen[j]);
-        fHistGenPhiHE[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]));
+        ////////////////////////////////////////////////////////////////////////
+        if(TMath::Abs(fPhiHEGen[j]) > fPhiValues[1] && TMath::Abs(fPhiHEGen[j]) < fPhiValues[fNPhiBins-1]){
+          if(fCosThetaHEGen[j] > fCosThetaValues[1] && fCosThetaHEGen[j] < fCosThetaValues[fNCosThetaBins-1]){
+            fHistGenCosThetaHEPt -> Fill(fCosThetaHEGen[j],fDimuPtGen[j]);
+            fHistGenPhiHEPt -> Fill(TMath::Abs(fPhiHEGen[j]),fDimuPtGen[j]);
+            fHistGenCosThetaCSPt -> Fill(fCosThetaCSGen[j],fDimuPtGen[j]);
+            fHistGenPhiCSPt -> Fill(TMath::Abs(fPhiCSGen[j]),fDimuPtGen[j]);
+            while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+            // 1D approach
+            fHistGenCosThetaHE[indexPt] -> Fill(fCosThetaHEGen[j]);
+            fHistGenPhiHE[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]));
 
-        //if(fPhiHEGen[j] < 0){tmpVar = TMath::Abs(fPhiHEGen[j]) + fPi;}
-        //else{tmpVar = fPhiHEGen[j];}
-        tmpVar = fPhiHEGen[j] + fPi;
+            //if(fPhiHEGen[j] < 0){tmpVar = TMath::Abs(fPhiHEGen[j]) + fPi;}
+            //else{tmpVar = fPhiHEGen[j];}
+            tmpVar = fPhiHEGen[j] + fPi;
 
-        if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-        if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-        //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}                     // my condition
-        //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
-        //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
-        //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
-        fHistGenPhiTildeHE[indexPt] -> Fill(fPhiTilde);
-        fHistGenPhiTildeNarrowHE[indexPt] -> Fill(fPhiTilde);
-        fHistGenPhiTildeHEPt -> Fill(fPhiTilde,fDimuPtGen[j]);
+            if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+            if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+            if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+            if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+            //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}                     // my condition
+            //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+            //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+            //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
+            fHistGenPhiTildeHE[indexPt] -> Fill(fPhiTilde);
+            fHistGenPhiTildeNarrowHE[indexPt] -> Fill(fPhiTilde);
+            fHistGenPhiTildeHEPt -> Fill(fPhiTilde,fDimuPtGen[j]);
 
-        varArrayTest[0] = fDimuPtGen[j];
-        varArrayTest[1] = fCosThetaHEGen[j];
-        varArrayTest[2] = fPhiHEGen[j];
-        varArrayTest[3] = fPhiTilde;
-        histNVarTestGenHE -> Fill(varArrayTest);
+            varArrayTest[0] = fDimuPtGen[j];
+            varArrayTest[1] = fCosThetaHEGen[j];
+            varArrayTest[2] = fPhiHEGen[j];
+            varArrayTest[3] = fPhiTilde;
+            histNVarTestGenHE -> Fill(varArrayTest);
 
-        fHistGenCosThetaCS[indexPt] -> Fill(fCosThetaCSGen[j]);
-        fHistGenPhiCS[indexPt] -> Fill(TMath::Abs(fPhiCSGen[j]));
+            fHistGenCosThetaCS[indexPt] -> Fill(fCosThetaCSGen[j]);
+            fHistGenPhiCS[indexPt] -> Fill(TMath::Abs(fPhiCSGen[j]));
 
-        //if(fPhiCSGen[j] < 0){tmpVar = TMath::Abs(fPhiCSGen[j]) + fPi;}
-        //else{tmpVar = fPhiCSGen[j];}
-        tmpVar = fPhiCSGen[j] + fPi;
+            //if(fPhiCSGen[j] < 0){tmpVar = TMath::Abs(fPhiCSGen[j]) + fPi;}
+            //else{tmpVar = fPhiCSGen[j];}
+            tmpVar = fPhiCSGen[j] + fPi;
 
-        if(fCosThetaCSGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-        if(fCosThetaCSGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-        //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}                     // my condition
-        //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
-        //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
-        //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
-        fHistGenPhiTildeCS[indexPt] -> Fill(fPhiTilde);
-        fHistGenPhiTildeNarrowCS[indexPt] -> Fill(fPhiTilde);
-        fHistGenPhiTildeCSPt -> Fill(fPhiTilde,fDimuPtGen[j]);
+            if(fCosThetaCSGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+            if(fCosThetaCSGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+            if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+            if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+            //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}                     // my condition
+            //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+            //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+            //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
+            fHistGenPhiTildeCS[indexPt] -> Fill(fPhiTilde);
+            fHistGenPhiTildeNarrowCS[indexPt] -> Fill(fPhiTilde);
+            fHistGenPhiTildeCSPt -> Fill(fPhiTilde,fDimuPtGen[j]);
 
-        varArrayTest[0] = fDimuPtGen[j];
-        varArrayTest[1] = fCosThetaCSGen[j];
-        varArrayTest[2] = fPhiCSGen[j];
-        varArrayTest[3] = fPhiTilde;
-        histNVarTestGenCS -> Fill(varArrayTest);
+            varArrayTest[0] = fDimuPtGen[j];
+            varArrayTest[1] = fCosThetaCSGen[j];
+            varArrayTest[2] = fPhiCSGen[j];
+            varArrayTest[3] = fPhiTilde;
+            histNVarTestGenCS -> Fill(varArrayTest);
 
-        // 2D approach
-        fHistGenCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHEGen[j],fPhiHEGen[j]);
-        fHistGenCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSGen[j],fPhiCSGen[j]);
+            // 2D approach
+            fHistGenCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHEGen[j],fPhiHEGen[j]);
+            fHistGenCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSGen[j],fPhiCSGen[j]);
 
-        fHistGenCosThetaPhiHE[indexPt] -> Fill(fCosThetaHEGen[j],TMath::Abs(fPhiHEGen[j]));
-        fHistGenCosThetaPhiCS[indexPt] -> Fill(fCosThetaCSGen[j],TMath::Abs(fPhiCSGen[j]));
-        indexPt = 0;
+            fHistGenCosThetaPhiHE[indexPt] -> Fill(fCosThetaHEGen[j],TMath::Abs(fPhiHEGen[j]));
+            fHistGenCosThetaPhiCS[indexPt] -> Fill(fCosThetaCSGen[j],TMath::Abs(fPhiCSGen[j]));
+            indexPt = 0;
+          }
+        }
+        ////////////////////////////////////////////////////////////////////////
       }
     }
 
@@ -267,88 +277,94 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
         if(fDimuMatchRec[j] == 2){
           if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
             ////////////////////////////////////////////////////////////////////
-            //Filling the THnSparse
-            varArray[0] = fDimuPtRec[j];
-            varArray[1] = fDimuMassRec[j];
-            varArray[2] = fCosThetaHERec[j];
-            varArray[3] = TMath::Abs(fPhiHERec[j]);
-            histNVarHE -> Fill(varArray);
+            if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
+              if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                ////////////////////////////////////////////////////////////////
+                //Filling the THnSparse
+                varArray[0] = fDimuPtRec[j];
+                varArray[1] = fDimuMassRec[j];
+                varArray[2] = fCosThetaHERec[j];
+                varArray[3] = TMath::Abs(fPhiHERec[j]);
+                histNVarHE -> Fill(varArray);
 
-            varArray[0] = fDimuPtRec[j];
-            varArray[1] = fDimuMassRec[j];
-            varArray[2] = fCosThetaCSRec[j];
-            varArray[3] = TMath::Abs(fPhiCSRec[j]);
-            histNVarCS -> Fill(varArray);
+                varArray[0] = fDimuPtRec[j];
+                varArray[1] = fDimuMassRec[j];
+                varArray[2] = fCosThetaCSRec[j];
+                varArray[3] = TMath::Abs(fPhiCSRec[j]);
+                histNVarCS -> Fill(varArray);
+                ////////////////////////////////////////////////////////////////
+
+                fHistRecCosThetaHEPt -> Fill(fCosThetaHERec[j],fDimuPtRec[j]);
+                fHistRecPhiHEPt -> Fill(TMath::Abs(fPhiHERec[j]),fDimuPtRec[j]);
+                fHistRecCosThetaCSPt -> Fill(fCosThetaCSRec[j],fDimuPtRec[j]);
+                fHistRecPhiCSPt -> Fill(TMath::Abs(fPhiCSRec[j]),fDimuPtRec[j]);
+                while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                // 1D approach
+                fHistRecCosThetaHE[indexPt] -> Fill(fCosThetaHERec[j]);
+                fHistRecPhiHE[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]));
+
+                //if(fPhiHERec[j] < 0){tmpVar = TMath::Abs(fPhiHERec[j]) + fPi;}
+                //else{tmpVar = fPhiHERec[j];}
+                tmpVar = fPhiHERec[j] + fPi;
+
+                if(fCosThetaHERec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaHERec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+                //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
+                //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+                //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+                //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
+                fHistRecPhiTildeHE[indexPt] -> Fill(fPhiTilde);
+                fHistRecPhiTildeNarrowHE[indexPt] -> Fill(fPhiTilde);
+                if(fCosThetaHERec[j] < 0.){fHistRecPhiTildeNarrowLeftBellHE[indexPt] -> Fill(fPhiHERec[j]);}
+                if(fCosThetaHERec[j] > 0.){fHistRecPhiTildeNarrowRightBellHE[indexPt] -> Fill(fPhiHERec[j]);}
+                fHistRecPhiTildeNarrowAllBellHE[indexPt] -> Fill(fPhiHERec[j]);
+                fHistRecPhiTildeHEPt -> Fill(fPhiTilde,fDimuPtRec[j]);
+
+                varArrayTest[0] = fDimuPtRec[j];
+                varArrayTest[1] = fCosThetaHERec[j];
+                varArrayTest[2] = fPhiHERec[j];
+                varArrayTest[3] = fPhiTilde;
+                histNVarTestRecHE -> Fill(varArrayTest);
+
+                fHistRecCosThetaCS[indexPt] -> Fill(fCosThetaCSRec[j]);
+                fHistRecPhiCS[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]));
+
+                //if(fPhiCSRec[j] < 0){tmpVar = TMath::Abs(fPhiCSRec[j]) + fPi;}
+                //else{tmpVar = fPhiCSRec[j];}
+                tmpVar = fPhiCSRec[j] + fPi;
+
+                if(fCosThetaCSRec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaCSRec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+                //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
+                //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
+                //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
+                //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
+                fHistRecPhiTildeCS[indexPt] -> Fill(fPhiTilde);
+                fHistRecPhiTildeNarrowCS[indexPt] -> Fill(fPhiTilde);
+                if(fCosThetaCSRec[j] < 0.){fHistRecPhiTildeNarrowLeftBellCS[indexPt] -> Fill(fPhiCSRec[j]);}
+                if(fCosThetaCSRec[j] > 0.){fHistRecPhiTildeNarrowRightBellCS[indexPt] -> Fill(fPhiCSRec[j]);}
+                fHistRecPhiTildeNarrowAllBellCS[indexPt] -> Fill(fPhiCSRec[j]);
+                fHistRecPhiTildeCSPt -> Fill(fPhiTilde,fDimuPtRec[j]);
+
+                varArrayTest[0] = fDimuPtRec[j];
+                varArrayTest[1] = fCosThetaCSRec[j];
+                varArrayTest[2] = fPhiCSRec[j];
+                varArrayTest[3] = fPhiTilde;
+                histNVarTestRecCS -> Fill(varArrayTest);
+
+                // 2D approach
+                fHistRecCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHERec[j],fPhiHERec[j]);
+                fHistRecCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSRec[j],fPhiCSRec[j]);
+                fHistRecCosThetaPhiHE[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]));
+                fHistRecCosThetaPhiCS[indexPt] -> Fill(fCosThetaCSRec[j],TMath::Abs(fPhiCSRec[j]));
+                indexPt = 0;
+              }
+            }
             ////////////////////////////////////////////////////////////////////
-
-            fHistRecCosThetaHEPt -> Fill(fCosThetaHERec[j],fDimuPtRec[j]);
-            fHistRecPhiHEPt -> Fill(TMath::Abs(fPhiHERec[j]),fDimuPtRec[j]);
-            fHistRecCosThetaCSPt -> Fill(fCosThetaCSRec[j],fDimuPtRec[j]);
-            fHistRecPhiCSPt -> Fill(TMath::Abs(fPhiCSRec[j]),fDimuPtRec[j]);
-            while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
-            // 1D approach
-            fHistRecCosThetaHE[indexPt] -> Fill(fCosThetaHERec[j]);
-            fHistRecPhiHE[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]));
-
-            //if(fPhiHERec[j] < 0){tmpVar = TMath::Abs(fPhiHERec[j]) + fPi;}
-            //else{tmpVar = fPhiHERec[j];}
-            tmpVar = fPhiHERec[j] + fPi;
-
-            if(fCosThetaHERec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-            if(fCosThetaHERec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-            if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-            if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-            //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
-            //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
-            //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
-            //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
-            fHistRecPhiTildeHE[indexPt] -> Fill(fPhiTilde);
-            fHistRecPhiTildeNarrowHE[indexPt] -> Fill(fPhiTilde);
-            if(fCosThetaHERec[j] < 0.){fHistRecPhiTildeNarrowLeftBellHE[indexPt] -> Fill(fPhiHERec[j]);}
-            if(fCosThetaHERec[j] > 0.){fHistRecPhiTildeNarrowRightBellHE[indexPt] -> Fill(fPhiHERec[j]);}
-            fHistRecPhiTildeNarrowAllBellHE[indexPt] -> Fill(fPhiHERec[j]);
-            fHistRecPhiTildeHEPt -> Fill(fPhiTilde,fDimuPtRec[j]);
-
-            varArrayTest[0] = fDimuPtRec[j];
-            varArrayTest[1] = fCosThetaHERec[j];
-            varArrayTest[2] = fPhiHERec[j];
-            varArrayTest[3] = fPhiTilde;
-            histNVarTestRecHE -> Fill(varArrayTest);
-
-            fHistRecCosThetaCS[indexPt] -> Fill(fCosThetaCSRec[j]);
-            fHistRecPhiCS[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]));
-
-            //if(fPhiCSRec[j] < 0){tmpVar = TMath::Abs(fPhiCSRec[j]) + fPi;}
-            //else{tmpVar = fPhiCSRec[j];}
-            tmpVar = fPhiCSRec[j] + fPi;
-
-            if(fCosThetaCSRec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-            if(fCosThetaCSRec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-            if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-            if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-            //if(fPhiTilde < 0){fPhiTilde = 2*fPi + fPhiTilde;}
-            //if(fPhiTilde > fPi){fPhiTilde = 2*fPi - fPhiTilde;}
-            //if(fPhiTilde < fPi){fPhiTilde = fPi + fPhiTilde;}
-            //if(fPhiTilde > fPi){fPhiTilde = fPhiTilde - fPi;}
-            fHistRecPhiTildeCS[indexPt] -> Fill(fPhiTilde);
-            fHistRecPhiTildeNarrowCS[indexPt] -> Fill(fPhiTilde);
-            if(fCosThetaCSRec[j] < 0.){fHistRecPhiTildeNarrowLeftBellCS[indexPt] -> Fill(fPhiCSRec[j]);}
-            if(fCosThetaCSRec[j] > 0.){fHistRecPhiTildeNarrowRightBellCS[indexPt] -> Fill(fPhiCSRec[j]);}
-            fHistRecPhiTildeNarrowAllBellCS[indexPt] -> Fill(fPhiCSRec[j]);
-            fHistRecPhiTildeCSPt -> Fill(fPhiTilde,fDimuPtRec[j]);
-
-            varArrayTest[0] = fDimuPtRec[j];
-            varArrayTest[1] = fCosThetaCSRec[j];
-            varArrayTest[2] = fPhiCSRec[j];
-            varArrayTest[3] = fPhiTilde;
-            histNVarTestRecCS -> Fill(varArrayTest);
-
-            // 2D approach
-            fHistRecCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHERec[j],fPhiHERec[j]);
-            fHistRecCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSRec[j],fPhiCSRec[j]);
-            fHistRecCosThetaPhiHE[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]));
-            fHistRecCosThetaPhiCS[indexPt] -> Fill(fCosThetaCSRec[j],TMath::Abs(fPhiCSRec[j]));
-            indexPt = 0;
           }
         }
       }
