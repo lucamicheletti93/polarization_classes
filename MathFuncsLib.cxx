@@ -42,4 +42,12 @@ namespace MathFuncs
       double lambdaPhi = par[2];
       return N*(1 + ((2*lambdaPhi)/(3 + lambdaTheta))*TMath::Cos(2*phi));
     }
+
+    /*double MyMathFuncs::MyFuncPolPhiTilde(double *x, double *par){
+      double phiTilde = x[0];
+      double N = par[0];
+      double lambdaTheta = par[1];
+      double lambdaThetaPhi = par[2];
+      return N*(1 + ((TMath::Sqrt(2)*lambdaThetaPhi)/(3 + lambdaTheta))*TMath::Cos(phiTilde));
+    }*/
 }

@@ -109,10 +109,10 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
   int nEvents = 0;
   int indexPt = 0;
 
-  const int nVar = 4;
-  int nBins[nVar] = {100,120,100,50};
-  double minVar[nVar] = {0.,2.,-1.,0.};
-  double maxVar[nVar] = {10.,5.,1.,fPi};
+  const int nVar = 5;
+  int nBins[nVar] = {100,120,100,50,50};
+  double minVar[nVar] = {0.,2.,-1.,0.,0.};
+  double maxVar[nVar] = {10.,5.,1.,fPi,2*fPi};
   double varArray[nVar];
 
   const int nVarTest = 4;
@@ -277,14 +277,6 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
             // HELICITY
             if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
               if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
-                ////////////////////////////////////////////////////////////////
-                //Filling the THnSparse
-                varArray[0] = fDimuPtRec[j];
-                varArray[1] = fDimuMassRec[j];
-                varArray[2] = fCosThetaHERec[j];
-                varArray[3] = TMath::Abs(fPhiHERec[j]);
-                histNVarHE -> Fill(varArray);
-                ////////////////////////////////////////////////////////////////
 
                 fHistRecCosThetaHEPt -> Fill(fCosThetaHERec[j],fDimuPtRec[j]);
                 fHistRecPhiHEPt -> Fill(TMath::Abs(fPhiHERec[j]),fDimuPtRec[j]);
@@ -312,6 +304,16 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
                 varArrayTest[3] = fPhiTilde;
                 histNVarTestRecHE -> Fill(varArrayTest);
 
+                ////////////////////////////////////////////////////////////////
+                //Filling the THnSparse
+                varArray[0] = fDimuPtRec[j];
+                varArray[1] = fDimuMassRec[j];
+                varArray[2] = fCosThetaHERec[j];
+                varArray[3] = TMath::Abs(fPhiHERec[j]);
+                varArray[4] = fPhiTilde;
+                histNVarHE -> Fill(varArray);
+                ////////////////////////////////////////////////////////////////
+
                 // 2D approach
                 fHistRecCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHERec[j],fPhiHERec[j]);
                 fHistRecCosThetaPhiHE[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]));
@@ -321,14 +323,6 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
             // COLLINS-SOPER
             if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
               if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
-                ////////////////////////////////////////////////////////////////
-                //Filling the THnSparse
-                varArray[0] = fDimuPtRec[j];
-                varArray[1] = fDimuMassRec[j];
-                varArray[2] = fCosThetaCSRec[j];
-                varArray[3] = TMath::Abs(fPhiCSRec[j]);
-                histNVarCS -> Fill(varArray);
-                ////////////////////////////////////////////////////////////////
 
                 fHistRecCosThetaCSPt -> Fill(fCosThetaCSRec[j],fDimuPtRec[j]);
                 fHistRecPhiCSPt -> Fill(TMath::Abs(fPhiCSRec[j]),fDimuPtRec[j]);
@@ -355,6 +349,16 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
                 varArrayTest[2] = fPhiCSRec[j];
                 varArrayTest[3] = fPhiTilde;
                 histNVarTestRecCS -> Fill(varArrayTest);
+
+                ////////////////////////////////////////////////////////////////
+                //Filling the THnSparse
+                varArray[0] = fDimuPtRec[j];
+                varArray[1] = fDimuMassRec[j];
+                varArray[2] = fCosThetaCSRec[j];
+                varArray[3] = TMath::Abs(fPhiCSRec[j]);
+                varArray[4] = fPhiTilde;
+                histNVarCS -> Fill(varArray);
+                ////////////////////////////////////////////////////////////////
 
                 // 2D approach
                 fHistRecCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSRec[j],fPhiCSRec[j]);

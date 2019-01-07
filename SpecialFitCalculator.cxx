@@ -83,32 +83,16 @@ struct GlobalChi2 {
    const  ROOT::Math::IMultiGenFunction * fChi2_3;
 };
 //______________________________________________________________________________
-struct GlobalChi2_old {
-   GlobalChi2_old(  ROOT::Math::IMultiGenFunction & f1,
-                ROOT::Math::IMultiGenFunction & f2) :
-      fChi2_1(&f1), fChi2_2(&f2) {}
-
-   // parameter vector is first background (in common 1 and 2)
-   // and then is signal (only in 2)
-   double operator() (const double *par) const {
-      double p1[2];
-      for (int i = 0; i < 2; ++i) p1[i] = par[iparB1[i] ];
-
-      double p2[3];
-      for (int i = 0; i < 3; ++i) p2[i] = par[iparB2[i] ];
-   }
-
-   const  ROOT::Math::IMultiGenFunction * fChi2_1;
-   const  ROOT::Math::IMultiGenFunction * fChi2_2;
-};
-//______________________________________________________________________________
-void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiPhi, TH1D *histNJpsiPhiTilde, TH1D *histAccxEffCost, TH1D *histAccxEffPhi, TH1D *histAccxEffPhiTilde, Double_t minFitRangeCost, Double_t maxFitRangeCost, string nameOutputPlot) {
-  TH1D *histNJpsiCostCorr = (TH1D*) histNJpsiCost -> Clone("histNJpsiCostCorr");
+void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCosTheta, TH1D *histNJpsiPhi, TH1D *histNJpsiPhiTilde, TH1D *histAccxEffCosTheta, TH1D *histAccxEffPhi, TH1D *histAccxEffPhiTilde, Double_t minFitRangeCosTheta, Double_t maxFitRangeCosTheta, string nameOutputPlot) {
+  TH1D *histNJpsiCosThetaCorr = (TH1D*) histNJpsiCosTheta -> Clone("histNJpsiCostCorr");
   for(int i = 0;i < 19;i++){
-    histNJpsiCostCorr -> SetBinContent(i+1,(histNJpsiCost -> GetBinContent(i+1))/(histNJpsiCost -> GetBinWidth(i+1)));
-    histNJpsiCostCorr -> SetBinError(i+1,(histNJpsiCost -> GetBinError(i+1))/(histNJpsiCost -> GetBinWidth(i+1)));
+    histNJpsiCosThetaCorr -> SetBinContent(i+1,(histNJpsiCosTheta -> GetBinContent(i+1))/(histNJpsiCosTheta -> GetBinWidth(i+1)));
+    histNJpsiCosThetaCorr -> SetBinError(i+1,(histNJpsiCosTheta -> GetBinError(i+1))/(histNJpsiCosTheta -> GetBinWidth(i+1)));
   }
-  histNJpsiCostCorr -> Divide(histAccxEffCost);
+  histNJpsiCosThetaCorr -> Divide(histAccxEffCosTheta);
+  histNJpsiCosThetaCorr -> SetLineColor(kBlack);
+  histNJpsiCosThetaCorr -> SetMarkerStyle(20); histNJpsiCosThetaCorr -> SetMarkerColor(kBlack);
+
 
   TH1D *histNJpsiPhiCorr = (TH1D*) histNJpsiPhi -> Clone("histNJpsiPhiCorr");
   for(int i = 0;i < 10;i++){
@@ -116,6 +100,8 @@ void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiP
     histNJpsiPhiCorr -> SetBinError(i+1,(histNJpsiPhi -> GetBinError(i+1))/(histNJpsiPhi -> GetBinWidth(i+1)));
   }
   histNJpsiPhiCorr -> Divide(histAccxEffPhi);
+  histNJpsiPhiCorr -> SetLineColor(kBlack);
+  histNJpsiPhiCorr -> SetMarkerStyle(20); histNJpsiPhiCorr -> SetMarkerColor(kBlack);
 
   TH1D *histNJpsiPhiTildeCorr = (TH1D*) histNJpsiPhiTilde -> Clone("histNJpsiPhiTildeCorr");
   for(int i = 0;i < 10;i++){
@@ -123,6 +109,8 @@ void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiP
     histNJpsiPhiTildeCorr -> SetBinError(i+1,(histNJpsiPhiTilde -> GetBinError(i+1))/(histNJpsiPhiTilde -> GetBinWidth(i+1)));
   }
   histNJpsiPhiTildeCorr -> Divide(histAccxEffPhiTilde);
+  histNJpsiPhiTildeCorr -> SetLineColor(kBlack);
+  histNJpsiPhiTildeCorr -> SetMarkerStyle(20); histNJpsiPhiTildeCorr -> SetMarkerColor(kBlack);
 
   TF1 *ffitB1 = new TF1("ffitB1","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
   TF1 *ffitB2 = new TF1("ffitB2","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,fPi);
@@ -138,15 +126,16 @@ void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiP
   ROOT::Fit::DataRange rangeB3;
 
   // set the data range
-  rangeB1.SetRange(minFitRangeCost,maxFitRangeCost);
+  rangeB1.SetRange(minFitRangeCosTheta,maxFitRangeCosTheta);
   rangeB2.SetRange(histNJpsiPhi -> GetBinLowEdge(2),histNJpsiPhi -> GetBinLowEdge(10));
-  rangeB3.SetRange(histNJpsiPhiTilde -> GetBinLowEdge(2),histNJpsiPhiTilde -> GetBinLowEdge(10));
+  //rangeB3.SetRange(histNJpsiPhiTilde -> GetBinLowEdge(2),histNJpsiPhiTilde -> GetBinLowEdge(10));
+  rangeB3.SetRange(0.,fPi);
 
   ROOT::Fit::BinData dataB1(opt,rangeB1);
   ROOT::Fit::BinData dataB2(opt,rangeB2);
   ROOT::Fit::BinData dataB3(opt,rangeB3);
 
-  ROOT::Fit::FillData(dataB1, histNJpsiCostCorr);
+  ROOT::Fit::FillData(dataB1, histNJpsiCosThetaCorr);
   ROOT::Fit::FillData(dataB2, histNJpsiPhiCorr);
   ROOT::Fit::FillData(dataB3, histNJpsiPhiTildeCorr);
 
@@ -206,33 +195,71 @@ void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiP
 
   gStyle->SetOptFit(1111);
 
-  TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,1400,700);
+  double maxCosTheta = histNJpsiCosThetaCorr -> GetMaximum();
+  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","N_{J/#psi}^{corr} vs cos#it{#theta}",100,-1,1,100,maxCosTheta - 0.7*maxCosTheta,maxCosTheta + 0.2*maxCosTheta);
+  histGridCosTheta -> GetXaxis() -> SetTitle("cos#it{#theta}");
+
+  double maxPhi = histNJpsiPhiCorr -> GetMaximum();
+  TH2D *histGridPhi = new TH2D("histGridPhi","N_{J/#psi}^{corr} vs #it{#varphi}",100,0,fPi,100,maxPhi - 0.5*maxPhi,maxPhi + 0.2*maxPhi);
+  histGridPhi -> GetXaxis() -> SetTitle("#it{#varphi}");
+
+  double maxPhiTilde = histNJpsiPhiTildeCorr -> GetMaximum();
+  TH2D *histGridPhiTilde = new TH2D("histGridPhiTilde","N_{J/#psi}^{corr} vs #it{#tilde{#varphi}}",100,0,fPi,100,maxPhiTilde - 0.5*maxPhiTilde,maxPhiTilde + 0.2*maxPhiTilde);
+  histGridPhiTilde -> GetXaxis() -> SetTitle("#tilde{#it{#varphi}}");
+
+
+  TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,1400,600);
   canvas -> Divide(3,1);
 
   canvas -> cd(1);
   ffitB1 -> SetFitResult(result, iparB1);
   ffitB1 -> SetRange(rangeB1().first, rangeB1().second);
-  ffitB1 -> SetLineColor(kBlue);
-  histNJpsiCostCorr -> GetListOfFunctions() -> Add(ffitB1);
-  histNJpsiCostCorr -> Draw("E");
+  ffitB1 -> SetLineColor(kRed);
+  histNJpsiCosThetaCorr -> GetListOfFunctions() -> Add(ffitB1);
+  histGridCosTheta -> Draw();
+  histNJpsiCosThetaCorr -> Draw("Esame");
 
   canvas -> cd(2);
   ffitB2 -> SetFitResult( result, iparB2);
   ffitB2 -> SetRange(rangeB2().first, rangeB2().second);
   ffitB2 -> SetLineColor(kRed);
   histNJpsiPhiCorr -> GetListOfFunctions()->Add(ffitB2);
-  histNJpsiPhiCorr -> Draw("E");
+  histGridPhi -> Draw();
+  histNJpsiPhiCorr -> Draw("Esame");
 
   canvas -> cd(3);
   ffitB3 -> SetFitResult( result, iparB3);
   ffitB3 -> SetRange(rangeB3().first, rangeB3().second);
   ffitB3 -> SetLineColor(kRed);
   histNJpsiPhiTildeCorr -> GetListOfFunctions()->Add(ffitB3);
-  histNJpsiPhiTildeCorr -> Draw("E");
+  histGridPhiTilde -> Draw();
+  histNJpsiPhiTildeCorr -> Draw("Esame");
 
   canvas -> SaveAs(nameOutputPlot.c_str());
+  delete histGridCosTheta;
+  delete histGridPhi;
+  delete histGridPhiTilde;
   delete canvas;
 }
+//______________________________________________________________________________
+struct GlobalChi2_old {
+   GlobalChi2_old(  ROOT::Math::IMultiGenFunction & f1,
+                ROOT::Math::IMultiGenFunction & f2) :
+      fChi2_1(&f1), fChi2_2(&f2) {}
+
+   // parameter vector is first background (in common 1 and 2)
+   // and then is signal (only in 2)
+   double operator() (const double *par) const {
+      double p1[2];
+      for (int i = 0; i < 2; ++i) p1[i] = par[iparB1[i] ];
+
+      double p2[3];
+      for (int i = 0; i < 3; ++i) p2[i] = par[iparB2[i] ];
+   }
+
+   const  ROOT::Math::IMultiGenFunction * fChi2_1;
+   const  ROOT::Math::IMultiGenFunction * fChi2_2;
+};
 //______________________________________________________________________________
 struct GlobalChi2_2Var {
    GlobalChi2_2Var(  ROOT::Math::IMultiGenFunction & f1,

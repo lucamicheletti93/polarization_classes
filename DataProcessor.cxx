@@ -29,6 +29,11 @@ DataProcessor::DataProcessor(THnSparse *histNVarHE, THnSparse *histNVarCS): TObj
   fHistNVarCS = (THnSparse*) histNVarCS -> Clone();
 }
 //______________________________________________________________________________
+DataProcessor::DataProcessor(TTree *treeDataFilteredHE, TTree *treeDataFilteredCS): TObject() {
+  fTreeDataFilteredHE = (TTree*) treeDataFilteredHE -> Clone();
+  fTreeDataFilteredCS = (TTree*) treeDataFilteredCS -> Clone();
+}
+//______________________________________________________________________________
 DataProcessor::DataProcessor(TTree *treeData): TObject() {
   // standard constructor
   fTreeData = (TTree*) treeData -> Clone();
@@ -101,15 +106,13 @@ void DataProcessor::SetBinning(vector <Int_t> CostBinsMin, vector <Int_t> CostBi
 //______________________________________________________________________________
 void DataProcessor::CreateTHnSparse(string strSample, Bool_t pDCAapplied, string nameOutputFile) {
   if(pDCAapplied){
-    printf("--- pDCA included ---\n");
+    printf("- pDCA included \n");
     fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCAs
   }
-  else{printf("--- pDCA not included ---\n");}
-
-  printf("_____________Configure Fiducial Box_______________ \n");
+  else{printf("- pDCA not included \n");}
+  printf("- Configuring Fiducial Box \n");
   printf("%f < CosTheta < %f \n",fCostValues[1],fCostValues[fNCostBins-1]);
   printf("%f < |Phi| < %f \n",fPhiValues[1],fPhiValues[fNPhiBins-1]);
-  printf("__________________________________________________ \n");
 
   double PI = TMath::Pi();
   int nEvents = 0;
@@ -243,7 +246,7 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
     fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarHE -> GetAxis(0) -> GetBinWidth(1))); // cut in pT
     fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarCS -> GetAxis(0) -> GetBinWidth(1))); // cut in pT
-    cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]) << " - " << fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarCS -> GetAxis(0) -> GetBinWidth(1)) << endl;
+    //cout << fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]) << " - " << fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i] - fHistNVarCS -> GetAxis(0) -> GetBinWidth(1)) << endl;
 
     TH1D *histMassHE = (TH1D*) fHistNVarHE -> Projection(1); histMassHE -> Write(Form("histHE_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); delete histMassHE;
     TH1D *histMassCS = (TH1D*) fHistNVarCS -> Projection(1); histMassCS -> Write(Form("histCS_%2.1f_pT_%2.1f",fMinPt[i],fMaxPt[i])); delete histMassCS;
@@ -253,7 +256,7 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
       THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
       histNVarHEClone -> GetAxis(2) -> SetRange(fCostBinsMin[j],fCostBinsMax[j]); // cut in CosTheta
-      cout << fCostBinsMin[j] << " - " << fCostBinsMax[j] << endl;
+      //cout << fCostBinsMin[j] << " - " << fCostBinsMax[j] << endl;
       TH1D *histMassCosThetaHE = (TH1D*) histNVarHEClone -> Projection(1);
       histMassCosThetaHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_CosTheta_%3.2f",fMinPt[i],fMaxPt[i],fCostValues[j],fCostValues[j+1]));
       delete histMassCosThetaHE;
@@ -326,18 +329,16 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
   fileOutput -> Close();
 }
 //______________________________________________________________________________
-void DataProcessor::CreateFilteredTree(string strSample,  Bool_t pDCAapplied, string nameOutputFile) {
-
+void DataProcessor::CreateFilteredTree(string strSample, Bool_t pDCAapplied, string nameOutputFile) {
+  printf("_____________Configure Fiducial Box_______________ \n");
   if(pDCAapplied){
     printf("--- pDCA included ---\n");
     fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCAs
   }
   else{printf("--- pDCA not included ---\n");}
-
-  printf("_____________Configure Fiducial Box_______________ \n");
   printf("%f < CosTheta < %f \n",fCostValues[1],fCostValues[fNCostBins-1]);
   printf("%f < |Phi| < %f \n",fPhiValues[1],fPhiValues[fNPhiBins-1]);
-  printf("__________________________________________________ \n");
+  printf("______________________________________________________________ \n");
 
   double PI = TMath::Pi();
   int nEvents = 0;
@@ -442,6 +443,56 @@ void DataProcessor::CreateFilteredTree(string strSample,  Bool_t pDCAapplied, st
   treeDataFilteredHE -> Write();
   treeDataFilteredCS -> Write();
   fileTreeDataFiltered -> Close();
+}
+//______________________________________________________________________________
+void DataProcessor::CutFilteredTree(string nameOutputFile) {
+  printf("Colmpleta l'opera \n");
+
+  double DimuMass, DimuPt, CosThetaHE, CosThetaCS, PhiHE, PhiCS,PhiTildeHE, PhiTildeCS;
+
+  double PI = TMath::Pi();
+  int nEvents = fTreeDataFilteredHE -> GetEntries();
+
+  fTreeDataFilteredHE -> SetBranchAddress("DimuPt",&DimuPt);
+  fTreeDataFilteredHE -> SetBranchAddress("DimuMass",&DimuMass);
+  fTreeDataFilteredHE -> SetBranchAddress("CosThetaHE",&CosThetaHE);
+  fTreeDataFilteredHE -> SetBranchAddress("PhiHE",&PhiHE);
+  fTreeDataFilteredHE -> SetBranchAddress("PhiTildeHE",&PhiTildeHE);
+
+  TH1D *histMass_2pT4 = new TH1D("histMass_2pT4","histMass_2pT4",120,2.,5.);
+  TH1D *histMass_4pT6 = new TH1D("histMass_4pT6","histMass_4pT6",120,2.,5.);
+  TH1D *histMass_6pT10 = new TH1D("histMass_6pT10","histMass_6pT10",120,2.,5.);
+
+  TH1D *histMass_CosTheta = new TH1D("histMass_CosTheta","histMass_CosTheta",120,2.,5.);
+  TH1D *histMass_Phi = new TH1D("histMass_Phi","histMass_Phi",120,2.,5.);
+
+  for(int i = 0;i < nEvents;i++){
+    fTreeDataFilteredHE -> GetEntry(i);
+    if(DimuPt > 2. && DimuPt < 4.){histMass_2pT4 -> Fill(DimuMass);}
+    if(DimuPt > 4. && DimuPt < 6.){histMass_4pT6 -> Fill(DimuMass);}
+    if(DimuPt > 6. && DimuPt < 10.){
+      histMass_6pT10 -> Fill(DimuMass);
+      if(CosThetaHE > fCostValues[1] && CosThetaHE < fCostValues[2]){
+        histMass_CosTheta -> Fill(DimuMass);
+      }
+      if(TMath::Abs(PhiHE) > fPhiValues[1] && TMath::Abs(PhiHE) < fPhiValues[2]){
+        histMass_Phi -> Fill(DimuMass);
+      }
+    }
+  }
+
+  printf("N entries 2 < pT < 4 GeV/c = %i \n",(int) histMass_2pT4 -> GetEntries());
+  printf("N entries 4 < pT < 6 GeV/c = %i \n",(int)histMass_4pT6 -> GetEntries());
+  printf("N entries 6 < pT < 10 GeV/c = %i \n",(int)histMass_6pT10 -> GetEntries());
+
+  TFile *fileOutput = new TFile(nameOutputFile.c_str(),"RECREATE");
+  histMass_2pT4 -> Write();
+  histMass_4pT6 -> Write();
+  histMass_6pT10 -> Write();
+
+  histMass_CosTheta -> Write();
+  histMass_Phi -> Write();
+  fileOutput -> Close();
 }
 //______________________________________________________________________________
 void DataProcessor::CreateInvMassHistograms(TFile *fileDataFiltered, string nameOutputFile) {

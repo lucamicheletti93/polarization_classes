@@ -13,9 +13,10 @@ class DataProcessor : public TObject
 {
 
  public:
-   DataProcessor();
-   DataProcessor(THnSparse *histNVarHE, THnSparse *histNVarCS);
-   DataProcessor(TTree *treeData);
+   DataProcessor();                                                             // default constructor
+   DataProcessor(TTree *treeData);                                              // constructor for elaborating TTree from grid
+   DataProcessor(THnSparse *histNVarHE, THnSparse *histNVarCS);                 // constructor for working with THnSparse
+   DataProcessor(TTree *treeDataFilteredHE, TTree *treeDataFilteredCS);         // constructor for working with TTree
    virtual ~DataProcessor();
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
@@ -23,6 +24,7 @@ class DataProcessor : public TObject
    void CreateTHnSparse(string strSample, Bool_t pDCAapplied, string nameOutputFile);
    void CutTHnSparse(string nameOutputFile);
    void CreateFilteredTree(string strSample, Bool_t pDCAapplied, string nameOutputFile);
+   void CutFilteredTree(string nameOutputFile);
    void CreateInvMassHistograms(TFile *, string strSample);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
@@ -48,21 +50,10 @@ class DataProcessor : public TObject
 
    THnSparse *fHistNVarHE;
    THnSparse *fHistNVarCS;
+   TTree *fTreeDataFilteredHE;
+   TTree *fTreeDataFilteredCS;
+
    TTree *fTreeData;
-
-   vector <Int_t> fListMuonId;
-
-   TH1D *fHistLowPtSM;
-   TH1D *fHistAllPtSM;
-   TH1D *fHistTriggerResponseFunctionSM;
-   TH1D *fHistLowPtSMpDCA;
-   TH1D *fHistAllPtSMpDCA;
-   TH1D *fHistTriggerResponseFunctionSMpDCA;
-
-   TH1D *fHistCMUL7Triggers;
-
-   Int_t fCMUL7Triggers;
-
    char fTrigClass[500];
    Float_t fPercV0M, fPercCL0, fPercCL1;
    Int_t fNMuons, fNTracklets, fNContributors;
@@ -81,6 +72,19 @@ class DataProcessor : public TObject
    Bool_t fIsPhysSelected;
    Int_t fPDCA[300];
    Int_t fMuonId[300];
+
+   vector <Int_t> fListMuonId;
+
+   TH1D *fHistLowPtSM;
+   TH1D *fHistAllPtSM;
+   TH1D *fHistTriggerResponseFunctionSM;
+   TH1D *fHistLowPtSMpDCA;
+   TH1D *fHistAllPtSMpDCA;
+   TH1D *fHistTriggerResponseFunctionSMpDCA;
+
+   TH1D *fHistCMUL7Triggers;
+
+   Int_t fCMUL7Triggers;
 
 ClassDef(DataProcessor,1)
 };
