@@ -18,7 +18,9 @@ class AccxEffCalculator : public TObject
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Double_t> , vector <Double_t>, vector <Double_t>);
    void ComputeAccxEff(string strSample, string nameOutputFile);
-   void ReWeightAccxEff(string refFrame, Double_t LambdaTheta, Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile);
+   //void ReWeightAccxEff(string refFrame, Double_t LambdaTheta, Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile);
+   //void ReWeightAccxEff(Double_t polParHE[], Double_t polParCS[], string strSample, Bool_t saveFile, string nameOutputFile);
+   void ReWeightAccxEff(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
 
    Int_t GetNPtBins(){return fNPtBins;};
@@ -38,7 +40,7 @@ class AccxEffCalculator : public TObject
    Int_t fNPhiTildeBins;
    vector <Double_t> fPhiTildeValues;
 
-   double fPhiTilde;
+   Double_t fPhiTilde;
 
    TTree *fTreeAccxEff;
 
@@ -126,13 +128,26 @@ class AccxEffCalculator : public TObject
    TH2D *fHistAccxEffPhiTildeCSPt;
 
    // cos(theta)
-   TH1D *fHistGenCosThetaReWeighted[13];
-   TH1D *fHistRecCosThetaReWeighted[13];
-   TH1D *fHistAccxEffCosThetaReWeighted[13];
+   TH1D *fHistGenCosThetaHEReWeighted[13];
+   TH1D *fHistRecCosThetaHEReWeighted[13];
+   TH1D *fHistAccxEffCosThetaHEReWeighted[13];
+   TH1D *fHistGenCosThetaCSReWeighted[13];
+   TH1D *fHistRecCosThetaCSReWeighted[13];
+   TH1D *fHistAccxEffCosThetaCSReWeighted[13];
    // phi
-   TH1D *fHistGenPhiReWeighted[13];
-   TH1D *fHistRecPhiReWeighted[13];
-   TH1D *fHistAccxEffPhiReWeighted[13];
+   TH1D *fHistGenPhiHEReWeighted[13];
+   TH1D *fHistRecPhiHEReWeighted[13];
+   TH1D *fHistAccxEffPhiHEReWeighted[13];
+   TH1D *fHistGenPhiCSReWeighted[13];
+   TH1D *fHistRecPhiCSReWeighted[13];
+   TH1D *fHistAccxEffPhiCSReWeighted[13];
+   // phiTilde
+   TH1D *fHistGenPhiTildeHEReWeighted[13];
+   TH1D *fHistRecPhiTildeHEReWeighted[13];
+   TH1D *fHistAccxEffPhiTildeHEReWeighted[13];
+   TH1D *fHistGenPhiTildeCSReWeighted[13];
+   TH1D *fHistRecPhiTildeCSReWeighted[13];
+   TH1D *fHistAccxEffPhiTildeCSReWeighted[13];
 
    // Trigger response fuction calculation
    TH1D *fHistLowPt;
