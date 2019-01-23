@@ -17,22 +17,19 @@ class SpecialFitCalculator : public TObject
    virtual ~SpecialFitCalculator();                                             // Destructor
 
    void SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues);
-   //void SimultaneousFit(TH1D *histNJpsiCost, TH1D *histNJpsiPhi, TH1D *histAccxEffCost, TH1D *histAccxEffPhi, Double_t minFitRangeCost, Double_t maxFitRangeCost, string nameOutputPlot);
-   void SimultaneousFit(TObjArray *data);
-   //void SimultaneousFit2Var(TH1D *histNJpsiCost, TH1D *histNJpsiPhi, TH1D *histAccxEffCost, TH1D *histAccxEffPhi, Double_t minFitRangeCost, Double_t maxFitRangeCost, string nameOutputPlot);
-   //void SimultaneousFit2(TH1D *histNJpsiCostCorr, TH1D *histNJpsiPhiCorr, Double_t minFitRangeCost, Double_t maxFitRangeCost, string nameOutputPlot);
-   /*Double_t GetLambdaTheta(){return fLambdaTheta;};
-   Double_t GetErrorLambdaTheta(){return fErrorLambdaTheta;};
-   Double_t GetLambdaPhi(){return fLambdaPhi;};
-   Double_t GetErrorLambdaPhi(){return fErrorLambdaPhi;};
-   Double_t GetLambdaThetaPhi(){return fLambdaThetaPhi;};
-   Double_t GetErrorLambdaThetaPhi(){return fErrorLambdaThetaPhi;};
-   Double_t GetErrorLambdaThetaLambdaPhi(){return fErrorLambdaThetaLambdaPhi;};*/
+   void SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
 
    vector <Double_t> GetCosThetaParametersList();
    vector <Double_t> GetErrorCosThetaParametersList();
    vector <Double_t> GetPhiParametersList();
    vector <Double_t> GetErrorPhiParametersList();
+
+   Double_t GetLambdaTheta(){return fLambdaTheta;};
+   Double_t GetErrorLambdaTheta(){return fErrorLambdaTheta;};
+   Double_t GetLambdaPhi(){return fLambdaPhi;};
+   Double_t GetErrorLambdaPhi(){return fErrorLambdaPhi;};
+   Double_t GetLambdaThetaPhi(){return fLambdaThetaPhi;};
+   Double_t GetErrorLambdaThetaPhi(){return fErrorLambdaThetaPhi;};
 
  private:
 

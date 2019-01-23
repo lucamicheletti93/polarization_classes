@@ -58,6 +58,7 @@ SpecialFitCalculator::SpecialFitCalculator(): TObject() {
 SpecialFitCalculator::~SpecialFitCalculator() {
   // destructor
 }
+//______________________________________________________________________________
 void SpecialFitCalculator::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues) {
   for(int i = 0;i < (int) CosThetaValues.size();i++){gCosThetaValues.push_back(CosThetaValues[i]);}
   gNCosThetaBins = gCosThetaValues.size() - 1;
@@ -67,7 +68,12 @@ void SpecialFitCalculator::SetBinning(vector <Double_t> CosThetaValues, vector <
   gNPhiTildeBins = gPhiTildeValues.size() - 1;
 }
 //______________________________________________________________________________
-void SpecialFitCalculator::SimultaneousFit(TObjArray *data) {
+void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
+  printf("\n------------------------------------------------------------------------\n");
+  printf("This object allows you to compute simultaneous fit with 3 distributions \n");
+  printf("If the class doesn't work REMEMBER to use the SetBinning() method! \n");
+  printf("------------------------------------------------------------------------\n");
+
   Int_t ndf = 0;
   gNDistrib = data -> GetEntries();
   cout << "n distributions = " << gNDistrib << endl;
@@ -119,36 +125,38 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data) {
   Double_t normCosTheta, errNormCosTheta;
   Double_t normPhi, errNormPhi;
   Double_t normPhiTilde, errNormPhiTilde;
-  Double_t lambdaTheta, errLambdaTheta;
-  Double_t lambdaPhi, errLambdaPhi;
-  Double_t lambdaThetaPhi, errLambdaThetaPhi;
 
   minuit -> GetParameter(0,normCosTheta,errNormCosTheta);
   minuit -> GetParameter(1,normPhi,errNormPhi);
   minuit -> GetParameter(2,normPhiTilde,errNormPhiTilde);
-  minuit -> GetParameter(3,lambdaTheta,errLambdaTheta);
-  minuit -> GetParameter(4,lambdaPhi,errLambdaPhi);
-  minuit -> GetParameter(5,lambdaThetaPhi,errLambdaThetaPhi);
+  minuit -> GetParameter(3,fLambdaTheta,fErrorLambdaTheta);
+  minuit -> GetParameter(4,fLambdaPhi,fErrorLambdaPhi);
+  minuit -> GetParameter(5,fLambdaThetaPhi,fErrorLambdaThetaPhi);
 
   gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
   gFuncFit[0] -> SetParameter(0,normCosTheta);
-  gFuncFit[0] -> SetParameter(1,lambdaTheta);
+  gFuncFit[0] -> SetParameter(1,fLambdaTheta);
 
   gFuncFit[1] = new TF1("gFuncFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
   gFuncFit[1] -> SetParameter(0,normPhi);
-  gFuncFit[1] -> SetParameter(1,lambdaTheta);
-  gFuncFit[1] -> SetParameter(2,lambdaPhi);
+  gFuncFit[1] -> SetParameter(1,fLambdaTheta);
+  gFuncFit[1] -> SetParameter(2,fLambdaPhi);
 
   gFuncFit[2] = new TF1("gFuncFit2","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
   gFuncFit[2] -> SetParameter(0,normPhiTilde);
-  gFuncFit[2] -> SetParameter(1,lambdaTheta);
-  gFuncFit[2] -> SetParameter(2,lambdaThetaPhi);
+  gFuncFit[2] -> SetParameter(1,fLambdaTheta);
+  gFuncFit[2] -> SetParameter(2,fLambdaThetaPhi);
 
   for(int i = 0;i < gNDistrib;i++){
     canvasHistFit -> cd(i+1);
     gFuncFit[i] -> Draw("same");
   }
   canvasHistFit -> Update();
+
+  if(saveCanvas){
+    canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
+  }
+  delete canvasHistFit;
 }
 //______________________________________________________________________________
 Double_t funcCosTheta(Double_t x, Double_t *par){
@@ -166,9 +174,6 @@ Double_t funcPhiTilde(Double_t x, Double_t *par){
 void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t *par, Int_t iflag){
   Double_t angleVar;
   Double_t val, errVal;
-
-  //cout << normCosTheta << " " << lambdaTheta << endl;
-  //cout << par[0] << " " << par[1] << " " << par[2] << " " << par[3] << endl;
 
   Double_t parCosTheta[2];
   parCosTheta[0] = par[0];
