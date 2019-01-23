@@ -191,8 +191,11 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
 
   Double_t func = 0, pull = 0, chiSquare = 0;
 
+  Int_t fitBinMin[3] = {2,0,0};
+  Int_t fitBinMax[3] = {4,2,2};
+
   for(int i = 0;i < gNDistrib;i++){
-    for(int j = 0;j < gHistFit[i] -> GetSize() - 2;j++){
+    for(int j = fitBinMin[i];j < gHistFit[i] -> GetSize() - fitBinMax[i];j++){
       val = gHistFit[i] -> GetBinContent(j+1);
       errVal = gHistFit[i] -> GetBinError(j+1);
 
