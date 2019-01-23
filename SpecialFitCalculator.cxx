@@ -4,6 +4,8 @@
 
 #include "TROOT.h"
 #include "TObject.h"
+#include "TObjArray.h"
+#include "TMinuit.h"
 #include "TSystem.h"
 #include "TStyle.h"
 #include "TMath.h"
@@ -15,6 +17,7 @@
 #include "TF2.h"
 #include "TFile.h"
 #include "TLatex.h"
+#include <vector>
 #include "TMatrixD.h"
 
 #include "Fit/Fitter.h"
@@ -27,453 +30,185 @@
 
 #include "SpecialFitCalculator.h"
 
-ClassImp(SpecialFitCalculator)
+// Global variables
+Int_t gNDistrib;
+TH1D *gHistFit[3];
+TF1 *gFuncFit[3];
 
-////////////////////////////////////////////////////////////////////////////////
-// Definition of shared parameters
-// Definition of FuncCosTheta parameters
-int iparB1[2] = { 0, // Amplitude funcCosTheta
-                  2  // lambdaTheta (common parameter) <-
-};
-// Definition of FuncPhi parameters
-int iparB2[3] = { 1, // Amplitude funcPhi
-                  2, // lambdaTheta (common parameter) <-
-                  3, // lambdaPhi
-};
-// Definition of FuncPhiTilde parameters
-int iparB3[3] = { 4, // Amplitude funcPhiTilde
-                  2, // lambdaTheta (common parameter) <-
-                  5, // lambdaPhi
-};
-////////////////////////////////////////////////////////////////////////////////
+Int_t gNCosThetaBins;
+Int_t gNPhiBins;
+Int_t gNPhiTildeBins;
+vector <Double_t> gCosThetaValues;
+vector <Double_t> gPhiValues;
+vector <Double_t> gPhiTildeValues;
+
+Double_t funcCosTheta(Double_t , Double_t *);
+Double_t funcPhi(Double_t , Double_t *);
+Double_t funcPhiTilde(Double_t , Double_t *);
+void polarizationFCN(Int_t &, Double_t *, Double_t &, Double_t *, Int_t );
+
+ClassImp(SpecialFitCalculator)
 
 //______________________________________________________________________________
 SpecialFitCalculator::SpecialFitCalculator(): TObject() {
-  fPi = TMath::Pi();
+  gPi = TMath::Pi();
   // default constructor
 }
 //______________________________________________________________________________
 SpecialFitCalculator::~SpecialFitCalculator() {
   // destructor
 }
-//______________________________________________________________________________
-struct GlobalChi2 {
-   GlobalChi2(  ROOT::Math::IMultiGenFunction & f1,
-                ROOT::Math::IMultiGenFunction & f2,
-                ROOT::Math::IMultiGenFunction & f3) :
-      fChi2_1(&f1), fChi2_2(&f2), fChi2_3(&f3) {}
-
-   // parameter vector is first background (in common 1 and 2)
-   // and then is signal (only in 2)
-   double operator() (const double *par) const {
-      double p1[2];
-      for (int i = 0; i < 2; ++i) p1[i] = par[iparB1[i] ];
-
-      double p2[3];
-      for (int i = 0; i < 3; ++i) p2[i] = par[iparB2[i] ];
-
-      double p3[3];
-      for (int i = 0; i < 3; ++i) p3[i] = par[iparB3[i] ];
-
-      return (*fChi2_1)(p1) + (*fChi2_2)(p2) + (*fChi2_3)(p3);
-   }
-
-   const  ROOT::Math::IMultiGenFunction * fChi2_1;
-   const  ROOT::Math::IMultiGenFunction * fChi2_2;
-   const  ROOT::Math::IMultiGenFunction * fChi2_3;
-};
-//______________________________________________________________________________
-void SpecialFitCalculator::SimultaneousFit(TH1D *histNJpsiCosTheta, TH1D *histNJpsiPhi, TH1D *histNJpsiPhiTilde, TH1D *histAccxEffCosTheta, TH1D *histAccxEffPhi, TH1D *histAccxEffPhiTilde, Double_t minFitRangeCosTheta, Double_t maxFitRangeCosTheta, string nameOutputPlot) {
-  TH1D *histNJpsiCosThetaCorr = (TH1D*) histNJpsiCosTheta -> Clone("histNJpsiCostCorr");
-  for(int i = 0;i < 19;i++){
-    histNJpsiCosThetaCorr -> SetBinContent(i+1,(histNJpsiCosTheta -> GetBinContent(i+1))/(histNJpsiCosTheta -> GetBinWidth(i+1)));
-    histNJpsiCosThetaCorr -> SetBinError(i+1,(histNJpsiCosTheta -> GetBinError(i+1))/(histNJpsiCosTheta -> GetBinWidth(i+1)));
-  }
-  histNJpsiCosThetaCorr -> Divide(histAccxEffCosTheta);
-  histNJpsiCosThetaCorr -> SetLineColor(kBlack);
-  histNJpsiCosThetaCorr -> SetMarkerStyle(20); histNJpsiCosThetaCorr -> SetMarkerColor(kBlack);
-
-
-  TH1D *histNJpsiPhiCorr = (TH1D*) histNJpsiPhi -> Clone("histNJpsiPhiCorr");
-  for(int i = 0;i < 10;i++){
-    histNJpsiPhiCorr -> SetBinContent(i+1,(histNJpsiPhi -> GetBinContent(i+1))/(histNJpsiPhi -> GetBinWidth(i+1)));
-    histNJpsiPhiCorr -> SetBinError(i+1,(histNJpsiPhi -> GetBinError(i+1))/(histNJpsiPhi -> GetBinWidth(i+1)));
-  }
-  histNJpsiPhiCorr -> Divide(histAccxEffPhi);
-  histNJpsiPhiCorr -> SetLineColor(kBlack);
-  histNJpsiPhiCorr -> SetMarkerStyle(20); histNJpsiPhiCorr -> SetMarkerColor(kBlack);
-
-  TH1D *histNJpsiPhiTildeCorr = (TH1D*) histNJpsiPhiTilde -> Clone("histNJpsiPhiTildeCorr");
-  for(int i = 0;i < 10;i++){
-    histNJpsiPhiTildeCorr -> SetBinContent(i+1,(histNJpsiPhiTilde -> GetBinContent(i+1))/(histNJpsiPhiTilde -> GetBinWidth(i+1)));
-    histNJpsiPhiTildeCorr -> SetBinError(i+1,(histNJpsiPhiTilde -> GetBinError(i+1))/(histNJpsiPhiTilde -> GetBinWidth(i+1)));
-  }
-  histNJpsiPhiTildeCorr -> Divide(histAccxEffPhiTilde);
-  histNJpsiPhiTildeCorr -> SetLineColor(kBlack);
-  histNJpsiPhiTildeCorr -> SetMarkerStyle(20); histNJpsiPhiTildeCorr -> SetMarkerColor(kBlack);
-
-  TF1 *ffitB1 = new TF1("ffitB1","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
-  TF1 *ffitB2 = new TF1("ffitB2","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,fPi);
-  TF1 *ffitB3 = new TF1("ffitB3","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,fPi);
-
-  ROOT::Math::WrappedMultiTF1 wfB1(*ffitB1,1);
-  ROOT::Math::WrappedMultiTF1 wfB2(*ffitB2,1);
-  ROOT::Math::WrappedMultiTF1 wfB3(*ffitB3,1);
-
-  ROOT::Fit::DataOptions opt;
-  ROOT::Fit::DataRange rangeB1;
-  ROOT::Fit::DataRange rangeB2;
-  ROOT::Fit::DataRange rangeB3;
-
-  // set the data range
-  rangeB1.SetRange(minFitRangeCosTheta,maxFitRangeCosTheta);
-  rangeB2.SetRange(histNJpsiPhi -> GetBinLowEdge(2),histNJpsiPhi -> GetBinLowEdge(10));
-  //rangeB3.SetRange(histNJpsiPhiTilde -> GetBinLowEdge(2),histNJpsiPhiTilde -> GetBinLowEdge(10));
-  rangeB3.SetRange(0.,fPi);
-
-  ROOT::Fit::BinData dataB1(opt,rangeB1);
-  ROOT::Fit::BinData dataB2(opt,rangeB2);
-  ROOT::Fit::BinData dataB3(opt,rangeB3);
-
-  ROOT::Fit::FillData(dataB1, histNJpsiCosThetaCorr);
-  ROOT::Fit::FillData(dataB2, histNJpsiPhiCorr);
-  ROOT::Fit::FillData(dataB3, histNJpsiPhiTildeCorr);
-
-
-  ROOT::Fit::Chi2Function chi2_B1(dataB1, wfB1);
-  ROOT::Fit::Chi2Function chi2_B2(dataB2, wfB2);
-  ROOT::Fit::Chi2Function chi2_B3(dataB3, wfB3);
-
-  GlobalChi2 globalChi2(chi2_B1, chi2_B2, chi2_B3);
-
-  ROOT::Fit::Fitter fitter;
-
-  const int Npar = 6;
-  double par0[Npar] = {10000.,10000.,-0.2,0.1,10000.,0.};
-
-  // create before the parameter settings in order to fix or set range on them
-  fitter.Config().SetParamsSettings(6,par0);
-
-  fitter.Config().MinimizerOptions().SetPrintLevel(0);
-  fitter.Config().SetMinimizer("Minuit","Minimize");
-
-  // fit FCN function directly
-  // (specify optionally data size and flag to indicate that is a chi2 fit)
-  fitter.FitFCN(6,globalChi2,0,dataB1.Size()+dataB2.Size()+dataB3.Size(),true);
-  ROOT::Fit::FitResult result = fitter.Result();
-  TMatrixD matrixCov(6,6);
-  result.GetCovarianceMatrix(matrixCov);
-  matrixCov.Print();
-  fErrorLambdaThetaLambdaPhi = matrixCov(2,3);
-
-  result.Print(std::cout);
-
-  fNormCosTheta = result.Parameter(0);
-  fErrorNormCosTheta = result.ParError(0);
-  fNormPhi = result.Parameter(1);
-  fErrorNormPhi = result.ParError(1);
-  fLambdaTheta = result.Parameter(2);
-  fErrorLambdaTheta = result.ParError(2);
-  fLambdaPhi = result.Parameter(3);
-  fErrorLambdaPhi = result.ParError(3);
-  fNormPhiTilde = result.Parameter(4);
-  fErrorNormPhiTilde = result.ParError(4);
-  fLambdaThetaPhi = result.Parameter(5);
-  fErrorLambdaThetaPhi = result.ParError(5);
-
-  fCosThetaParametersList.push_back(fNormCosTheta);
-  fErrorCosThetaParametersList.push_back(fErrorNormCosTheta);
-  fCosThetaParametersList.push_back(fLambdaTheta);
-  fErrorCosThetaParametersList.push_back(fErrorLambdaTheta);
-
-  fPhiParametersList.push_back(fNormPhi);
-  fErrorPhiParametersList.push_back(fErrorNormPhi);
-  fPhiParametersList.push_back(fLambdaTheta);
-  fErrorPhiParametersList.push_back(fErrorLambdaTheta);
-  fPhiParametersList.push_back(fLambdaPhi);
-  fErrorPhiParametersList.push_back(fErrorLambdaPhi);
-
-  gStyle->SetOptFit(1111);
-
-  double maxCosTheta = histNJpsiCosThetaCorr -> GetMaximum();
-  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","N_{J/#psi}^{corr} vs cos#it{#theta}",100,-1,1,100,maxCosTheta - 0.7*maxCosTheta,maxCosTheta + 0.2*maxCosTheta);
-  histGridCosTheta -> GetXaxis() -> SetTitle("cos#it{#theta}");
-
-  double maxPhi = histNJpsiPhiCorr -> GetMaximum();
-  TH2D *histGridPhi = new TH2D("histGridPhi","N_{J/#psi}^{corr} vs #it{#varphi}",100,0,fPi,100,maxPhi - 0.5*maxPhi,maxPhi + 0.2*maxPhi);
-  histGridPhi -> GetXaxis() -> SetTitle("#it{#varphi}");
-
-  double maxPhiTilde = histNJpsiPhiTildeCorr -> GetMaximum();
-  TH2D *histGridPhiTilde = new TH2D("histGridPhiTilde","N_{J/#psi}^{corr} vs #it{#tilde{#varphi}}",100,0,fPi,100,maxPhiTilde - 0.5*maxPhiTilde,maxPhiTilde + 0.2*maxPhiTilde);
-  histGridPhiTilde -> GetXaxis() -> SetTitle("#tilde{#it{#varphi}}");
-
-
-  TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,1400,600);
-  canvas -> Divide(3,1);
-
-  canvas -> cd(1);
-  ffitB1 -> SetFitResult(result, iparB1);
-  ffitB1 -> SetRange(rangeB1().first, rangeB1().second);
-  ffitB1 -> SetLineColor(kRed);
-  histNJpsiCosThetaCorr -> GetListOfFunctions() -> Add(ffitB1);
-  histGridCosTheta -> Draw();
-  histNJpsiCosThetaCorr -> Draw("Esame");
-
-  canvas -> cd(2);
-  ffitB2 -> SetFitResult( result, iparB2);
-  ffitB2 -> SetRange(rangeB2().first, rangeB2().second);
-  ffitB2 -> SetLineColor(kRed);
-  histNJpsiPhiCorr -> GetListOfFunctions()->Add(ffitB2);
-  histGridPhi -> Draw();
-  histNJpsiPhiCorr -> Draw("Esame");
-
-  canvas -> cd(3);
-  ffitB3 -> SetFitResult( result, iparB3);
-  ffitB3 -> SetRange(rangeB3().first, rangeB3().second);
-  ffitB3 -> SetLineColor(kRed);
-  histNJpsiPhiTildeCorr -> GetListOfFunctions()->Add(ffitB3);
-  histGridPhiTilde -> Draw();
-  histNJpsiPhiTildeCorr -> Draw("Esame");
-
-  canvas -> SaveAs(nameOutputPlot.c_str());
-  delete histGridCosTheta;
-  delete histGridPhi;
-  delete histGridPhiTilde;
-  delete canvas;
+void SpecialFitCalculator::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues) {
+  for(int i = 0;i < (int) CosThetaValues.size();i++){gCosThetaValues.push_back(CosThetaValues[i]);}
+  gNCosThetaBins = gCosThetaValues.size() - 1;
+  for(int i = 0;i < (int) PhiValues.size();i++){gPhiValues.push_back(PhiValues[i]);}
+  gNPhiBins = gPhiValues.size() - 1;
+  for(int i = 0;i < (int) PhiTildeValues.size();i++){gPhiTildeValues.push_back(PhiTildeValues[i]);}
+  gNPhiTildeBins = gPhiTildeValues.size() - 1;
 }
 //______________________________________________________________________________
-struct GlobalChi2_old {
-   GlobalChi2_old(  ROOT::Math::IMultiGenFunction & f1,
-                ROOT::Math::IMultiGenFunction & f2) :
-      fChi2_1(&f1), fChi2_2(&f2) {}
+void SpecialFitCalculator::SimultaneousFit(TObjArray *data) {
+  Int_t ndf = 0;
+  gNDistrib = data -> GetEntries();
+  cout << "n distributions = " << gNDistrib << endl;
 
-   // parameter vector is first background (in common 1 and 2)
-   // and then is signal (only in 2)
-   double operator() (const double *par) const {
-      double p1[2];
-      for (int i = 0; i < 2; ++i) p1[i] = par[iparB1[i] ];
-
-      double p2[3];
-      for (int i = 0; i < 3; ++i) p2[i] = par[iparB2[i] ];
-   }
-
-   const  ROOT::Math::IMultiGenFunction * fChi2_1;
-   const  ROOT::Math::IMultiGenFunction * fChi2_2;
-};
-//______________________________________________________________________________
-struct GlobalChi2_2Var {
-   GlobalChi2_2Var(  ROOT::Math::IMultiGenFunction & f1,
-                ROOT::Math::IMultiGenFunction & f2) :
-      fChi2_1(&f1), fChi2_2(&f2) {}
-
-   // parameter vector is first background (in common 1 and 2)
-   // and then is signal (only in 2)
-   double operator() (const double *par) const {
-      double p1[2];
-      for (int i = 0; i < 2; ++i) p1[i] = par[iparB1[i] ];
-
-      double p2[3];
-      for (int i = 0; i < 3; ++i) p2[i] = par[iparB2[i] ];
-   }
-
-   const  ROOT::Math::IMultiGenFunction * fChi2_1;
-   const  ROOT::Math::IMultiGenFunction * fChi2_2;
-};
-//______________________________________________________________________________
-void SpecialFitCalculator::SimultaneousFit2Var(TH1D *histNJpsiCost, TH1D *histNJpsiPhi, TH1D *histAccxEffCost, TH1D *histAccxEffPhi, Double_t minFitRangeCost, Double_t maxFitRangeCost, string nameOutputPlot) {
-  TH1D *histNJpsiCostCorr = (TH1D*) histNJpsiCost -> Clone("histNJpsiCostCorr");
-  for(int i = 0;i < 19;i++){
-    histNJpsiCostCorr -> SetBinContent(i+1,(histNJpsiCost -> GetBinContent(i+1))/(histNJpsiCost -> GetBinWidth(i+1)));
-    histNJpsiCostCorr -> SetBinError(i+1,(histNJpsiCost -> GetBinError(i+1))/(histNJpsiCost -> GetBinWidth(i+1)));
+  for(int i = 0;i < gNDistrib;i++){
+    gHistFit[i] = (TH1D*) data -> At(i);
+    gHistFit[i] -> SetName(Form("Distrib%i",i));
+    ndf += gHistFit[i] -> GetSize();
+    cout << i << ") ndf = " << gHistFit[i] -> GetSize() << endl;
   }
-  histNJpsiCostCorr -> Divide(histAccxEffCost);
+  cout << "ndf = " << ndf << endl;
 
-  TH1D *histNJpsiPhiCorr = (TH1D*) histNJpsiPhi -> Clone("histNJpsiPhiCorr");
-  for(int i = 0;i < 10;i++){
-    histNJpsiPhiCorr -> SetBinContent(i+1,(histNJpsiPhi -> GetBinContent(i+1))/(histNJpsiPhi -> GetBinWidth(i+1)));
-    histNJpsiPhiCorr -> SetBinError(i+1,(histNJpsiPhi -> GetBinError(i+1))/(histNJpsiPhi -> GetBinWidth(i+1)));
+  TCanvas *canvasHistFit = new TCanvas("canvasHistFit");
+  canvasHistFit -> Divide(gNDistrib,1);
+  for(int i = 0;i < gNDistrib;i++){
+    canvasHistFit -> cd(i+1);
+    gHistFit[i] -> Draw("PE");
   }
-  histNJpsiPhiCorr -> Divide(histAccxEffPhi);
+  canvasHistFit -> Update();
 
-  TF1 *ffitB1 = new TF1("ffitB1","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
-  TF1 *ffitB2 = new TF1("ffitB2","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,fPi);
+  TMinuit *minuit = new TMinuit(6);
+  minuit -> SetFCN(polarizationFCN);
 
-  ROOT::Math::WrappedMultiTF1 wfB1(*ffitB1,1);
-  ROOT::Math::WrappedMultiTF1 wfB2(*ffitB2,1);
+  Double_t arglist[10];
+  Int_t ierflg = 0;
 
-  ROOT::Fit::DataOptions opt;
-  ROOT::Fit::DataRange rangeB1;
-  ROOT::Fit::DataRange rangeB2;
+  arglist[0] = 1;
+  minuit -> mnexcm("SET ERR",arglist,1,ierflg);
 
-  // set the data range
-  rangeB1.SetRange(minFitRangeCost,maxFitRangeCost);
-  rangeB2.SetRange(histNJpsiPhi -> GetBinLowEdge(2),histNJpsiPhi -> GetBinLowEdge(10));
+  minuit -> mnparm(0,"normCosTheta",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(1,"normPhi",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(2,"normPhiTilde",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(3,"lambdaTheta",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(4,"lambdaPhi",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(5,"lambdaThetaPhi",0.,0.001,-1.,1.,ierflg);
 
-  ROOT::Fit::BinData dataB1(opt,rangeB1);
-  ROOT::Fit::BinData dataB2(opt,rangeB2);
+  arglist[0] = 500;
+  arglist[1] = 1.;
+  minuit -> mnexcm("MIGRAD",arglist,2,ierflg);
 
-  ROOT::Fit::FillData(dataB1, histNJpsiCostCorr);
-  ROOT::Fit::FillData(dataB2, histNJpsiPhiCorr);
+  arglist[0] = 500000;
+  minuit -> mnexcm("IMPROVE",arglist,1,ierflg);
 
+  Double_t amin, edm, errdef;
+  Int_t nvpar, nparx, icstat;
+  minuit -> mnstat(amin,edm,errdef,nvpar,nparx,icstat);
+  minuit -> mnprin(6,amin);
 
-  ROOT::Fit::Chi2Function chi2_B1(dataB1, wfB1);
-  ROOT::Fit::Chi2Function chi2_B2(dataB2, wfB2);
+  Double_t normCosTheta, errNormCosTheta;
+  Double_t normPhi, errNormPhi;
+  Double_t normPhiTilde, errNormPhiTilde;
+  Double_t lambdaTheta, errLambdaTheta;
+  Double_t lambdaPhi, errLambdaPhi;
+  Double_t lambdaThetaPhi, errLambdaThetaPhi;
 
-  GlobalChi2_2Var globalChi2(chi2_B1, chi2_B2);
+  minuit -> GetParameter(0,normCosTheta,errNormCosTheta);
+  minuit -> GetParameter(1,normPhi,errNormPhi);
+  minuit -> GetParameter(2,normPhiTilde,errNormPhiTilde);
+  minuit -> GetParameter(3,lambdaTheta,errLambdaTheta);
+  minuit -> GetParameter(4,lambdaPhi,errLambdaPhi);
+  minuit -> GetParameter(5,lambdaThetaPhi,errLambdaThetaPhi);
 
-  ROOT::Fit::Fitter fitter;
+  gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
+  gFuncFit[0] -> SetParameter(0,normCosTheta);
+  gFuncFit[0] -> SetParameter(1,lambdaTheta);
 
-  const int Npar = 4;
-  double par0[Npar] = {10000.,10000.,-0.2,0.1};
+  gFuncFit[1] = new TF1("gFuncFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
+  gFuncFit[1] -> SetParameter(0,normPhi);
+  gFuncFit[1] -> SetParameter(1,lambdaTheta);
+  gFuncFit[1] -> SetParameter(2,lambdaPhi);
 
-  // create before the parameter settings in order to fix or set range on them
-  fitter.Config().SetParamsSettings(4,par0);
+  gFuncFit[2] = new TF1("gFuncFit2","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
+  gFuncFit[2] -> SetParameter(0,normPhiTilde);
+  gFuncFit[2] -> SetParameter(1,lambdaTheta);
+  gFuncFit[2] -> SetParameter(2,lambdaThetaPhi);
 
-  fitter.Config().MinimizerOptions().SetPrintLevel(0);
-  fitter.Config().SetMinimizer("Minuit","Minimize");
-
-  // fit FCN function directly
-  // (specify optionally data size and flag to indicate that is a chi2 fit)
-  fitter.FitFCN(4,globalChi2,0,dataB1.Size()+dataB2.Size(),true);
-  ROOT::Fit::FitResult result = fitter.Result();
-  result.Print(std::cout);
-
-  fNormCosTheta = result.Parameter(0);
-  fErrorNormCosTheta = result.ParError(0);
-  fNormPhi = result.Parameter(1);
-  fErrorNormPhi = result.ParError(1);
-  fLambdaTheta = result.Parameter(2);
-  fErrorLambdaTheta = result.ParError(2);
-  fLambdaPhi = result.Parameter(3);
-  fErrorLambdaPhi = result.ParError(3);
-
-  fCosThetaParametersList.push_back(fNormCosTheta);
-  fErrorCosThetaParametersList.push_back(fErrorNormCosTheta);
-  fCosThetaParametersList.push_back(fLambdaTheta);
-  fErrorCosThetaParametersList.push_back(fErrorLambdaTheta);
-
-  fPhiParametersList.push_back(fNormPhi);
-  fErrorPhiParametersList.push_back(fErrorNormPhi);
-  fPhiParametersList.push_back(fLambdaTheta);
-  fErrorPhiParametersList.push_back(fErrorLambdaTheta);
-  fPhiParametersList.push_back(fLambdaPhi);
-  fErrorPhiParametersList.push_back(fErrorLambdaPhi);
-
-  gStyle->SetOptFit(1111);
-
-  TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,1400,700);
-  canvas -> Divide(2,1);
-
-  canvas -> cd(1);
-  ffitB1 -> SetFitResult(result, iparB1);
-  ffitB1 -> SetRange(rangeB1().first, rangeB1().second);
-  ffitB1 -> SetLineColor(kBlue);
-  histNJpsiCostCorr -> GetListOfFunctions() -> Add(ffitB1);
-  histNJpsiCostCorr -> Draw("E");
-
-  canvas -> cd(2);
-  ffitB2 -> SetFitResult( result, iparB2);
-  ffitB2 -> SetRange(rangeB2().first, rangeB2().second);
-  ffitB2 -> SetLineColor(kRed);
-  histNJpsiPhiCorr -> GetListOfFunctions()->Add(ffitB2);
-  histNJpsiPhiCorr -> Draw("E");
-
-  canvas -> SaveAs(nameOutputPlot.c_str());
-  delete canvas;
+  for(int i = 0;i < gNDistrib;i++){
+    canvasHistFit -> cd(i+1);
+    gFuncFit[i] -> Draw("same");
+  }
+  canvasHistFit -> Update();
 }
 //______________________________________________________________________________
-void SpecialFitCalculator::SimultaneousFit2(TH1D *histNJpsiCostCorr, TH1D *histNJpsiPhiCorr, Double_t minFitRangeCost, Double_t maxFitRangeCost, string nameOutputPlot) {
-  TF1 *ffitB1 = new TF1("ffitB1","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
-  TF1 *ffitB2 = new TF1("ffitB2","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,fPi);
+Double_t funcCosTheta(Double_t x, Double_t *par){
+  return (par[0]/(3 + par[1]))*(1 + par[1]*x*x);
+}
+//______________________________________________________________________________
+Double_t funcPhi(Double_t x, Double_t *par){
+  return par[0]*(1 + ((2*par[2])/(3 + par[1]))*TMath::Cos(2*x));
+}
+//______________________________________________________________________________
+Double_t funcPhiTilde(Double_t x, Double_t *par){
+  return par[0]*(1 + ((TMath::Sqrt(2)*par[2])/(3 + par[1]))*TMath::Cos(x));
+}
+//______________________________________________________________________________
+void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t *par, Int_t iflag){
+  Double_t angleVar;
+  Double_t val, errVal;
 
-  ROOT::Math::WrappedMultiTF1 wfB1(*ffitB1,1);
-  ROOT::Math::WrappedMultiTF1 wfB2(*ffitB2,1);
+  //cout << normCosTheta << " " << lambdaTheta << endl;
+  //cout << par[0] << " " << par[1] << " " << par[2] << " " << par[3] << endl;
 
-  ROOT::Fit::DataOptions opt;
-  ROOT::Fit::DataRange rangeB1;
-  ROOT::Fit::DataRange rangeB2;
+  Double_t parCosTheta[2];
+  parCosTheta[0] = par[0];
+  parCosTheta[1] = par[3];
 
-  // set the data range
-  rangeB1.SetRange(minFitRangeCost,maxFitRangeCost);
-  rangeB2.SetRange(histNJpsiPhiCorr -> GetBinLowEdge(2),histNJpsiPhiCorr -> GetBinLowEdge(10));
+  Double_t parPhi[3];
+  parPhi[0] = par[1];
+  parPhi[1] = par[3];
+  parPhi[2] = par[4];
 
-  ROOT::Fit::BinData dataB1(opt,rangeB1);
-  ROOT::Fit::BinData dataB2(opt,rangeB2);
+  Double_t parPhiTilde[3];
+  parPhiTilde[0] = par[2];
+  parPhiTilde[1] = par[3];
+  parPhiTilde[2] = par[5];
 
-  ROOT::Fit::FillData(dataB1, histNJpsiCostCorr);
-  ROOT::Fit::FillData(dataB2, histNJpsiPhiCorr);
+  Double_t func = 0, pull = 0, chiSquare = 0;
 
+  for(int i = 0;i < gNDistrib;i++){
+    for(int j = 0;j < gHistFit[i] -> GetSize() - 2;j++){
+      val = gHistFit[i] -> GetBinContent(j+1);
+      errVal = gHistFit[i] -> GetBinError(j+1);
 
-  ROOT::Fit::Chi2Function chi2_B1(dataB1, wfB1);
-  ROOT::Fit::Chi2Function chi2_B2(dataB2, wfB2);
+      if(val == 0. && errVal == 0.){continue;}
+      if(i == 0){
+        angleVar = gCosThetaValues[j];
+        pull = (val - funcCosTheta(angleVar,parCosTheta))/errVal;
+      }
+      if(i == 1){
+        angleVar = gPhiValues[j];
+        pull = (val - funcPhi(angleVar,parPhi))/errVal;
+      }
+      if(i == 2){
+        angleVar = gPhiTildeValues[j];
+        pull = (val - funcPhiTilde(angleVar,parPhiTilde))/errVal;
+      }
+      chiSquare += pull*pull;
+    }
+  }
 
-  GlobalChi2_old globalChi2_old(chi2_B1, chi2_B2);
-
-  ROOT::Fit::Fitter fitter;
-
-  const int Npar = 4;
-  double par0[Npar] = {10000.,10000.,-0.2,0.1};
-
-  // create before the parameter settings in order to fix or set range on them
-  fitter.Config().SetParamsSettings(4,par0);
-
-  fitter.Config().MinimizerOptions().SetPrintLevel(0);
-  fitter.Config().SetMinimizer("Minuit","Minimize");
-
-  // fit FCN function directly
-  // (specify optionally data size and flag to indicate that is a chi2 fit)
-  fitter.FitFCN(4,globalChi2_old,0,dataB1.Size()+dataB2.Size(),true);
-  ROOT::Fit::FitResult result = fitter.Result();
-  result.Print(std::cout);
-
-  fNormCosTheta = result.Parameter(0);
-  fErrorNormCosTheta = result.ParError(0);
-  fNormPhi = result.Parameter(1);
-  fErrorNormPhi = result.ParError(1);
-  fLambdaTheta = result.Parameter(2);
-  fErrorLambdaTheta = result.ParError(2);
-  fLambdaPhi = result.Parameter(3);
-  fErrorLambdaPhi = result.ParError(3);
-
-  fCosThetaParametersList.push_back(fNormCosTheta);
-  fErrorCosThetaParametersList.push_back(fErrorNormCosTheta);
-  fCosThetaParametersList.push_back(fLambdaTheta);
-  fErrorCosThetaParametersList.push_back(fErrorLambdaTheta);
-
-  fPhiParametersList.push_back(fNormPhi);
-  fErrorPhiParametersList.push_back(fErrorNormPhi);
-  fPhiParametersList.push_back(fLambdaTheta);
-  fErrorPhiParametersList.push_back(fErrorLambdaTheta);
-  fPhiParametersList.push_back(fLambdaPhi);
-  fErrorPhiParametersList.push_back(fErrorLambdaPhi);
-
-  TCanvas * canvas = new TCanvas("Simfit","Simultaneous fit of two graphs",10,10,700,700);
-  canvas -> Divide(1,2);
-
-  char title[100];
-  sprintf(title,"#lambda_{#theta} = %f #pm %f",fLambdaTheta,fErrorLambdaTheta);
-  TLatex *lat = new TLatex(0.5,0.82,title);
-  lat -> SetTextSize(0.04);
-  lat -> SetNDC();
-  lat -> SetTextFont(42);
-
-  canvas -> cd(1);
-  ffitB1 -> SetFitResult(result, iparB1);
-  ffitB1 -> SetRange(rangeB1().first, rangeB1().second);
-  ffitB1 -> SetLineColor(kBlue);
-  histNJpsiCostCorr -> GetListOfFunctions() -> Add(ffitB1);
-  histNJpsiCostCorr -> Draw("E");
-  lat -> Draw("same");
-
-  canvas -> cd(2);
-  ffitB2 -> SetFitResult( result, iparB2);
-  ffitB2 -> SetRange(rangeB2().first, rangeB2().second);
-  ffitB2 -> SetLineColor(kRed);
-  histNJpsiPhiCorr -> GetListOfFunctions()->Add(ffitB2);
-  histNJpsiPhiCorr -> Draw("E");
-
-  canvas -> SaveAs(nameOutputPlot.c_str());
-  delete canvas;
+  gChiSquare = chiSquare;
 }
 //______________________________________________________________________________
 vector <Double_t> SpecialFitCalculator::GetCosThetaParametersList(){

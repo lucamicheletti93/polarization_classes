@@ -188,7 +188,7 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
   fHistGenPhiTildeCSPt = new TH2D("histGenPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistGenPhiTildeCSPt -> Sumw2();
   fHistRecPhiTildeCSPt = new TH2D("histRecPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistRecPhiTildeCSPt -> Sumw2();
 
-  printf("- Configuring Fiducial Box \n");
+  printf("- Configuring Fiducial Box (only for Reconstructed events) \n");
   printf("%f < CosTheta < %f \n",fCosThetaValues[1],fCosThetaValues[fNCosThetaBins-1]);
   printf("%f < |Phi| < %f \n",fPhiValues[1],fPhiValues[fNPhiBins-1]);
 
@@ -202,8 +202,6 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
       if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
         ////////////////////////////////////////////////////////////////////////
         // HELICITY
-        if(TMath::Abs(fPhiHEGen[j]) > fPhiValues[1] && TMath::Abs(fPhiHEGen[j]) < fPhiValues[fNPhiBins-1]){
-          if(fCosThetaHEGen[j] > fCosThetaValues[1] && fCosThetaHEGen[j] < fCosThetaValues[fNCosThetaBins-1]){
             fHistGenCosThetaHEPt -> Fill(fCosThetaHEGen[j],fDimuPtGen[j]);
             fHistGenPhiHEPt -> Fill(TMath::Abs(fPhiHEGen[j]),fDimuPtGen[j]);
             while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
@@ -212,7 +210,6 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
             fHistGenPhiHE[indexPt] -> Fill(TMath::Abs(fPhiHEGen[j]));
 
             tmpVar = fPhiHEGen[j] + fPi;
-
             if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
             if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
             if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
@@ -231,11 +228,8 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
             fHistGenCosThetaPhiNarrowHE[indexPt] -> Fill(fCosThetaHEGen[j],fPhiHEGen[j]);
             fHistGenCosThetaPhiHE[indexPt] -> Fill(fCosThetaHEGen[j],TMath::Abs(fPhiHEGen[j]));
             indexPt = 0;
-          }
-        }
+
         // COLLINS-SOPER
-        if(TMath::Abs(fPhiCSGen[j]) > fPhiValues[1] && TMath::Abs(fPhiCSGen[j]) < fPhiValues[fNPhiBins-1]){
-          if(fCosThetaCSGen[j] > fCosThetaValues[1] && fCosThetaCSGen[j] < fCosThetaValues[fNCosThetaBins-1]){
             fHistGenCosThetaCSPt -> Fill(fCosThetaCSGen[j],fDimuPtGen[j]);
             fHistGenPhiCSPt -> Fill(TMath::Abs(fPhiCSGen[j]),fDimuPtGen[j]);
             while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
@@ -263,8 +257,6 @@ void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) 
             fHistGenCosThetaPhiNarrowCS[indexPt] -> Fill(fCosThetaCSGen[j],fPhiCSGen[j]);
             fHistGenCosThetaPhiCS[indexPt] -> Fill(fCosThetaCSGen[j],TMath::Abs(fPhiCSGen[j]));
             indexPt = 0;
-          }
-        }
         ////////////////////////////////////////////////////////////////////////
       }
     }
