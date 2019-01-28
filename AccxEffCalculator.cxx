@@ -586,8 +586,8 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
       if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
         ////////////////////////////////////////////////////////////////////////
         // HELICITY
-        if(TMath::Abs(fPhiHEGen[j]) > fPhiValues[1] && TMath::Abs(fPhiHEGen[j]) < fPhiValues[fNPhiBins-1]){
-          if(fCosThetaHEGen[j] > fCosThetaValues[1] && fCosThetaHEGen[j] < fCosThetaValues[fNCosThetaBins-1]){
+        //if(TMath::Abs(fPhiHEGen[j]) > fPhiValues[1] && TMath::Abs(fPhiHEGen[j]) < fPhiValues[fNPhiBins-1]){
+          //if(fCosThetaHEGen[j] > fCosThetaValues[1] && fCosThetaHEGen[j] < fCosThetaValues[fNCosThetaBins-1]){
             while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
             if(indexPt >= 4){indexPt = 0; continue;}
             //cout << indexPt << " " << fDimuPtGen[j] << " - " << fMinPt[indexPt] << " " << fMaxPt[indexPt] << endl;
@@ -606,11 +606,11 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
             fHistGenPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(PhiHEGen),weightPhiHE);
             fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(PhiTildeHEGen,weightPhiTildeHE);
             indexPt = 0;
-          }
-        }
+          //}
+        //}
         // COLLINS-SOPER
-        if(TMath::Abs(fPhiCSGen[j]) > fPhiValues[1] && TMath::Abs(fPhiCSGen[j]) < fPhiValues[fNPhiBins-1]){
-          if(fCosThetaCSGen[j] > fCosThetaValues[1] && fCosThetaCSGen[j] < fCosThetaValues[fNCosThetaBins-1]){
+        //if(TMath::Abs(fPhiCSGen[j]) > fPhiValues[1] && TMath::Abs(fPhiCSGen[j]) < fPhiValues[fNPhiBins-1]){
+          //if(fCosThetaCSGen[j] > fCosThetaValues[1] && fCosThetaCSGen[j] < fCosThetaValues[fNCosThetaBins-1]){
             while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
             if(indexPt >= 4){indexPt = 0; continue;}
 
@@ -628,8 +628,8 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
             fHistGenPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(PhiCSGen),weightPhiCS);
             fHistGenPhiTildeCSReWeighted[indexPt] -> Fill(PhiTildeCSGen,weightPhiTildeCS);
             indexPt = 0;
-          }
-        }
+          //}
+        //}
         ////////////////////////////////////////////////////////////////////////
       }
     }
