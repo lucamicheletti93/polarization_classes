@@ -526,7 +526,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
   funcPhiTildeCS -> SetParameter(1,polParCS[2]);*/
 
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
-  if(strSample == "TestStat"){nEvents = 100000;}
+  if(strSample == "TestStat"){nEvents = 1000000;}
   printf("N events = %i \n",nEvents);
 
   double CosThetaHEGen = 0;
