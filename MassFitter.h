@@ -20,6 +20,8 @@ class MassFitter : public TObject
 
    Double_t GetNJpsi(){return fNJpsi;}
    Double_t GetStatJpsi(){return fStatJpsi;}
+   Double_t GetMassJpsi(){return fMassJpsi;}
+   Double_t GetErrMassJpsi(){return fErrMassJpsi;}
    Double_t GetSigmaJpsi(){return fSigmaJpsi;}
    Double_t GetErrSigmaJpsi(){return fErrSigmaJpsi;}
    Double_t GetChiSquare_NDF(){return fChiSquare_NDF;}
@@ -33,6 +35,7 @@ class MassFitter : public TObject
    string fFitStatus;
 
    Double_t fNJpsi, fStatJpsi;
+   Double_t fMassJpsi, fErrMassJpsi;
    Double_t fSigmaJpsi, fErrSigmaJpsi;
    Double_t fChiSquare_NDF;
 

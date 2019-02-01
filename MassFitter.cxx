@@ -236,7 +236,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
     fFitStatus = "FAILED";
     delete histMinvBkg, histMinv;
     delete funcBkg, funcSigJpsi, funcTot;
-    fNJpsi = 0.; fStatJpsi = 0.; fSigmaJpsi = 0.; fErrSigmaJpsi = 0.; fChiSquare_NDF = 666.;
+    fNJpsi = 0.; fStatJpsi = 0.; fMassJpsi = 0.; fErrMassJpsi = 0.; fSigmaJpsi = 0.; fErrSigmaJpsi = 0.; fChiSquare_NDF = 666.;
     string nameHistMinv = (string) histMinv -> GetName() + ".png";
 
     TCanvas *canvasMinv = new TCanvas("canvasMinv","canvasMinv",65,73,900,806);
@@ -287,7 +287,8 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   funcSigJpsiFix -> SetLineStyle(2);
   funcSigJpsiFix -> Draw("same");
 
-  double mass_Jpsi = funcTot -> GetParameter(nParBkg + 1);
+  fMassJpsi = funcTot -> GetParameter(nParBkg + 1);
+  fErrMassJpsi = funcTot -> GetParError(nParBkg + 1);
   fSigmaJpsi = funcTot -> GetParameter(nParBkg + 2);
   fErrSigmaJpsi = funcTot -> GetParError(nParBkg + 2);
   double sigma_min_Jpsi = funcTot -> GetParameter(nParBkg + 1) - 3*(funcTot -> GetParameter(nParBkg + 2));
@@ -337,7 +338,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   sprintf(title,"N_{J/#psi} = %2.0f #pm %2.0f",fNJpsi,fStatJpsi);
   TLatex *lat0 = new TLatex(0.5,0.82,title); lat0 -> SetTextSize(0.04); lat0 -> SetNDC(); lat0 -> SetTextFont(42);
 
-  sprintf(title,"#it{m}_{J/#psi} = %4.3f GeV/#it{c}^{2}",mass_Jpsi);
+  sprintf(title,"#it{m}_{J/#psi} = %4.3f #pm %4.3f GeV/#it{c}^{2}",fMassJpsi,fErrMassJpsi);
   TLatex *lat1 = new TLatex(0.5,0.76,title); lat1 -> SetTextSize(0.04); lat1 -> SetNDC(); lat1 -> SetTextFont(42);
 
   sprintf(title,"#it{#sigma}_{J/#psi} = %3.0f #pm %3.0f MeV/#it{c}^{2}",fSigmaJpsi*1000,fErrSigmaJpsi*1000);
