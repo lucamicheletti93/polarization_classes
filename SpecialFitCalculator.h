@@ -18,6 +18,7 @@ class SpecialFitCalculator : public TObject
 
    void SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues);
    void SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
+   void DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
 
    vector <Double_t> GetCosThetaParametersList();
    vector <Double_t> GetErrorCosThetaParametersList();

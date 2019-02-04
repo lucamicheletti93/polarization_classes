@@ -79,7 +79,7 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   cout << "n distributions = " << gNDistrib << endl;
 
   for(int i = 0;i < gNDistrib;i++){
-    gHistFit[i] = (TH1D*) data -> At(i);
+    gHistFit[i] = (TH1D*) data -> At(i); gHistFit[i] -> SetMarkerStyle(20); gHistFit[i] -> SetMarkerSize(0.8);
     gHistFit[i] -> SetName(Form("Distrib%i",i));
     ndf += gHistFit[i] -> GetSize();
     cout << i << ") ndf = " << gHistFit[i] -> GetSize() << endl;
@@ -146,6 +146,62 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gFuncFit[2] -> SetParameter(0,normPhiTilde);
   gFuncFit[2] -> SetParameter(1,fLambdaTheta);
   gFuncFit[2] -> SetParameter(2,fLambdaThetaPhi);
+
+  for(int i = 0;i < gNDistrib;i++){
+    canvasHistFit -> cd(i+1);
+    gFuncFit[i] -> Draw("same");
+  }
+  canvasHistFit -> Update();
+
+  if(saveCanvas){
+    canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
+  }
+  delete canvasHistFit;
+}
+//______________________________________________________________________________
+void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
+  printf("\n------------------------------------------------------------------------\n");
+  printf("This object allows you to compute decoupled fit with 3 distributions \n");
+  printf("If the class doesn't work REMEMBER to use the SetBinning() method! \n");
+  printf("------------------------------------------------------------------------\n");
+
+  Int_t ndf = 0;
+  gNDistrib = data -> GetEntries();
+  cout << "n distributions = " << gNDistrib << endl;
+
+  for(int i = 0;i < gNDistrib;i++){
+    gHistFit[i] = (TH1D*) data -> At(i); gHistFit[i] -> SetMarkerStyle(20); gHistFit[i] -> SetMarkerSize(0.8);
+    gHistFit[i] -> SetName(Form("Distrib%i",i));
+    ndf += gHistFit[i] -> GetSize();
+    cout << i << ") ndf = " << gHistFit[i] -> GetSize() << endl;
+  }
+  cout << "ndf = " << ndf << endl;
+
+  TCanvas *canvasHistFit = new TCanvas("canvasHistFit");
+  canvasHistFit -> Divide(gNDistrib,1);
+  for(int i = 0;i < gNDistrib;i++){
+    canvasHistFit -> cd(i+1);
+    gHistFit[i] -> Draw("PE");
+  }
+  canvasHistFit -> Update();
+
+  gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
+  gHistFit[0] -> Fit(gFuncFit[0],"R0IQ");
+
+  gFuncFit[1] = new TF1("gFuncFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
+  gFuncFit[1] -> FixParameter(1,gFuncFit[0] -> GetParameter(1));
+  gHistFit[1] -> Fit(gFuncFit[1],"R0IQ");
+
+  gFuncFit[2] = new TF1("gFuncFit2","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
+  gFuncFit[2] -> FixParameter(1,gFuncFit[0] -> GetParameter(1));
+  gHistFit[2] -> Fit(gFuncFit[2],"R0IQ");
+
+  fLambdaTheta = gFuncFit[0] -> GetParameter(1);
+  fErrorLambdaTheta = gFuncFit[0] -> GetParError(1);
+  fLambdaPhi = gFuncFit[1] -> GetParameter(2);
+  fErrorLambdaPhi = gFuncFit[1] -> GetParError(2);
+  fLambdaThetaPhi = gFuncFit[2] -> GetParameter(2);
+  fErrorLambdaThetaPhi = gFuncFit[2] -> GetParError(2);
 
   for(int i = 0;i < gNDistrib;i++){
     canvasHistFit -> cd(i+1);
