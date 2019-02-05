@@ -50,6 +50,8 @@ AccxEffCalculator::AccxEffCalculator(TTree *treeAccxEff): TObject() {
 
   fTreeAccxEff -> SetBranchAddress("NMuons_rec",&fNMuonsRec);
   fTreeAccxEff -> SetBranchAddress("Pt_rec",fPtRec);
+  fTreeAccxEff -> SetBranchAddress("Eta_rec",fEtaRec);
+  fTreeAccxEff -> SetBranchAddress("Charge_rec",fChargeRec);
   fTreeAccxEff -> SetBranchAddress("MatchTrig_rec",fMatchTrigRec);
 }
 //______________________________________________________________________________
@@ -899,7 +901,7 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
   if(strSample == "TestStat"){nEvents = 1000;}
   printf("N events = %i \n",nEvents);
-  
+
   for(int i = 0;i < fNPtBins;i++){
     // HELICITY
     fHistGenCosThetaHE[i] = new TH1D(Form("histGenCosThetaHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaHE[i] -> Sumw2();
@@ -936,12 +938,20 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
   fHistGenPhiTildeCSPt = new TH2D("histGenPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistGenPhiTildeCSPt -> Sumw2();
   fHistRecPhiTildeCSPt = new TH2D("histRecPhiTildeCSPt","",100,0.,2*fPi,100,0,15); fHistRecPhiTildeCSPt -> Sumw2();
 
+  fHistRecCosThetaHEEtaSM = new TH2D("histRecCosThetaHEEtaSM","",100,-1.,1.,100,-4.,-2.5);
+  fHistRecCosThetaCSEtaSM = new TH2D("histRecCosThetaCSEtaSM","",100,-1.,1.,100,-4.,-2.5);
+  fHistRecPhiHEEtaSM = new TH2D("histRecPhiHEEtaSM","",100,-fPi,fPi,100,-4.,-2.5);
+  fHistRecPhiCSEtaSM = new TH2D("histRecPhiCSEtaSM","",100,-fPi,fPi,100,-4.,-2.5);
+  fHistRecCosThetaPhiHESM = new TH2D("histRecCosThetaPhiHESM","",100,-1.,1.,100,-fPi,fPi);
+  fHistRecCosThetaPhiCSSM = new TH2D("histRecCosThetaPhiCSSM","",100,-1.,1.,100,-fPi,fPi);
+
   printf("- Configuring Fiducial Box (only for Reconstructed events) \n");
   printf("%f < CosTheta < %f \n",fCosThetaValues[1],fCosThetaValues[fNCosThetaBins-1]);
   printf("%f < |Phi| < %f \n",fPhiValues[1],fPhiValues[fNPhiBins-1]);
 
   double tmpVar = 0;
   double weightMu1 = 0, weightMu2 = 0, weigthMu1Mu2 = 0;
+  double etaMu;
 
   for(int i = 0;i < nEvents;i++){
     printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
@@ -992,6 +1002,14 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
       if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
         if(fDimuMatchRec[j] == 2){
           if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            if(fChargeRec[0] > 0.){etaMu = fEtaRec[0];}
+            else{etaMu = fEtaRec[1];}
+            fHistRecCosThetaHEEtaSM -> Fill(fCosThetaHERec[j],etaMu);
+            fHistRecCosThetaCSEtaSM -> Fill(fCosThetaCSRec[j],etaMu);
+            fHistRecPhiHEEtaSM -> Fill(fPhiHERec[j],etaMu);
+            fHistRecPhiCSEtaSM -> Fill(fPhiCSRec[j],etaMu);
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if(reweightAccxEff){
               weightMu1 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[0]));
               weightMu2 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[1]));
@@ -1115,6 +1133,11 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
 
   fHistGenPhiTildeHEPt -> Write(); fHistRecPhiTildeHEPt -> Write(); fHistAccxEffPhiTildeHEPt -> Write();
   fHistGenPhiTildeCSPt -> Write(); fHistRecPhiTildeCSPt -> Write(); fHistAccxEffPhiTildeCSPt -> Write();
+
+  fHistRecCosThetaHEEtaSM -> Write();
+  fHistRecCosThetaCSEtaSM -> Write();
+  fHistRecPhiHEEtaSM -> Write();
+  fHistRecPhiCSEtaSM -> Write();
 
   fileAccxEff -> Close();
 }

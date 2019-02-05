@@ -128,6 +128,14 @@ class AccxEffCalculator : public TObject
    TH2D *fHistRecPhiTildeCSPt;
    TH2D *fHistAccxEffPhiTildeCSPt;
 
+   // cosTheta,phi,eta (winn test)
+   TH2D *fHistRecCosThetaHEEtaSM;
+   TH2D *fHistRecCosThetaCSEtaSM;
+   TH2D *fHistRecPhiHEEtaSM;
+   TH2D *fHistRecPhiCSEtaSM;
+   TH2D *fHistRecCosThetaPhiHESM;
+   TH2D *fHistRecCosThetaPhiCSSM;
+
    // cos(theta)
    TH1D *fHistGenCosThetaHEReWeighted[13];
    TH1D *fHistRecCosThetaHEReWeighted[13];
@@ -176,6 +184,8 @@ class AccxEffCalculator : public TObject
 
    Int_t fNMuonsRec;
    Double_t fPtRec[3000];
+   Double_t fEtaRec[3000];
+   Int_t fChargeRec[3000];
    Int_t fMatchTrigRec[3000];
 
 ClassDef(AccxEffCalculator,1)
