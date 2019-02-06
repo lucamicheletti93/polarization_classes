@@ -1042,7 +1042,7 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
               if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
                 while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
                 // 1D approach
-                fPhiTilde = computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]);
+                fPhiTilde = computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]);
 
                 fHistRecCosThetaCS[indexPt] -> Fill(fCosThetaCSRec[j],weigthMu1Mu2);
                 fHistRecPhiCS[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]),weigthMu1Mu2);
