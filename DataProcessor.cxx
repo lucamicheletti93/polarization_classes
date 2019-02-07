@@ -568,22 +568,23 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
 
   for(int i = 0;i < nEvents;i++){
     fTreeData -> GetEntry(i);
-    printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
+    //printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
     TString Trigger = fTrigClass;
     Bool_t TriggerSelected = kFALSE;
     if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")){counterCMUL7++;}
     if(Trigger.Contains("CINT7-B-NOPF-MUFAST")){TriggerSelected = kTRUE;} // single muon trigger
     if(TriggerSelected){
-      if(fIsPhysSelected){
+      if(fIsPhysSelected){       
+      printf("------------------------------------------------------------\n");                                                          
       for(int k = 0;k < fNDimu;k++){
         if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
-            //if(DimuMatch[k] == 2){
+            //if(fDimuMatch[k] == 2){                                                        //*****
               if(fDimuMass[k] > 2 && fDimuMass[k] < 5){
                 fListMuonId.push_back(fDimuMu[k][0]);
                 fListMuonId.push_back(fDimuMu[k][1]);
-                //printf("%i - %i (Dimu Px = %f) \n",DimuMu[k][0],DimuMu[k][1],DimuPx[k]);
+                printf("%i - %i (Dimu Px = %f) \n",fDimuMu[k][0],fDimuMu[k][1],fDimuPx[k]);
               }
-            //}
+            //}                                                                              //*****
           }
         }
 
@@ -593,7 +594,7 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
 
           for(int j = 0;j < (int) fListMuonId.size();j++){
             if(fMuonId[k] == fListMuonId[j]){
-              //printf(" -> ok! (Px = %f) \n",Px[k]);
+              printf("%i -> ok! (Px = %f) \n",fMuonId[k],fPx[k]);
 
               if(fMatchTrig[k] >= 1){fHistAllPtSM -> Fill(fPt[k]);}
               if(fMatchTrig[k] >= 2){fHistLowPtSM -> Fill(fPt[k]);}
@@ -601,12 +602,13 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
               if(fMatchTrig[k] >= 1 && fPDCA[k] != 0){fHistAllPtSMpDCA -> Fill(fPt[k]);}
               if(fMatchTrig[k] >= 2 && fPDCA[k] != 0){fHistLowPtSMpDCA -> Fill(fPt[k]);}
 
+
               break;
             }
           }
         }
         fListMuonId.clear();
-      }
+      }                                                                                     
 
     }
   }
