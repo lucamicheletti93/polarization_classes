@@ -578,13 +578,15 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
       printf("------------------------------------------------------------\n");                                                          
       for(int k = 0;k < fNDimu;k++){
         if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
-            //if(fDimuMatch[k] == 2){                                                        //*****
+            //if(fDimuMatch[k] == 2){
               if(fDimuMass[k] > 2 && fDimuMass[k] < 5){
+              //if(fDimuMass[k] > 2){
                 fListMuonId.push_back(fDimuMu[k][0]);
                 fListMuonId.push_back(fDimuMu[k][1]);
                 printf("%i - %i (Dimu Px = %f) \n",fDimuMu[k][0],fDimuMu[k][1],fDimuPx[k]);
+                printf("%f - %f \n",fPx[fDimuMu[k][0]],fPx[fDimuMu[k][1]]);
               }
-            //}                                                                              //*****
+            //}
           }
         }
 
@@ -593,7 +595,12 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
           //printf("%i ",MuonId[k]);
 
           for(int j = 0;j < (int) fListMuonId.size();j++){
-            if(fMuonId[k] == fListMuonId[j]){
+            cout << fListMuonId[j] << " ";
+          }
+          cout << endl;
+
+          for(int j = 0;j < (int) fListMuonId.size();j++){//*****
+            if(fMuonId[k] == fListMuonId[j]){//*****
               printf("%i -> ok! (Px = %f) \n",fMuonId[k],fPx[k]);
 
               if(fMatchTrig[k] >= 1){fHistAllPtSM -> Fill(fPt[k]);}
@@ -603,9 +610,9 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
               if(fMatchTrig[k] >= 2 && fPDCA[k] != 0){fHistLowPtSMpDCA -> Fill(fPt[k]);}
 
 
-              break;
-            }
-          }
+              break;//*****                                                               
+            }//*****
+          }//*****
         }
         fListMuonId.clear();
       }                                                                                     
