@@ -590,6 +590,108 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
       if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
         ////////////////////////////////////////////////////////////////////////
         // HELICITY
+        while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+        if(indexPt >= 4){indexPt = 0; continue;}
+
+        tmpVar = fPhiHEGen[j] + fPi;
+        if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+        if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+        weightCosThetaHE = (funcCosThetaHE[indexPt] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexPt] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
+        weightPhiHE = (funcPhiHE[indexPt] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexPt] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
+        weightPhiTildeHE = (funcPhiTildeHE[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeHE[indexPt] -> GetMaximum()); PhiTildeHEGen = fPhiTilde;
+
+        fHistGenCosThetaHEReWeighted[indexPt] -> Fill(CosThetaHEGen,weightCosThetaHE);
+        fHistGenPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(PhiHEGen),weightPhiHE);
+        fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(PhiTildeHEGen,weightPhiTildeHE);
+        indexPt = 0;
+        // COLLINS-SOPER
+        while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+        if(indexPt >= 4){indexPt = 0; continue;}
+
+        tmpVar = fPhiCSGen[j] + fPi;
+        if(fCosThetaCSGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+        if(fCosThetaCSGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+        weightCosThetaCS = (funcCosThetaCS[indexPt] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexPt] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
+        weightPhiCS = (funcPhiCS[indexPt] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexPt] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
+        weightPhiTildeCS = (funcPhiTildeCS[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeCS[indexPt] -> GetMaximum()); PhiTildeCSGen = fPhiTilde;
+
+        fHistGenCosThetaCSReWeighted[indexPt] -> Fill(CosThetaCSGen,weightCosThetaCS);
+        fHistGenPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(PhiCSGen),weightPhiCS);
+        fHistGenPhiTildeCSReWeighted[indexPt] -> Fill(PhiTildeCSGen,weightPhiTildeCS);
+        indexPt = 0;
+        ////////////////////////////////////////////////////////////////////////
+      }
+    }
+
+    for(int j = 0;j < fNDimuRec;j++){
+      if(fDimuPtRec[j] < 2.){continue;}
+      if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
+        if(fDimuMatchRec[j] == 2){
+          if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+            ////////////////////////////////////////////////////////////////////
+            // HELICITY
+            if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
+              if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                if(indexPt >= 4){indexPt = 0; continue;}
+
+                tmpVar = fPhiHERec[j] + fPi;
+                if(fCosThetaHERec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaHERec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                fHistRecCosThetaHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],weightCosThetaHE);
+                fHistRecPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhiHE);
+                fHistRecPhiTildeHEReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeHE);
+                indexPt = 0;
+              }
+            }
+            // COLLINS-SOPER
+            if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
+              if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                if(indexPt >= 4){indexPt = 0; continue;}
+
+                tmpVar = fPhiCSRec[j] + fPi;
+                if(fCosThetaCSRec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaCSRec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                fHistRecCosThetaCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],weightCosThetaCS);
+                fHistRecPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]),weightPhiCS);
+                fHistRecPhiTildeCSReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeCS);
+                indexPt = 0;
+              }
+            }
+            ////////////////////////////////////////////////////////////////////
+          }
+        }
+      }
+    }
+
+  }
+  printf("\n");
+
+
+  //////////////////////////////////////////////////////////////////////////////////
+  /*
+  for(int i = 0;i < nEvents;i++){
+    printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
+    fTreeAccxEff -> GetEntry(i);
+
+    for(int j = 0;j < fNDimuGen;j++){
+      if(fDimuPtGen[j] < 2.){continue;}
+      if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
+        ////////////////////////////////////////////////////////////////////////
+        // HELICITY
         //if(TMath::Abs(fPhiHEGen[j]) > fPhiValues[1] && TMath::Abs(fPhiHEGen[j]) < fPhiValues[fNPhiBins-1]){
           //if(fCosThetaHEGen[j] > fCosThetaValues[1] && fCosThetaHEGen[j] < fCosThetaValues[fNCosThetaBins-1]){
             while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
@@ -696,6 +798,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
 
   }
   printf("\n");
+  */
 
   /*for(int i = 0;i < nEvents;i++){
     printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
