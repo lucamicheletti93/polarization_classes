@@ -72,6 +72,14 @@ class AccxEffCalculator : public TObject
    TH1D *fHistRecPhiTildeCS[13];
    TH1D *fHistAccxEffPhiTildeCS[13];
 
+   // pT
+   TH1D *fHistGenPtHE[13];
+   TH1D *fHistRecPtHE[13];
+   TH1D *fHistAccxEffPtHE[13];
+   TH1D *fHistGenPtCS[13];
+   TH1D *fHistRecPtCS[13];
+   TH1D *fHistAccxEffPtCS[13];
+
    /////////////////////////////////////////////////////////////////////////////
    TH1D *fHistGenPhiTildeNarrowHE[13];
    TH1D *fHistRecPhiTildeNarrowHE[13];
@@ -106,6 +114,7 @@ class AccxEffCalculator : public TObject
    TH2D *fHistRecCosThetaPhiCS[13];
    TH2D *fHistAccxEffCosThetaPhiCS[13];
    TH2D *fHistAccxEffCosThetaPhiStatRelCS[13];
+
    // cos(theta),pT
    TH2D *fHistGenCosThetaHEPt;
    TH2D *fHistRecCosThetaHEPt;
