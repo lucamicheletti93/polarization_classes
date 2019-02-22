@@ -76,8 +76,9 @@ void AccxEffCalculator::SetBinning(vector <Double_t> CosThetaValues, vector <Dou
   fNPhiTildeBins = fPhiTildeValues.size() - 1;
 }
 //______________________________________________________________________________
-/*void AccxEffCalculator::ComputeResolution(string strSample, string nameOutputFile){
+void AccxEffCalculator::ComputeResolution(string strSample, string nameOutputFile){
   int nEvents = 0;
+  int indexPt = 0;
 
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
   if(strSample == "TestStat"){nEvents = 1000000;}
@@ -85,27 +86,73 @@ void AccxEffCalculator::SetBinning(vector <Double_t> CosThetaValues, vector <Dou
 
   for(int i = 0;i < fNPtBins;i++){
     // HELICITY
-    fHistGenCosThetaHE[i] = new TH1D(Form("histGenCosThetaHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaHE[i] -> Sumw2();
-
-    fHistResolutionCosTheta[i]] = new TH1D(
-   fHistResolutionPhi[i]] = new TH1D(
-   fHistResolutionCosThetaPhi[i]] = new TH2D(
+    fHistResolutionCosThetaHE[i] = new TH1D(Form("histResolutionCosThetaHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",1000,-1.,1.); fHistResolutionCosThetaHE[i] -> Sumw2();
+    fHistResolutionPhiHE[i] = new TH1D(Form("histResolutionPhiHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",1000,0.,fPi); fHistResolutionPhiHE[i] -> Sumw2();
+    fHistResolutionCosThetaPhiHE[i] = new TH2D(Form("histResolutionCosThetaPhiHE_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",1000,-1.,1.,1000,0.,fPi); fHistResolutionCosThetaPhiHE[i] -> Sumw2();
+    // COLLINS-SOPER
+    fHistResolutionCosThetaCS[i] = new TH1D(Form("histResolutionCosThetaCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",1000,-1.,1.); fHistResolutionCosThetaCS[i] -> Sumw2();
+    fHistResolutionPhiCS[i] = new TH1D(Form("histResolutionPhiCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",1000,0.,fPi); fHistResolutionPhiCS[i] -> Sumw2();
+    fHistResolutionCosThetaPhiCS[i] = new TH2D(Form("histResolutionCosThetaPhiCS_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",1000,-1.,1.,1000,0.,fPi); fHistResolutionCosThetaPhiCS[i] -> Sumw2();
   }
+
+  if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
+  if(strSample == "TestStat"){nEvents = 5000000;}
+  printf("N events = %i \n",nEvents);
+
+  double CosThetaHEGen = 0., CosThetaCSGen = 0, CosThetaHERec = 0., CosThetaCSRec = 0;
+  double PhiHEGen = 0., PhiCSGen = 0, PhiHERec = 0., PhiCSRec = 0;
 
   for(int i = 0;i < nEvents;i++){
     printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
     fTreeAccxEff -> GetEntry(i);
 
-    if(fNDimuRec != 0){
+    if(fNDimuGen != 0 && fNDimuRec != 0){
       for(int j = 0;j < fNDimuGen;j++){
         if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
-          while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+          CosThetaHEGen = fCosThetaHEGen[j];
+          CosThetaCSGen = fCosThetaCSGen[j];
+          PhiHEGen = fPhiHEGen[j];
+          PhiCSGen = fPhiCSGen[j];
+        }
+      }
+
+      for(int j = 0;j < fNDimuRec;j++){
+        if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
+          if(fDimuMatchRec[j] == 2){
+            if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+              CosThetaHERec = fCosThetaHERec[j];
+              CosThetaCSRec = fCosThetaCSRec[j];
+              PhiHERec = fPhiHERec[j];
+              PhiCSRec = fPhiCSRec[j];
+
+              while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+              fHistResolutionCosThetaHE[indexPt] -> Fill((CosThetaHEGen - CosThetaHERec)/CosThetaHEGen);
+              fHistResolutionPhiHE[indexPt] -> Fill((PhiHEGen - PhiHERec)/PhiHEGen);
+              fHistResolutionCosThetaPhiHE[indexPt] -> Fill((CosThetaHEGen - CosThetaHERec)/CosThetaHEGen,(PhiHEGen - PhiHERec)/PhiHEGen);
+
+              fHistResolutionCosThetaCS[indexPt] -> Fill((CosThetaCSGen - CosThetaCSRec)/CosThetaCSGen);
+              fHistResolutionPhiCS[indexPt] -> Fill((PhiCSGen - PhiCSRec)/PhiCSGen);
+              fHistResolutionCosThetaPhiCS[indexPt] -> Fill((CosThetaCSGen - CosThetaCSRec)/CosThetaCSGen,(PhiCSGen - PhiCSRec)/PhiCSGen);
+              indexPt = 0;
+            }
+          }
         }
       }
     }
-    else{continue;}
   }
-}*/
+
+
+  TFile *fileResolution = new TFile(nameOutputFile.c_str(),"RECREATE");
+  for(int i = 0;i < fNPtBins;i++){
+    fHistResolutionCosThetaHE[i] -> Write();
+    fHistResolutionPhiHE[i] -> Write();
+    fHistResolutionCosThetaPhiHE[i] -> Write();
+    fHistResolutionCosThetaCS[i] -> Write();
+    fHistResolutionPhiCS[i] -> Write();
+    fHistResolutionCosThetaPhiCS[i] -> Write();
+  }
+
+}
 //______________________________________________________________________________
 void AccxEffCalculator::ComputeAccxEff(string strSample, string nameOutputFile) {
   int nEvents = 0;

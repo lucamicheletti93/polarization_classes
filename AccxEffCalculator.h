@@ -17,6 +17,7 @@ class AccxEffCalculator : public TObject
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
    void SetBinning(vector <Double_t> , vector <Double_t>, vector <Double_t>);
+   void ComputeResolution(string strSample, string nameOutputFile);
    void ComputeAccxEff(string strSample, string nameOutputFile);
    //void ReWeightAccxEff(string refFrame, Double_t LambdaTheta, Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile);
    //void ReWeightAccxEff(Double_t polParHE[], Double_t polParCS[], string strSample, Bool_t saveFile, string nameOutputFile);
@@ -45,10 +46,14 @@ class AccxEffCalculator : public TObject
 
    TTree *fTreeAccxEff;
 
-   // Acc x Eff
-   TH1D *fHistResolutionCosTheta[13];
-   TH1D *fHistResolutionPhi[13];
-   TH2D *fHistResolutionCosThetaPhi[13];
+   // Resolution
+   TH1D *fHistResolutionCosThetaHE[13];
+   TH1D *fHistResolutionPhiHE[13];
+   TH2D *fHistResolutionCosThetaPhiHE[13];
+
+   TH1D *fHistResolutionCosThetaCS[13];
+   TH1D *fHistResolutionPhiCS[13];
+   TH2D *fHistResolutionCosThetaPhiCS[13];
 
    // cos(theta)
    TH1D *fHistGenCosThetaHE[13];
