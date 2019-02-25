@@ -47,6 +47,14 @@ class AccxEffCalculator : public TObject
    TTree *fTreeAccxEff;
 
    // Resolution
+   /*TH1D *fHistResolutionCosThetaHE;
+   TH1D *fHistResolutionPhiHE;
+   TH2D *fHistResolutionCosThetaPhiHE;
+
+   TH1D *fHistResolutionCosThetaCS;
+   TH1D *fHistResolutionPhiCS;
+   TH2D *fHistResolutionCosThetaPhiCS;*/
+
    TH1D *fHistResolutionCosThetaHE[13];
    TH1D *fHistResolutionPhiHE[13];
    TH2D *fHistResolutionCosThetaPhiHE[13];
