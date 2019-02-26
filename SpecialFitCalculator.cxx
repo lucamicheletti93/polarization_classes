@@ -35,6 +35,9 @@ Int_t gNDistrib;
 TH1D *gHistFit[3];
 TF1 *gFuncFit[3];
 
+TH1D *gHistBarbFit[6];
+TF1 *gFuncBarbFit[6];
+
 Int_t gNCosThetaBins;
 Int_t gNPhiBins;
 Int_t gNPhiTildeBins;
@@ -46,6 +49,7 @@ Double_t funcCosTheta(Double_t , Double_t *);
 Double_t funcPhi(Double_t , Double_t *);
 Double_t funcPhiTilde(Double_t , Double_t *);
 void polarizationFCN(Int_t &, Double_t *, Double_t &, Double_t *, Int_t );
+void polarizationBarbatruccoFCN(Int_t &, Double_t *, Double_t &, Double_t *, Int_t );
 
 ClassImp(SpecialFitCalculator)
 
@@ -159,6 +163,193 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   delete canvasHistFit;
 }
 //______________________________________________________________________________
+void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
+  printf("\n------------------------------------------------------------------------\n");
+  printf("This object allows you to compute barbatrucco fit with  distributions \n");
+  printf("If the class doesn't work REMEMBER to use the SetBinning() method! \n");
+  printf("------------------------------------------------------------------------\n");
+
+  Int_t ndf = 0;
+  gNDistrib = data -> GetEntries();
+  cout << "n distributions = " << gNDistrib << endl;
+
+  for(int i = 0;i < gNDistrib;i++){
+    gHistBarbFit[i] = (TH1D*) data -> At(i); gHistBarbFit[i] -> SetMarkerStyle(20); gHistBarbFit[i] -> SetMarkerSize(0.8);
+    gHistBarbFit[i] -> SetName(Form("Distrib%i",i));
+    ndf += gHistBarbFit[i] -> GetSize();
+    cout << i << ") ndf = " << gHistBarbFit[i] -> GetSize() << endl;
+  }
+  cout << "ndf = " << ndf << endl;
+
+  TCanvas *canvasHistFit = new TCanvas("canvasHistFit");
+  canvasHistFit -> Divide(gNDistrib/2,2);
+  for(int i = 0;i < gNDistrib;i++){
+    canvasHistFit -> cd(i+1);
+    gHistBarbFit[i] -> Draw("PE");
+  }
+  canvasHistFit -> Update();
+
+  TMinuit *minuit = new TMinuit(11);
+  minuit -> SetFCN(polarizationBarbatruccoFCN);
+
+  Double_t arglist[10];
+  Int_t ierflg = 0;
+
+  arglist[0] = 1;
+  minuit -> mnexcm("SET ERR",arglist,1,ierflg);
+
+  /*
+  minuit -> mnparm(0,"normCosTheta",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(1,"normPhi",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(2,"normPhiTilde",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(3,"lambdaThetaHE",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(4,"lambdaThetaPhiHE",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(8,"lambdaThetaCS",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(9,"lambdaThetaPhiCS",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(10,"lambdaTilde",0.,0.001,-0.5,0.5,ierflg);
+  */
+
+
+  minuit -> mnparm(0,"normCosThetaHE",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(1,"normPhiHE",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(2,"normPhiTildeHE",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(3,"lambdaThetaHE",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(4,"lambdaThetaPhiHE",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(5,"normCosThetaCS",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(6,"normPhiCS",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(7,"normPhiTildeCS",1.e7,1.,0.,0.,ierflg);
+  minuit -> mnparm(8,"lambdaThetaCS",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(9,"lambdaThetaPhiCS",0.,0.001,-1.,1.,ierflg);
+  minuit -> mnparm(10,"lambdaTilde",0.,0.001,-0.5,0.5,ierflg);
+  
+
+  arglist[0] = 500;
+  arglist[1] = 1.;
+  minuit -> mnexcm("MIGRAD",arglist,2,ierflg);
+
+  arglist[0] = 500000;
+  minuit -> mnexcm("IMPROVE",arglist,1,ierflg);
+
+  Double_t amin, edm, errdef;
+  Int_t nvpar, nparx, icstat;
+  minuit -> mnstat(amin,edm,errdef,nvpar,nparx,icstat);
+  minuit -> mnprin(11,amin);
+  
+  /*
+  Double_t normCosTheta, errNormCosTheta;
+  Double_t normPhi, errNormPhi;
+  Double_t normPhiTilde, errNormPhiTilde;
+  */
+  
+  Double_t normCosThetaHE, errNormCosThetaHE;
+  Double_t normPhiHE, errNormPhiHE;
+  Double_t normPhiTildeHE, errNormPhiTildeHE;
+
+  Double_t normCosThetaCS, errNormCosThetaCS;
+  Double_t normPhiCS, errNormPhiCS;
+  Double_t normPhiTildeCS, errNormPhiTildeCS;
+  
+  /*
+  minuit -> GetParameter(0,normCosTheta,errNormCosTheta);
+  minuit -> GetParameter(1,normPhi,errNormPhi);
+  minuit -> GetParameter(2,normPhiTilde,errNormPhiTilde);
+  minuit -> GetParameter(3,fLambdaThetaHE,fErrorLambdaThetaHE);
+  minuit -> GetParameter(4,fLambdaThetaPhiHE,fErrorLambdaThetaPhiHE);
+  minuit -> GetParameter(5,fLambdaThetaCS,fErrorLambdaThetaCS);
+  minuit -> GetParameter(6,fLambdaThetaPhiCS,fErrorLambdaThetaPhiCS);
+  minuit -> GetParameter(7,fLambdaTilde,fErrorLambdaTilde);
+  */
+  
+  minuit -> GetParameter(0,normCosThetaHE,errNormCosThetaHE);
+  minuit -> GetParameter(1,normPhiHE,errNormPhiHE);
+  minuit -> GetParameter(2,normPhiTildeHE,errNormPhiTildeHE);
+  minuit -> GetParameter(3,fLambdaThetaHE,fErrorLambdaThetaHE);
+  minuit -> GetParameter(4,fLambdaThetaPhiHE,fErrorLambdaThetaPhiHE);
+  minuit -> GetParameter(5,normCosThetaCS,errNormCosThetaCS);
+  minuit -> GetParameter(6,normPhiCS,errNormPhiCS);
+  minuit -> GetParameter(7,normPhiTildeCS,errNormPhiTildeCS);
+  minuit -> GetParameter(8,fLambdaThetaCS,fErrorLambdaThetaCS);
+  minuit -> GetParameter(9,fLambdaThetaPhiCS,fErrorLambdaThetaPhiCS);
+  minuit -> GetParameter(10,fLambdaTilde,fErrorLambdaTilde);
+  
+
+  fLambdaPhiHE = (fLambdaTilde - fLambdaThetaHE)/(fLambdaTilde + 3);
+  fLambdaPhiCS = (fLambdaTilde - fLambdaThetaCS)/(fLambdaTilde + 3);
+
+  /*
+  gFuncBarbFit[0] = new TF1("gFuncBarbFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
+  gFuncBarbFit[0] -> SetParameter(0,normCosTheta);
+  gFuncBarbFit[0] -> SetParameter(1,fLambdaThetaHE);
+
+  gFuncBarbFit[1] = new TF1("gFuncBarbFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
+  gFuncBarbFit[1] -> SetParameter(0,normPhi);
+  gFuncBarbFit[1] -> SetParameter(1,fLambdaThetaHE);
+  gFuncBarbFit[1] -> SetParameter(2,fLambdaPhiHE);
+
+  gFuncBarbFit[2] = new TF1("gFuncBarbFit2","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
+  gFuncBarbFit[2] -> SetParameter(0,normPhiTilde);
+  gFuncBarbFit[2] -> SetParameter(1,fLambdaThetaHE);
+  gFuncBarbFit[2] -> SetParameter(2,fLambdaThetaPhiHE);
+
+  gFuncBarbFit[3] = new TF1("gFuncBarbFit3","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
+  gFuncBarbFit[3] -> SetParameter(0,normCosTheta);
+  gFuncBarbFit[3] -> SetParameter(1,fLambdaThetaCS);
+
+  gFuncBarbFit[4] = new TF1("gFuncBarbFit4","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
+  gFuncBarbFit[4] -> SetParameter(0,normPhi);
+  gFuncBarbFit[4] -> SetParameter(1,fLambdaThetaCS);
+  gFuncBarbFit[4] -> SetParameter(2,fLambdaPhiCS);
+
+  gFuncBarbFit[5] = new TF1("gFuncBarbFit5","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
+  gFuncBarbFit[5] -> SetParameter(0,normPhiTilde);
+  gFuncBarbFit[5] -> SetParameter(1,fLambdaThetaCS);
+  gFuncBarbFit[5] -> SetParameter(2,fLambdaThetaPhiCS);
+  */
+
+
+  gFuncBarbFit[0] = new TF1("gFuncBarbFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
+  gFuncBarbFit[0] -> SetParameter(0,normCosThetaHE);
+  gFuncBarbFit[0] -> SetParameter(1,fLambdaThetaHE);
+
+  gFuncBarbFit[1] = new TF1("gFuncBarbFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
+  gFuncBarbFit[1] -> SetParameter(0,normPhiHE);
+  gFuncBarbFit[1] -> SetParameter(1,fLambdaThetaHE);
+  gFuncBarbFit[1] -> SetParameter(2,fLambdaPhiHE);
+
+  gFuncBarbFit[2] = new TF1("gFuncBarbFit2","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
+  gFuncBarbFit[2] -> SetParameter(0,normPhiTildeHE);
+  gFuncBarbFit[2] -> SetParameter(1,fLambdaThetaHE);
+  gFuncBarbFit[2] -> SetParameter(2,fLambdaThetaPhiHE);
+
+  gFuncBarbFit[3] = new TF1("gFuncBarbFit3","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
+  gFuncBarbFit[3] -> SetParameter(0,normCosThetaCS);
+  gFuncBarbFit[3] -> SetParameter(1,fLambdaThetaCS);
+
+  gFuncBarbFit[4] = new TF1("gFuncBarbFit4","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
+  gFuncBarbFit[4] -> SetParameter(0,normPhiCS);
+  gFuncBarbFit[4] -> SetParameter(1,fLambdaThetaCS);
+  gFuncBarbFit[4] -> SetParameter(2,fLambdaPhiCS);
+
+  gFuncBarbFit[5] = new TF1("gFuncBarbFit5","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
+  gFuncBarbFit[5] -> SetParameter(0,normPhiTildeCS);
+  gFuncBarbFit[5] -> SetParameter(1,fLambdaThetaCS);
+  gFuncBarbFit[5] -> SetParameter(2,fLambdaThetaPhiCS);
+
+
+  for(int i = 0;i < gNDistrib;i++){
+    canvasHistFit -> cd(i+1);
+    gFuncBarbFit[i] -> Draw("same");
+  }
+  canvasHistFit -> Update();
+  
+  
+  if(saveCanvas){
+    canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
+  }
+  
+  delete canvasHistFit;
+}
+//______________________________________________________________________________
 void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
   printf("\n------------------------------------------------------------------------\n");
   printf("This object allows you to compute decoupled fit with 3 distributions \n");
@@ -268,6 +459,118 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
         angleVar = gPhiTildeValues[j];
         pull = (val - funcPhiTilde(angleVar,parPhiTilde))/errVal;
       }
+      chiSquare += pull*pull;
+    }
+  }
+
+  gChiSquare = chiSquare;
+}
+//______________________________________________________________________________
+void polarizationBarbatruccoFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t *par, Int_t iflag){
+  Double_t angleVar;
+  Double_t val, errVal;
+
+  /*
+  // HELICITY
+  Double_t parCosThetaHE[2];
+  parCosThetaHE[0] = par[0];
+  parCosThetaHE[1] = par[3];
+
+  Double_t parPhiHE[3];
+  parPhiHE[0] = par[1];
+  parPhiHE[1] = par[3];
+  parPhiHE[2] = (par[7] - par[3])/(par[7] + 3);
+
+  Double_t parPhiTildeHE[3];
+  parPhiTildeHE[0] = par[2];
+  parPhiTildeHE[1] = par[3];
+  parPhiTildeHE[2] = par[4];
+
+  // COLLINS-SOPER
+  Double_t parCosThetaCS[2];
+  parCosThetaCS[0] = par[0];
+  parCosThetaCS[1] = par[5];
+
+  Double_t parPhiCS[3];
+  parPhiCS[0] = par[1];
+  parPhiCS[1] = par[5];
+  parPhiCS[2] = (par[7] - par[5])/(par[7] + 3);
+
+  Double_t parPhiTildeCS[3];
+  parPhiTildeCS[0] = par[2];
+  parPhiTildeCS[1] = par[5];
+  parPhiTildeCS[2] = par[6];
+  */
+
+
+  // HELICITY
+  Double_t parCosThetaHE[2];
+  parCosThetaHE[0] = par[0];
+  parCosThetaHE[1] = par[3];
+
+  Double_t parPhiHE[3];
+  parPhiHE[0] = par[1];
+  parPhiHE[1] = par[3];
+  parPhiHE[2] = (par[10] - par[3])/(par[10] + 3);
+
+  Double_t parPhiTildeHE[3];
+  parPhiTildeHE[0] = par[2];
+  parPhiTildeHE[1] = par[3];
+  parPhiTildeHE[2] = par[4];
+
+  // COLLINS-SOPER
+  Double_t parCosThetaCS[2];
+  parCosThetaCS[0] = par[5];
+  parCosThetaCS[1] = par[8];
+
+  Double_t parPhiCS[3];
+  parPhiCS[0] = par[6];
+  parPhiCS[1] = par[8];
+  parPhiCS[2] = (par[10] - par[8])/(par[10] + 3);
+
+  Double_t parPhiTildeCS[3];
+  parPhiTildeCS[0] = par[7];
+  parPhiTildeCS[1] = par[8];
+  parPhiTildeCS[2] = par[9];
+  
+
+  Double_t func = 0, pull = 0, chiSquare = 0;
+
+  Int_t fitBinMin[6] = {2,0,0,2,0,0};
+  Int_t fitBinMax[6] = {4,2,2,4,2,2};
+
+  for(int i = 0;i < gNDistrib;i++){
+    //for(int j = fitBinMin[i];j < gHistBarbFit[i] -> GetSize() - fitBinMax[i];j++){
+      for(int j = 0;j < gHistBarbFit[i] -> GetSize();j++){
+      val = gHistBarbFit[i] -> GetBinContent(j+1);
+      errVal = gHistBarbFit[i] -> GetBinError(j+1);
+
+      if(val == 0. && errVal == 0.){continue;}
+      if(i == 0){
+        angleVar = gCosThetaValues[j];
+        pull = (val - funcCosTheta(angleVar,parCosThetaHE))/errVal;
+      }
+      if(i == 1){
+        angleVar = gPhiValues[j];
+        pull = (val - funcPhi(angleVar,parPhiHE))/errVal;
+      }
+      if(i == 2){
+        angleVar = gPhiTildeValues[j];
+        pull = (val - funcPhiTilde(angleVar,parPhiTildeHE))/errVal;
+      }
+      if(i == 3){
+        angleVar = gCosThetaValues[j];
+        pull = (val - funcCosTheta(angleVar,parCosThetaCS))/errVal;
+      }
+      if(i == 4){
+        angleVar = gPhiValues[j];
+        pull = (val - funcPhi(angleVar,parPhiCS))/errVal;
+      }
+      if(i == 5){
+        angleVar = gPhiTildeValues[j];
+        pull = (val - funcPhiTilde(angleVar,parPhiTildeCS))/errVal;
+      }
+
       chiSquare += pull*pull;
     }
   }

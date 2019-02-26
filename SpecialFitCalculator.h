@@ -18,6 +18,7 @@ class SpecialFitCalculator : public TObject
 
    void SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues);
    void SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
+   void BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
    void DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
 
    vector <Double_t> GetCosThetaParametersList();
@@ -31,6 +32,20 @@ class SpecialFitCalculator : public TObject
    Double_t GetErrorLambdaPhi(){return fErrorLambdaPhi;};
    Double_t GetLambdaThetaPhi(){return fLambdaThetaPhi;};
    Double_t GetErrorLambdaThetaPhi(){return fErrorLambdaThetaPhi;};
+
+   Double_t GetLambdaThetaHE(){return fLambdaThetaHE;};
+   Double_t GetErrorLambdaThetaHE(){return fErrorLambdaThetaHE;};
+   Double_t GetLambdaPhiHE(){return fLambdaPhiHE;};
+   Double_t GetErrorLambdaPhiHE(){return fErrorLambdaPhiHE;};
+   Double_t GetLambdaThetaPhiHE(){return fLambdaThetaPhiHE;};
+   Double_t GetErrorLambdaThetaPhiHE(){return fErrorLambdaThetaPhiHE;};
+
+   Double_t GetLambdaThetaCS(){return fLambdaThetaCS;};
+   Double_t GetErrorLambdaThetaCS(){return fErrorLambdaThetaCS;};
+   Double_t GetLambdaPhiCS(){return fLambdaPhiCS;};
+   Double_t GetErrorLambdaPhiCS(){return fErrorLambdaPhiCS;};
+   Double_t GetLambdaThetaPhiCS(){return fLambdaThetaPhiCS;};
+   Double_t GetErrorLambdaThetaPhiCS(){return fErrorLambdaThetaPhiCS;};
 
  private:
 
@@ -47,6 +62,27 @@ class SpecialFitCalculator : public TObject
    Double_t fLambdaThetaPhi;
    Double_t fErrorLambdaThetaPhi;
    Double_t fErrorLambdaThetaLambdaPhi;
+
+
+   Double_t fNormCosThetaHE, fErrorNormCosThetaHE;
+   Double_t fLambdaThetaHE, fErrorLambdaThetaHE;
+   Double_t fNormPhiHE, fErrorNormPhiHE;
+   Double_t fLambdaPhiHE, fErrorLambdaPhiHE;
+   Double_t fNormPhiTildeHE, fErrorNormPhiTildeHE;
+   Double_t fLambdaThetaPhiHE, fErrorLambdaThetaPhiHE;
+   Double_t fErrorLambdaThetaLambdaPhiHE;
+
+   Double_t fNormCosThetaCS, fErrorNormCosThetaCS;
+   Double_t fLambdaThetaCS, fErrorLambdaThetaCS;
+   Double_t fNormPhiCS, fErrorNormPhiCS;
+   Double_t fLambdaPhiCS, fErrorLambdaPhiCS;
+   Double_t fNormPhiTildeCS, fErrorNormPhiTildeCS;
+   Double_t fLambdaThetaPhiCS, fErrorLambdaThetaPhiCS;
+   Double_t fErrorLambdaThetaLambdaPhiCS;
+
+   Double_t fLambdaTilde, fErrorLambdaTilde;
+
+
 
    vector <Double_t> fCosThetaParametersList;
    vector <Double_t> fErrorCosThetaParametersList;
