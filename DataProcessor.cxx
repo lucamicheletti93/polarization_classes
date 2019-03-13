@@ -71,6 +71,43 @@ DataProcessor::DataProcessor(TTree *treeData): TObject() {
   fTreeData -> SetBranchAddress("MuonId",fMuonId);
 }
 //______________________________________________________________________________
+DataProcessor::DataProcessor(TTree *treeData, string flagTRF): TObject() {
+  // alternative constructor
+  fTreeData = (TTree*) treeData -> Clone();
+  fTreeData -> SetBranchAddress("FiredTriggerClasses",fTrigClass);
+  fTreeData -> SetBranchAddress("NMuons",&fNMuons);
+  //fTreeData -> SetBranchAddress("Vertex",fVertex);
+  //fTreeData -> SetBranchAddress("PercentV0M",&fPercV0M);
+  fTreeData -> SetBranchAddress("Pt",fPt);
+  //fTreeData -> SetBranchAddress("E",fE);
+  //fTreeData -> SetBranchAddress("Px",fPx);
+  //fTreeData -> SetBranchAddress("Py",fPy);
+  //fTreeData -> SetBranchAddress("Pz",fPz);
+  fTreeData -> SetBranchAddress("Y",fY);
+  fTreeData -> SetBranchAddress("Eta",fEta);
+  fTreeData -> SetBranchAddress("MatchTrig",fMatchTrig);
+  //fTreeData -> SetBranchAddress("MatchTrigChi2",fMatchTrigChi2);
+  //fTreeData -> SetBranchAddress("Charge",fCharge);
+  fTreeData -> SetBranchAddress("RAtAbsEnd",fRAtAbsEnd);
+  fTreeData -> SetBranchAddress("NDimu",&fNDimu);
+  fTreeData -> SetBranchAddress("DimuPt",fDimuPt);
+  //fTreeData -> SetBranchAddress("DimuPx",fDimuPx);
+  //fTreeData -> SetBranchAddress("DimuPy",fDimuPy);
+  //fTreeData -> SetBranchAddress("DimuPz",fDimuPz);
+  fTreeData -> SetBranchAddress("DimuY",fDimuY);
+  fTreeData -> SetBranchAddress("DimuMass",fDimuMass);
+  //fTreeData -> SetBranchAddress("DimuCharge",fDimuCharge);
+  fTreeData -> SetBranchAddress("DimuMatch",fDimuMatch);
+  fTreeData -> SetBranchAddress("DimuMu",fDimuMu);
+  fTreeData -> SetBranchAddress("CostHE",fCostHE);
+  fTreeData -> SetBranchAddress("PhiHE",fPhiHE);
+  fTreeData -> SetBranchAddress("CostCS",fCostCS);
+  fTreeData -> SetBranchAddress("PhiCS",fPhiCS);
+  fTreeData -> SetBranchAddress("IsPhysSelected",&fIsPhysSelected);
+  fTreeData -> SetBranchAddress("pDCA",fPDCA);
+  fTreeData -> SetBranchAddress("MuonId",fMuonId);
+}
+//______________________________________________________________________________
 DataProcessor::~DataProcessor() {
   // destructor
 }
@@ -546,99 +583,95 @@ void DataProcessor::CreateInvMassHistograms(TFile *fileDataFiltered, string name
 }
 //______________________________________________________________________________
 void DataProcessor::ComputeTriggerResponseFunction(string strSample, string nameOutputFile) {
-  fTreeData -> SetBranchAddress("pDCA",fPDCA); // enable pDDCA
-  int nEvents = 0;
+  fHistLowPt_25eta4 = new TH1D("fHistLowPt_25eta4","fHistLowPt_25eta4",500,0.,50.); fHistLowPt_25eta4 -> Sumw2();
+  fHistAllPt_25eta4 = new TH1D("fHistAllPt_25eta4","fHistAllPt_25eta4",500,0.,50.); fHistAllPt_25eta4 -> Sumw2();
+  fHistLowPt_25eta3 = new TH1D("fHistLowPt_25eta3","fHistLowPt_25eta3",500,0.,50.); fHistLowPt_25eta3 -> Sumw2();
+  fHistAllPt_25eta3 = new TH1D("fHistAllPt_25eta3","fHistAllPt_25eta3",500,0.,50.); fHistAllPt_25eta3 -> Sumw2();
+  fHistLowPt_3eta35 = new TH1D("fHistLowPt_3eta35","fHistLowPt_3eta35",500,0.,50.); fHistLowPt_3eta35 -> Sumw2();
+  fHistAllPt_3eta35 = new TH1D("fHistAllPt_3eta35","fHistAllPt_3eta35",500,0.,50.); fHistAllPt_3eta35 -> Sumw2();
+  fHistLowPt_35eta4 = new TH1D("fHistLowPt_35eta4","fHistLowPt_35eta4",500,0.,50.); fHistLowPt_35eta4 -> Sumw2();
+  fHistAllPt_35eta4 = new TH1D("fHistAllPt_35eta4","fHistAllPt_35eta4",500,0.,50.); fHistAllPt_35eta4 -> Sumw2();
 
+  int nEvents = 0;
   if(strSample == "FullStat"){nEvents = fTreeData -> GetEntries();}
   if(strSample == "TestStat"){nEvents = 100000;}
   printf("N events = %i \n",nEvents);
-
-  fHistLowPtSM = new TH1D("fHistLowPtSM","",100,0,10);
-  fHistLowPtSM -> Sumw2();
-  fHistAllPtSM = new TH1D("fHistAllPtSM","",100,0,10);
-  fHistAllPtSM -> Sumw2();
-
-  fHistLowPtSMpDCA = new TH1D("fHistLowPtSMpDCA","",100,0,10);
-  fHistLowPtSMpDCA -> Sumw2();
-  fHistAllPtSMpDCA = new TH1D("fHistAllPtSMpDCA","",100,0,10);
-  fHistAllPtSMpDCA -> Sumw2();
-
-  int counterCMUL7 = 0;
-  vector <int> fListMuonId;
+  Int_t muonId0 = 0, muonId1 = 0;
 
   for(int i = 0;i < nEvents;i++){
     fTreeData -> GetEntry(i);
     printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
     TString Trigger = fTrigClass;
     Bool_t TriggerSelected = kFALSE;
-    if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")){counterCMUL7++;}
     if(Trigger.Contains("CINT7-B-NOPF-MUFAST")){TriggerSelected = kTRUE;} // single muon trigger
+
     if(TriggerSelected){
-      if(fIsPhysSelected){       
-      //printf("------------------------------------------------------------\n");                                                          
-      for(int k = 0;k < fNDimu;k++){
-        if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
-            //if(fDimuMatch[k] == 2){
-              if(fDimuMass[k] > 2 && fDimuMass[k] < 5){
-              //if(fDimuMass[k] > 2){
-                fListMuonId.push_back(fDimuMu[k][0]);
-                fListMuonId.push_back(fDimuMu[k][1]);
-                //printf("%i - %i (Dimu Px = %f) \n",fDimuMu[k][0],fDimuMu[k][1],fDimuPx[k]);
-                //printf("%f - %f \n",fPx[fDimuMu[k][0]],fPx[fDimuMu[k][1]]);
+      if(fIsPhysSelected){
+        for(int k = 0;k < fNDimu;k++){
+          if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
+              for(int j = 0;j < fNMuons;j++){if(fMuonId[j] == fDimuMu[k][0]){muonId0 = j;}}
+              for(int j = 0;j < fNMuons;j++){if(fMuonId[j] == fDimuMu[k][1]){muonId1 = j;}}
+
+              if((fEta[muonId0] > -4 && fEta[muonId0] < -2.5) && (fEta[muonId1] > -4 && fEta[muonId1] < -2.5)){
+                if((fRAtAbsEnd[muonId0] > 17.6 && fRAtAbsEnd[muonId0] < 89.5) && (fRAtAbsEnd[muonId1] > 17.6 && fRAtAbsEnd[muonId1] < 89.5)){
+                  if(fPDCA[muonId0] > 0 && fPDCA[muonId1] > 0){
+                    if(fDimuPt[k] > 0 && fDimuPt[k] < 50){
+                    if(fMatchTrig[muonId0] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId0]);}
+                    if(fMatchTrig[muonId1] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId1]);}
+                    if(fMatchTrig[muonId0] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId0]);}
+                    if(fMatchTrig[muonId1] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId1]);}
+
+                    if(fEta[muonId0] > -3.0 && fEta[muonId0] < -2.5){
+                      if(fMatchTrig[0] >= 1){fHistAllPt_25eta3 -> Fill(fPt[0]);}
+                      if(fMatchTrig[0] >= 2){fHistLowPt_25eta3 -> Fill(fPt[0]);}
+                    }
+
+                    if(fEta[muonId0] > -3.5 && fEta[muonId0] < -3.0){
+                      if(fMatchTrig[0] >= 1){fHistAllPt_3eta35 -> Fill(fPt[0]);}
+                      if(fMatchTrig[0] >= 2){fHistLowPt_3eta35 -> Fill(fPt[0]);}
+                    }
+
+                    if(fEta[muonId0] > -4.0 && fEta[muonId0] < -3.5){
+                      if(fMatchTrig[0] >= 1){fHistAllPt_35eta4 -> Fill(fPt[0]);}
+                      if(fMatchTrig[0] >= 2){fHistLowPt_35eta4 -> Fill(fPt[0]);}
+                    }
+
+                    if(fEta[muonId1] > -3.0 && fEta[muonId1] < -2.5){
+                      if(fMatchTrig[1] >= 1){fHistAllPt_25eta3 -> Fill(fPt[1]);}
+                      if(fMatchTrig[1] >= 2){fHistLowPt_25eta3 -> Fill(fPt[1]);}
+                    }
+
+                    if(fEta[muonId1] > -3.5 && fEta[muonId1] < -3.0){
+                      if(fMatchTrig[1] >= 1){fHistAllPt_3eta35 -> Fill(fPt[1]);}
+                      if(fMatchTrig[1] >= 2){fHistLowPt_3eta35 -> Fill(fPt[1]);}
+                    }
+
+                    if(fEta[muonId1] > -4.0 && fEta[muonId1] < -3.5){
+                      if(fMatchTrig[1] >= 1){fHistAllPt_35eta4 -> Fill(fPt[1]);}
+                      if(fMatchTrig[1] >= 2){fHistLowPt_35eta4 -> Fill(fPt[1]);}
+                    }
+                  }
+                }
               }
-            //}
+            }
+
+            muonId0 = 0;
+            muonId1 = 0;
           }
         }
-
-        //printf("=== MUON COMPARISON === \n");
-        for(int k = 0;k < fNMuons;k++){
-          //printf("%i ",MuonId[k]);
-
-          //for(int j = 0;j < (int) fListMuonId.size();j++){
-            //cout << fListMuonId[j] << " ";
-          //}
-          //cout << endl;
-
-          //for(int j = 0;j < (int) fListMuonId.size();j++){//*****
-            //if(fMuonId[k] == fListMuonId[j]){//*****
-              //printf("%i -> ok! (Px = %f) \n",fMuonId[k],fPx[k]);
-
-              if(fMatchTrig[k] >= 1){fHistAllPtSM -> Fill(fPt[k]);}
-              if(fMatchTrig[k] >= 2){fHistLowPtSM -> Fill(fPt[k]);}
-
-              if(fMatchTrig[k] >= 1 && fPDCA[k] != 0){fHistAllPtSMpDCA -> Fill(fPt[k]);}
-              if(fMatchTrig[k] >= 2 && fPDCA[k] != 0){fHistLowPtSMpDCA -> Fill(fPt[k]);}
-
-
-              //break;//*****                                                               
-            //}//*****
-          //}//*****
-        }
-        fListMuonId.clear();
-      }                                                                                     
-
+      }
     }
   }
   printf("\n");
 
-  //TH1D *fHistTriggerResponseFunctionSM = new TH1D("histTriggerResponseFunctionSM","",100,0,10);
-  //fHistTriggerResponseFunctionSM -> Divide(fHistLowPtSM,fHistAllPtSM,1,1,"B");
-  //fHistTriggerResponseFunctionSM -> SetLineColor(kBlue);
-
-  //TH1D *fHistTriggerResponseFunctionSMpDCA = new TH1D("histTriggerResponseFunctionSMpDCA","",100,0,10);
-  //fHistTriggerResponseFunctionSMpDCA -> Divide(fHistLowPtSMpDCA,fHistAllPtSMpDCA,1,1,"B");
-  //fHistTriggerResponseFunctionSMpDCA -> SetLineColor(kRed);
-  //fHistTriggerResponseFunctionSMpDCA -> SetMarkerStyle(20);
-  //fHistTriggerResponseFunctionSMpDCA -> SetMarkerColor(kRed);
-
-  fHistCMUL7Triggers = new TH1D("fHistCMUL7Triggers","",1,0,1);
-  fHistCMUL7Triggers -> SetBinContent(1,counterCMUL7);
-
   TFile *fileTriggerResponseFunction = new TFile(nameOutputFile.c_str(),"RECREATE");
-  fHistAllPtSM -> Write();
-  fHistLowPtSM -> Write();
-  fHistAllPtSMpDCA -> Write();
-  fHistLowPtSMpDCA -> Write();
-  fHistCMUL7Triggers -> Write();
+  fHistLowPt_25eta4 -> Write();
+  fHistAllPt_25eta4 -> Write();
+  fHistLowPt_25eta3 -> Write();
+  fHistAllPt_25eta3 -> Write();
+  fHistLowPt_3eta35 -> Write();
+  fHistAllPt_3eta35 -> Write();
+  fHistLowPt_35eta4 -> Write();
+  fHistAllPt_35eta4 -> Write();
   fileTriggerResponseFunction -> Close();
 }

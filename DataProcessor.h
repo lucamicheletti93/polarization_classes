@@ -17,6 +17,7 @@ class DataProcessor : public TObject
    DataProcessor(TTree *treeData);                                              // constructor for elaborating TTree from grid
    DataProcessor(THnSparse *histNVarHE, THnSparse *histNVarCS);                 // constructor for working with THnSparse
    DataProcessor(TTree *treeDataFilteredHE, TTree *treeDataFilteredCS);         // constructor for working with TTree
+   DataProcessor(TTree *treeDataFilteredHE, string flagTRF);                    // constructor for working with Trigger Response Function
    virtual ~DataProcessor();
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
@@ -75,12 +76,14 @@ class DataProcessor : public TObject
 
    vector <Int_t> fListMuonId;
 
-   TH1D *fHistLowPtSM;
-   TH1D *fHistAllPtSM;
-   TH1D *fHistTriggerResponseFunctionSM;
-   TH1D *fHistLowPtSMpDCA;
-   TH1D *fHistAllPtSMpDCA;
-   TH1D *fHistTriggerResponseFunctionSMpDCA;
+   TH1D *fHistLowPt_25eta4;
+   TH1D *fHistAllPt_25eta4;
+   TH1D *fHistLowPt_25eta3;
+   TH1D *fHistAllPt_25eta3;
+   TH1D *fHistLowPt_3eta35;
+   TH1D *fHistAllPt_3eta35;
+   TH1D *fHistLowPt_35eta4;
+   TH1D *fHistAllPt_35eta4;
 
    TH1D *fHistCMUL7Triggers;
 
