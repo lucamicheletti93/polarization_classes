@@ -622,33 +622,33 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
                     if(fMatchTrig[muonId1] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId1]);}
 
                     if(fEta[muonId0] > -3.0 && fEta[muonId0] < -2.5){
-                      if(fMatchTrig[0] >= 1){fHistAllPt_25eta3 -> Fill(fPt[0]);}
-                      if(fMatchTrig[0] >= 2){fHistLowPt_25eta3 -> Fill(fPt[0]);}
+                      if(fMatchTrig[muonId0] >= 1){fHistAllPt_25eta3 -> Fill(fPt[muonId0]);}
+                      if(fMatchTrig[muonId0] >= 2){fHistLowPt_25eta3 -> Fill(fPt[muonId0]);}
                     }
 
                     if(fEta[muonId0] > -3.5 && fEta[muonId0] < -3.0){
-                      if(fMatchTrig[0] >= 1){fHistAllPt_3eta35 -> Fill(fPt[0]);}
-                      if(fMatchTrig[0] >= 2){fHistLowPt_3eta35 -> Fill(fPt[0]);}
+                      if(fMatchTrig[muonId0] >= 1){fHistAllPt_3eta35 -> Fill(fPt[muonId0]);}
+                      if(fMatchTrig[muonId0] >= 2){fHistLowPt_3eta35 -> Fill(fPt[muonId0]);}
                     }
 
                     if(fEta[muonId0] > -4.0 && fEta[muonId0] < -3.5){
-                      if(fMatchTrig[0] >= 1){fHistAllPt_35eta4 -> Fill(fPt[0]);}
-                      if(fMatchTrig[0] >= 2){fHistLowPt_35eta4 -> Fill(fPt[0]);}
+                      if(fMatchTrig[muonId0] >= 1){fHistAllPt_35eta4 -> Fill(fPt[muonId0]);}
+                      if(fMatchTrig[muonId0] >= 2){fHistLowPt_35eta4 -> Fill(fPt[muonId0]);}
                     }
 
                     if(fEta[muonId1] > -3.0 && fEta[muonId1] < -2.5){
-                      if(fMatchTrig[1] >= 1){fHistAllPt_25eta3 -> Fill(fPt[1]);}
-                      if(fMatchTrig[1] >= 2){fHistLowPt_25eta3 -> Fill(fPt[1]);}
+                      if(fMatchTrig[muonId1] >= 1){fHistAllPt_25eta3 -> Fill(fPt[muonId1]);}
+                      if(fMatchTrig[muonId1] >= 2){fHistLowPt_25eta3 -> Fill(fPt[muonId1]);}
                     }
 
                     if(fEta[muonId1] > -3.5 && fEta[muonId1] < -3.0){
-                      if(fMatchTrig[1] >= 1){fHistAllPt_3eta35 -> Fill(fPt[1]);}
-                      if(fMatchTrig[1] >= 2){fHistLowPt_3eta35 -> Fill(fPt[1]);}
+                      if(fMatchTrig[muonId1] >= 1){fHistAllPt_3eta35 -> Fill(fPt[muonId1]);}
+                      if(fMatchTrig[muonId1] >= 2){fHistLowPt_3eta35 -> Fill(fPt[muonId1]);}
                     }
 
                     if(fEta[muonId1] > -4.0 && fEta[muonId1] < -3.5){
-                      if(fMatchTrig[1] >= 1){fHistAllPt_35eta4 -> Fill(fPt[1]);}
-                      if(fMatchTrig[1] >= 2){fHistLowPt_35eta4 -> Fill(fPt[1]);}
+                      if(fMatchTrig[muonId1] >= 1){fHistAllPt_35eta4 -> Fill(fPt[muonId1]);}
+                      if(fMatchTrig[muonId1] >= 2){fHistLowPt_35eta4 -> Fill(fPt[muonId1]);}
                     }
                   }
                 }
