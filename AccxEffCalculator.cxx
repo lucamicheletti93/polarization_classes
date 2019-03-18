@@ -1113,9 +1113,15 @@ void AccxEffCalculator::ComputeTriggerResponseFunction(string strSample, string 
   fileTriggerResponseFunction -> Close();
 }
 //______________________________________________________________________________
-void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameOutputFile, bool reweightAccxEff, TH1D *histReweightTRF) {
+//void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameOutputFile, bool reweightAccxEff, TH1D *histReweightTRF) {
+void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameOutputFile, bool reweightAccxEff, TObjArray *objArrayReweightTRF) {
   int nEvents = 0;
   int indexPt = 0;
+
+  TH1D *histReweightTRF_25eta4 = (TH1D*) objArrayReweightTRF -> At(0);
+  TH1D *histReweightTRF_25eta3 = (TH1D*) objArrayReweightTRF -> At(1); 
+  TH1D *histReweightTRF_3eta35 = (TH1D*) objArrayReweightTRF -> At(2);
+  TH1D *histReweightTRF_35eta4 = (TH1D*) objArrayReweightTRF -> At(3);
 
   if(strSample == "FullStat"){nEvents = fTreeAccxEff -> GetEntries();}
   if(strSample == "TestStat"){nEvents = 1000;}
@@ -1230,8 +1236,17 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
             fHistRecPhiCSEtaSM -> Fill(fPhiCSRec[j],etaMu);
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if(reweightAccxEff){
-              weightMu1 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[0]));
-              weightMu2 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[1]));
+              //weightMu1 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[0]));
+              //weightMu2 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[1]));
+
+              if(fEtaRec[0] > -3.0 && fEtaRec[0] < -2.5){weightMu1 = histReweightTRF_25eta3 -> GetBinContent(histReweightTRF_25eta3 -> FindBin(fPtRec[0]));}
+              if(fEtaRec[0] > -3.5 && fEtaRec[0] < -3.0){weightMu1 = histReweightTRF_3eta35 -> GetBinContent(histReweightTRF_3eta35 -> FindBin(fPtRec[0]));}
+              if(fEtaRec[0] > -4.0 && fEtaRec[0] < -3.5){weightMu1 = histReweightTRF_35eta4 -> GetBinContent(histReweightTRF_35eta4 -> FindBin(fPtRec[0]));}
+
+              if(fEtaRec[1] > -3.0 && fEtaRec[1] < -2.5){weightMu2 = histReweightTRF_25eta3 -> GetBinContent(histReweightTRF_25eta3 -> FindBin(fPtRec[1]));}
+              if(fEtaRec[1] > -3.5 && fEtaRec[1] < -3.0){weightMu2 = histReweightTRF_3eta35 -> GetBinContent(histReweightTRF_3eta35 -> FindBin(fPtRec[1]));}
+              if(fEtaRec[1] > -4.0 && fEtaRec[1] < -3.5){weightMu2 = histReweightTRF_35eta4 -> GetBinContent(histReweightTRF_35eta4 -> FindBin(fPtRec[1]));}
+
               weigthMu1Mu2 = weightMu1*weightMu2;
             }
             else{weigthMu1Mu2 = 1.;}

@@ -96,8 +96,10 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   gStyle -> SetOptStat(0);
   TGaxis::SetMaxDigits(2);
 
-  double min_fit_range = 2.1;
-  double max_fit_range = 4.9;
+  //double min_fit_range = 2.1;
+  //double max_fit_range = 4.9;
+  double min_fit_range = 2.2;
+  double max_fit_range = 4.5;
   string tails_fix = "yes";
 
   //============================================================================
@@ -320,7 +322,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
 
   TLine *lineRatio = new TLine(2.,1.,5.,1.0); lineRatio -> SetLineStyle(kDashed); lineRatio -> SetLineWidth(2);
 
-  TH2D *histGridRatio = new TH2D("histGridRatio","",120,2,5,10,0.5,1.5);
+  TH2D *histGridRatio = new TH2D("histGridRatio","",120,2,5,10,0.9,1.1);
   histGridRatio -> GetXaxis() -> SetTitle("#it{m}_{#mu^{#plus}#mu^{#minus}} (GeV/#it{c}^{2})");
   histGridRatio -> GetXaxis() -> SetTitleSize(0.12);
   histGridRatio -> GetXaxis() -> SetTitleOffset(0.9);
@@ -331,7 +333,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   histGridRatio -> GetYaxis() -> SetTitleOffset(0.4);
   histGridRatio -> GetYaxis() -> SetLabelSize(0);
 
-  TGaxis *axisRatio = new TGaxis(2.,0.55,2.,1.45,0.55,1.45,510,"");
+  TGaxis *axisRatio = new TGaxis(2.,0.92,2.,1.08,0.92,1.08,510,"");
   axisRatio->SetLabelFont(43); // Absolute font size in pixel (precision 3)
   axisRatio->SetLabelSize(15);
 

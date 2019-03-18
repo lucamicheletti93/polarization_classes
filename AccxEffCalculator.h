@@ -4,6 +4,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
+#include "TObjArray.h"
 #include <string>
 #include <vector>
 
@@ -23,7 +24,8 @@ class AccxEffCalculator : public TObject
    //void ReWeightAccxEff(Double_t polParHE[], Double_t polParCS[], string strSample, Bool_t saveFile, string nameOutputFile);
    void ReWeightAccxEff(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
-   void ComputeReweightTRFAccxEff(string , string , bool , TH1D *);
+   //void ComputeReweightTRFAccxEff(string , string , bool , TH1D *);
+   void ComputeReweightTRFAccxEff(string , string , bool , TObjArray *);
 
    Int_t GetNPtBins(){return fNPtBins;};
    Int_t GetNCosThetaBins(){return fNCosThetaBins;};
