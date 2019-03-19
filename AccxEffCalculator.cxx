@@ -1236,18 +1236,26 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
             fHistRecPhiCSEtaSM -> Fill(fPhiCSRec[j],etaMu);
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if(reweightAccxEff){
-              //weightMu1 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[0]));
-              //weightMu2 = histReweightTRF -> GetBinContent(histReweightTRF -> FindBin(fPtRec[1]));
+              if(strstr(nameOutputFile.c_str(),"INTEGRATED")){
+                weightMu1 = histReweightTRF_25eta4 -> GetBinContent(histReweightTRF_25eta4 -> FindBin(fPtRec[0]));
+                weightMu2 = histReweightTRF_25eta4 -> GetBinContent(histReweightTRF_25eta4 -> FindBin(fPtRec[1]));
+              }
 
-              if(fEtaRec[0] > -3.0 && fEtaRec[0] < -2.5){weightMu1 = histReweightTRF_25eta3 -> GetBinContent(histReweightTRF_25eta3 -> FindBin(fPtRec[0]));}
-              if(fEtaRec[0] > -3.5 && fEtaRec[0] < -3.0){weightMu1 = histReweightTRF_3eta35 -> GetBinContent(histReweightTRF_3eta35 -> FindBin(fPtRec[0]));}
-              if(fEtaRec[0] > -4.0 && fEtaRec[0] < -3.5){weightMu1 = histReweightTRF_35eta4 -> GetBinContent(histReweightTRF_35eta4 -> FindBin(fPtRec[0]));}
+              if(strstr(nameOutputFile.c_str(),"DIFFERENTIAL")){
+                if(fEtaRec[0] > -3.0 && fEtaRec[0] < -2.5){weightMu1 = histReweightTRF_25eta3 -> GetBinContent(histReweightTRF_25eta3 -> FindBin(fPtRec[0]));}
+                if(fEtaRec[0] > -3.5 && fEtaRec[0] < -3.0){weightMu1 = histReweightTRF_3eta35 -> GetBinContent(histReweightTRF_3eta35 -> FindBin(fPtRec[0]));}
+                if(fEtaRec[0] > -4.0 && fEtaRec[0] < -3.5){weightMu1 = histReweightTRF_35eta4 -> GetBinContent(histReweightTRF_35eta4 -> FindBin(fPtRec[0]));}
 
-              if(fEtaRec[1] > -3.0 && fEtaRec[1] < -2.5){weightMu2 = histReweightTRF_25eta3 -> GetBinContent(histReweightTRF_25eta3 -> FindBin(fPtRec[1]));}
-              if(fEtaRec[1] > -3.5 && fEtaRec[1] < -3.0){weightMu2 = histReweightTRF_3eta35 -> GetBinContent(histReweightTRF_3eta35 -> FindBin(fPtRec[1]));}
-              if(fEtaRec[1] > -4.0 && fEtaRec[1] < -3.5){weightMu2 = histReweightTRF_35eta4 -> GetBinContent(histReweightTRF_35eta4 -> FindBin(fPtRec[1]));}
+                if(fEtaRec[1] > -3.0 && fEtaRec[1] < -2.5){weightMu2 = histReweightTRF_25eta3 -> GetBinContent(histReweightTRF_25eta3 -> FindBin(fPtRec[1]));}
+                if(fEtaRec[1] > -3.5 && fEtaRec[1] < -3.0){weightMu2 = histReweightTRF_3eta35 -> GetBinContent(histReweightTRF_3eta35 -> FindBin(fPtRec[1]));}
+                if(fEtaRec[1] > -4.0 && fEtaRec[1] < -3.5){weightMu2 = histReweightTRF_35eta4 -> GetBinContent(histReweightTRF_35eta4 -> FindBin(fPtRec[1]));}
+              }
 
               weigthMu1Mu2 = weightMu1*weightMu2;
+
+              //cout << "1) Eta = " << fEtaRec[0] << " ; Pt = " << fPtRec[0] << " ; weight = " << weightMu1 << endl;
+              //cout << "2) Eta = " << fEtaRec[1] << " ; Pt = " << fPtRec[1] << " ; weight = " << weightMu2 << endl;
+              //cout << "====================================================================" << endl;
             }
             else{weigthMu1Mu2 = 1.;}
             ////////////////////////////////////////////////////////////////////
@@ -1299,8 +1307,6 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
 
   }
   printf("\n");
-
-
 
   for(int i = 0;i < fNPtBins;i++){
     // HELICITY
