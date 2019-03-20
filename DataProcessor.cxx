@@ -602,64 +602,70 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
     fTreeData -> GetEntry(i);
     printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
     TString Trigger = fTrigClass;
-    Bool_t TriggerSelected = kFALSE;
-    if(Trigger.Contains("CINT7-B-NOPF-MUFAST")){TriggerSelected = kTRUE;} // single muon trigger
+    Bool_t TriggerSelected_CINT7 = kFALSE;
+    if(Trigger.Contains("CINT7-B-NOPF-MUFAST")){TriggerSelected_CINT7 = kTRUE;} // single muon trigger
+    Bool_t TriggerSelected_CMUL7 = kFALSE;
+    if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")){TriggerSelected_CMUL7 = kTRUE;} // Di-muon trigger
 
-    if(TriggerSelected){
-      if(fIsPhysSelected){
-        for(int k = 0;k < fNDimu;k++){
-          if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
-              for(int j = 0;j < fNMuons;j++){if(fMuonId[j] == fDimuMu[k][0]){muonId0 = j;}}
-              for(int j = 0;j < fNMuons;j++){if(fMuonId[j] == fDimuMu[k][1]){muonId1 = j;}}
+    if(TriggerSelected_CINT7){
+      //if(TriggerSelected_CMUL7){
+        if(fIsPhysSelected){
+          for(int k = 0;k < fNDimu;k++){
+            if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
+                for(int j = 0;j < fNMuons;j++){if(fMuonId[j] == fDimuMu[k][0]){muonId0 = j;}}
+                for(int j = 0;j < fNMuons;j++){if(fMuonId[j] == fDimuMu[k][1]){muonId1 = j;}}
 
-              if((fEta[muonId0] > -4 && fEta[muonId0] < -2.5) && (fEta[muonId1] > -4 && fEta[muonId1] < -2.5)){
-                if((fRAtAbsEnd[muonId0] > 17.6 && fRAtAbsEnd[muonId0] < 89.5) && (fRAtAbsEnd[muonId1] > 17.6 && fRAtAbsEnd[muonId1] < 89.5)){
-                  if(fPDCA[muonId0] > 0 && fPDCA[muonId1] > 0){
-                    if(fDimuPt[k] > 0 && fDimuPt[k] < 50){
-                    if(fMatchTrig[muonId0] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId0]);}
-                    if(fMatchTrig[muonId1] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId1]);}
-                    if(fMatchTrig[muonId0] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId0]);}
-                    if(fMatchTrig[muonId1] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId1]);}
+                if((fEta[muonId0] > -4 && fEta[muonId0] < -2.5) && (fEta[muonId1] > -4 && fEta[muonId1] < -2.5)){
+                  if((fRAtAbsEnd[muonId0] > 17.6 && fRAtAbsEnd[muonId0] < 89.5) && (fRAtAbsEnd[muonId1] > 17.6 && fRAtAbsEnd[muonId1] < 89.5)){
+                    if(fPDCA[muonId0] > 0 && fPDCA[muonId1] > 0){
+                      if(fDimuPt[k] > 0 && fDimuPt[k] < 50){
+                        if(fDimuMass[k] > 2.9 && fDimuMass[k] < 3.3){
+                          if(fMatchTrig[muonId0] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId0]);}
+                          if(fMatchTrig[muonId1] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId1]);}
+                          if(fMatchTrig[muonId0] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId0]);}
+                          if(fMatchTrig[muonId1] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId1]);}
 
-                    if(fEta[muonId0] > -3.0 && fEta[muonId0] < -2.5){
-                      if(fMatchTrig[muonId0] >= 1){fHistAllPt_25eta3 -> Fill(fPt[muonId0]);}
-                      if(fMatchTrig[muonId0] >= 2){fHistLowPt_25eta3 -> Fill(fPt[muonId0]);}
-                    }
+                          if(fEta[muonId0] > -3.0 && fEta[muonId0] < -2.5){
+                            if(fMatchTrig[muonId0] >= 1){fHistAllPt_25eta3 -> Fill(fPt[muonId0]);}
+                            if(fMatchTrig[muonId0] >= 2){fHistLowPt_25eta3 -> Fill(fPt[muonId0]);}
+                          }
 
-                    if(fEta[muonId0] > -3.5 && fEta[muonId0] < -3.0){
-                      if(fMatchTrig[muonId0] >= 1){fHistAllPt_3eta35 -> Fill(fPt[muonId0]);}
-                      if(fMatchTrig[muonId0] >= 2){fHistLowPt_3eta35 -> Fill(fPt[muonId0]);}
-                    }
+                          if(fEta[muonId0] > -3.5 && fEta[muonId0] < -3.0){
+                            if(fMatchTrig[muonId0] >= 1){fHistAllPt_3eta35 -> Fill(fPt[muonId0]);}
+                            if(fMatchTrig[muonId0] >= 2){fHistLowPt_3eta35 -> Fill(fPt[muonId0]);}
+                          }
 
-                    if(fEta[muonId0] > -4.0 && fEta[muonId0] < -3.5){
-                      if(fMatchTrig[muonId0] >= 1){fHistAllPt_35eta4 -> Fill(fPt[muonId0]);}
-                      if(fMatchTrig[muonId0] >= 2){fHistLowPt_35eta4 -> Fill(fPt[muonId0]);}
-                    }
+                          if(fEta[muonId0] > -4.0 && fEta[muonId0] < -3.5){
+                            if(fMatchTrig[muonId0] >= 1){fHistAllPt_35eta4 -> Fill(fPt[muonId0]);}
+                            if(fMatchTrig[muonId0] >= 2){fHistLowPt_35eta4 -> Fill(fPt[muonId0]);}
+                          }
 
-                    if(fEta[muonId1] > -3.0 && fEta[muonId1] < -2.5){
-                      if(fMatchTrig[muonId1] >= 1){fHistAllPt_25eta3 -> Fill(fPt[muonId1]);}
-                      if(fMatchTrig[muonId1] >= 2){fHistLowPt_25eta3 -> Fill(fPt[muonId1]);}
-                    }
+                          if(fEta[muonId1] > -3.0 && fEta[muonId1] < -2.5){
+                            if(fMatchTrig[muonId1] >= 1){fHistAllPt_25eta3 -> Fill(fPt[muonId1]);}
+                            if(fMatchTrig[muonId1] >= 2){fHistLowPt_25eta3 -> Fill(fPt[muonId1]);}
+                          }
 
-                    if(fEta[muonId1] > -3.5 && fEta[muonId1] < -3.0){
-                      if(fMatchTrig[muonId1] >= 1){fHistAllPt_3eta35 -> Fill(fPt[muonId1]);}
-                      if(fMatchTrig[muonId1] >= 2){fHistLowPt_3eta35 -> Fill(fPt[muonId1]);}
-                    }
+                          if(fEta[muonId1] > -3.5 && fEta[muonId1] < -3.0){
+                            if(fMatchTrig[muonId1] >= 1){fHistAllPt_3eta35 -> Fill(fPt[muonId1]);}
+                            if(fMatchTrig[muonId1] >= 2){fHistLowPt_3eta35 -> Fill(fPt[muonId1]);}
+                          }
 
-                    if(fEta[muonId1] > -4.0 && fEta[muonId1] < -3.5){
-                      if(fMatchTrig[muonId1] >= 1){fHistAllPt_35eta4 -> Fill(fPt[muonId1]);}
-                      if(fMatchTrig[muonId1] >= 2){fHistLowPt_35eta4 -> Fill(fPt[muonId1]);}
+                          if(fEta[muonId1] > -4.0 && fEta[muonId1] < -3.5){
+                            if(fMatchTrig[muonId1] >= 1){fHistAllPt_35eta4 -> Fill(fPt[muonId1]);}
+                            if(fMatchTrig[muonId1] >= 2){fHistLowPt_35eta4 -> Fill(fPt[muonId1]);}
+                          }
+                        }
+                      }
                     }
                   }
                 }
-              }
-            }
 
-            muonId0 = 0;
-            muonId1 = 0;
+              muonId0 = 0;
+              muonId1 = 0;
+            }
           }
         }
-      }
+      //}
     }
   }
   printf("\n");
