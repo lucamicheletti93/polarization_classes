@@ -96,10 +96,10 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   gStyle -> SetOptStat(0);
   TGaxis::SetMaxDigits(2);
 
-  //double min_fit_range = 2.1;
-  //double max_fit_range = 4.9;
-  double min_fit_range = 2.2;
-  double max_fit_range = 4.5;
+  double min_fit_range = 2.1;
+  double max_fit_range = 4.9;
+  //double min_fit_range = 2.2;
+  //double max_fit_range = 4.5;
   string tails_fix = "yes";
 
   //============================================================================
