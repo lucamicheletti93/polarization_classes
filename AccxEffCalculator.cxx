@@ -622,9 +622,10 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
     funcPhiTildeHE[i] = new TF1(Form("funcPhiTildeHE_%i",i),"(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*fPi); funcPhiTildeHE[i] -> SetParameter(0,polParHE[0][i]); funcPhiTildeHE[i] -> SetParameter(2,polParHE[2][i]);
 
     funcCosThetaPhiHE[i] = new TF2(Form("funcCosThetaPhiHE_%i",i),MyFuncPol,-1,1,0,fPi,4);
-    funcCosThetaPhiHE[i] -> SetParameter(0,polParHE[0][i]);
-    funcCosThetaPhiHE[i] -> SetParameter(1,polParHE[1][i]);
-    funcCosThetaPhiHE[i] -> SetParameter(2,polParHE[2][i]);
+    funcCosThetaPhiHE[i] -> SetParameter(0,1.);
+    funcCosThetaPhiHE[i] -> SetParameter(1,polParHE[0][i]);
+    funcCosThetaPhiHE[i] -> SetParameter(2,polParHE[1][i]);
+    funcCosThetaPhiHE[i] -> SetParameter(3,polParHE[2][i]);
 
 
     funcCosThetaCS[i] = new TF1(Form("funcCosThetaCS_%i",i),"(1/(3 + [0]))*(1 + [0]*x*x)",-1,1); funcCosThetaCS[i] -> SetParameter(0,polParCS[0][i]);
@@ -632,9 +633,10 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
     funcPhiTildeCS[i] = new TF1(Form("funcPhiTildeCS_%i",i),"(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*fPi); funcPhiTildeCS[i] -> SetParameter(0,polParCS[0][i]); funcPhiTildeCS[i] -> SetParameter(2,polParCS[2][i]);
 
     funcCosThetaPhiCS[i] = new TF2(Form("funcCosThetaPhiCS_%i",i),MyFuncPol,-1,1,0,fPi,4);
-    funcCosThetaPhiCS[i] -> SetParameter(0,polParCS[0][i]);
-    funcCosThetaPhiCS[i] -> SetParameter(1,polParCS[1][i]);
-    funcCosThetaPhiCS[i] -> SetParameter(2,polParCS[2][i]);
+    funcCosThetaPhiCS[i] -> SetParameter(0,1.);
+    funcCosThetaPhiCS[i] -> SetParameter(1,polParCS[0][i]);
+    funcCosThetaPhiCS[i] -> SetParameter(2,polParCS[1][i]);
+    funcCosThetaPhiCS[i] -> SetParameter(3,polParCS[2][i]);
   }
 
   /*TF1 *funcCosThetaHE = new TF1("funcCosThetaHE","(1/(3 + [0]))*(1 + [0]*x*x)",-1,1);
@@ -746,7 +748,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
         fHistGenCosThetaHEReWeighted[indexPt] -> Fill(CosThetaHEGen,weightCosThetaHE);
         fHistGenPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(PhiHEGen),weightPhiHE);
         fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(PhiTildeHEGen,weightPhiTildeHE);
-        fHistGenCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHEGen,PhiHEGen,weightCosThetaPhiHE);
+        fHistGenCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHEGen,TMath::Abs(PhiHEGen),weightCosThetaPhiHE);;
         indexPt = 0;
         // COLLINS-SOPER
         while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
@@ -767,7 +769,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
         fHistGenCosThetaCSReWeighted[indexPt] -> Fill(CosThetaCSGen,weightCosThetaCS);
         fHistGenPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(PhiCSGen),weightPhiCS);
         fHistGenPhiTildeCSReWeighted[indexPt] -> Fill(PhiTildeCSGen,weightPhiTildeCS);
-        fHistGenCosThetaPhiCSReWeighted[indexPt] -> Fill(CosThetaCSGen,PhiCSGen,weightCosThetaPhiCS);
+        fHistGenCosThetaPhiCSReWeighted[indexPt] -> Fill(CosThetaCSGen,TMath::Abs(PhiCSGen),weightCosThetaPhiCS);
         indexPt = 0;
         ////////////////////////////////////////////////////////////////////////
       }
@@ -794,7 +796,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
                 fHistRecCosThetaHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],weightCosThetaHE);
                 fHistRecPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhiHE);
                 fHistRecPhiTildeHEReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeHE);
-                fHistRecCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHERec,PhiHERec,weightCosThetaPhiHE);
+                fHistRecCosThetaPhiHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]),weightCosThetaPhiHE);
                 indexPt = 0;
               }
             }
@@ -813,7 +815,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
                 fHistRecCosThetaCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],weightCosThetaCS);
                 fHistRecPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]),weightPhiCS);
                 fHistRecPhiTildeCSReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeCS);
-                fHistRecCosThetaPhiCSReWeighted[indexPt] -> Fill(CosThetaCSRec,PhiCSRec,weightCosThetaPhiCS);
+                fHistRecCosThetaPhiCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],TMath::Abs(fPhiCSRec[j]),weightCosThetaPhiCS);
                 indexPt = 0;
               }
             }
@@ -836,7 +838,7 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
     fHistAccxEffPhiTildeHEReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
     fHistAccxEffPhiTildeHEReWeighted[i] -> Divide(fHistRecPhiTildeHEReWeighted[i],fHistGenPhiTildeHEReWeighted[i],1,1,"B");
 
-    fHistAccxEffCosThetaPhiHEReWeighted[i] = new TH2D(Form("fHistAccxEffCosThetaPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffCosThetaPhiHEReWeighted[i] = new TH2D(Form("histAccxEffCosThetaPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
     fHistAccxEffCosThetaPhiHEReWeighted[i] -> Divide(fHistRecCosThetaPhiHEReWeighted[i],fHistGenCosThetaPhiHEReWeighted[i],1,1,"B");
 
 
@@ -849,13 +851,13 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
     fHistAccxEffPhiTildeCSReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
     fHistAccxEffPhiTildeCSReWeighted[i] -> Divide(fHistRecPhiTildeCSReWeighted[i],fHistGenPhiTildeCSReWeighted[i],1,1,"B");
 
-    fHistAccxEffCosThetaPhiCSReWeighted[i] = new TH2D(Form("fHistAccxEffCosThetaPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffCosThetaPhiCSReWeighted[i] = new TH2D(Form("histAccxEffCosThetaPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
     fHistAccxEffCosThetaPhiCSReWeighted[i] -> Divide(fHistRecCosThetaPhiCSReWeighted[i],fHistGenCosThetaPhiCSReWeighted[i],1,1,"B");
   }
 
   if(saveFile){
     TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
-    for(int i = 0;i < fNPtBins;i++){
+    for(int i = 1;i < fNPtBins;i++){
       fHistGenCosThetaHEReWeighted[i] -> Write();
       fHistRecCosThetaHEReWeighted[i] -> Write();
       fHistAccxEffCosThetaHEReWeighted[i] -> Write();
@@ -880,7 +882,12 @@ void AccxEffCalculator::ReWeightAccxEff(Double_t polParHE[3][4], Double_t polPar
       fHistRecPhiTildeCSReWeighted[i] -> Write();
       fHistAccxEffPhiTildeCSReWeighted[i] -> Write();
 
+      fHistGenCosThetaPhiHEReWeighted[i] -> Write();
+      fHistRecCosThetaPhiHEReWeighted[i] -> Write();
       fHistAccxEffCosThetaPhiHEReWeighted[i] -> Write();
+
+      fHistGenCosThetaPhiCSReWeighted[i] -> Write();
+      fHistRecCosThetaPhiCSReWeighted[i] -> Write();
       fHistAccxEffCosThetaPhiCSReWeighted[i] -> Write();
     }
     fileAccxEffReWeighted -> Close();
@@ -926,7 +933,7 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
   int indexPt = 0;
 
   TH1D *histReweightTRF_25eta4 = (TH1D*) objArrayReweightTRF -> At(0);
-  TH1D *histReweightTRF_25eta3 = (TH1D*) objArrayReweightTRF -> At(1); 
+  TH1D *histReweightTRF_25eta3 = (TH1D*) objArrayReweightTRF -> At(1);
   TH1D *histReweightTRF_3eta35 = (TH1D*) objArrayReweightTRF -> At(2);
   TH1D *histReweightTRF_35eta4 = (TH1D*) objArrayReweightTRF -> At(3);
 
