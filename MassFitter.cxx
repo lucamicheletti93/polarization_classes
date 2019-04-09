@@ -213,8 +213,16 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       // J/psi width conditions
       if(counterCosTheta == 100 && counterPhi == 100){
+        // J/psi width free
         funcTot -> SetParameter(nParBkg + 2,7.0e-02);
-        funcTot -> SetParLimits(nParBkg + 2,2.0e-02,2.0e-01);}
+        funcTot -> SetParLimits(nParBkg + 2,2.0e-02,2.0e-01);
+        
+        // J/psi width fixed
+        //double fSigmaJpsiFixed = histSigmaJpsiMC -> GetBinContent(1,1);
+        //cout << "J/psi width fixed = " << fSigmaJpsiFixed << endl;
+        //fSigmaJpsiFixed = fScalingFactorJpsiSigma*fSigmaJpsiFixed;
+        //funcTot -> FixParameter(nParBkg + 2,fSigmaJpsiFixed);
+      }
       else{
         double fSigmaJpsiFixed = histSigmaJpsiMC -> GetBinContent(counterCosTheta+1,counterPhi+1);
         cout << fSigmaJpsiFixed << endl;
@@ -356,7 +364,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   TLatex *lat4 = new TLatex(0.55,0.55,title);
   lat4 -> SetTextSize(0.04); lat4 -> SetNDC(); lat4 -> SetTextFont(42);
 
-  sprintf(title,"#chi^{2}/ndf = %3.1f",fChiSquare_NDF);
+  sprintf(title,"#chi^{2}/ndf = %3.1f/%i",(double) funcTot -> GetChisquare(),(int) funcTot -> GetNDF());
   TLatex *lat5 = new TLatex(0.55,0.48,title);
   lat5 -> SetTextSize(0.04); lat5 -> SetNDC(); lat5 -> SetTextFont(42);
 
