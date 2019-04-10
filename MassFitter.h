@@ -16,6 +16,7 @@ class MassFitter : public TObject
 
    void SetScalingFactor(Double_t);
    void SetBinning(vector <Double_t> , vector <Double_t>, vector <Double_t>);
+   void SetFitRange(Double_t , Double_t);
    void fit_of_minv(TH1D *, string, string, int, int, string, string, TH2D *, bool );
 
    Double_t GetNJpsi(){return fNJpsi;}
@@ -31,6 +32,8 @@ class MassFitter : public TObject
    Double_t fPi;
 
    Double_t fScalingFactorJpsiSigma;
+   Double_t fMinFitRange;
+   Double_t fMaxFitRange;
 
    string fFitStatus;
 

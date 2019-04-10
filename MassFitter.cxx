@@ -83,6 +83,11 @@ void MassFitter::SetScalingFactor(Double_t scalingFactor){
     fScalingFactorJpsiSigma = scalingFactor;
 }
 //______________________________________________________________________________
+void MassFitter::SetFitRange(Double_t minFitRange, Double_t maxFitRange){
+    fMinFitRange = minFitRange;
+    fMaxFitRange = maxFitRange; 
+}
+//______________________________________________________________________________
 void MassFitter::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues) {
   for(int i = 0;i < (int) CosThetaValues.size();i++){fCosThetaValues.push_back(CosThetaValues[i]);}
   fNCosThetaBins = fCosThetaValues.size() - 1;
@@ -100,6 +105,10 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   double max_fit_range = 4.9;
   //double min_fit_range = 2.2;
   //double max_fit_range = 4.5;
+
+  min_fit_range = fMinFitRange;
+  max_fit_range = fMaxFitRange;
+
   string tails_fix = "yes";
 
   //============================================================================
@@ -158,8 +167,8 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
 
   if(specialFitConditions){
     histMinv -> Rebin(2);
-    min_fit_range = 2.;
-    max_fit_range = 5.;
+    //min_fit_range = 2.2;
+    //max_fit_range = 4.5;
   }
 
   //============================================================================
