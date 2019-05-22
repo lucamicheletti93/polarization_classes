@@ -85,7 +85,7 @@ void MassFitter::SetScalingFactor(Double_t scalingFactor){
 //______________________________________________________________________________
 void MassFitter::SetFitRange(Double_t minFitRange, Double_t maxFitRange){
     fMinFitRange = minFitRange;
-    fMaxFitRange = maxFitRange; 
+    fMaxFitRange = maxFitRange;
 }
 //______________________________________________________________________________
 void MassFitter::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues) {
@@ -225,7 +225,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
         // J/psi width free
         funcTot -> SetParameter(nParBkg + 2,7.0e-02);
         funcTot -> SetParLimits(nParBkg + 2,2.0e-02,2.0e-01);
-        
+
         // J/psi width fixed
         //double fSigmaJpsiFixed = histSigmaJpsiMC -> GetBinContent(1,1);
         //cout << "J/psi width fixed = " << fSigmaJpsiFixed << endl;
@@ -330,12 +330,12 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   histGridMinv -> GetYaxis() -> SetTitle(Form("Counts per %3.0f MeV/#it{c}^{2}",histMinv -> GetBinWidth(1)*1000));
   histGridMinv -> GetYaxis() -> CenterTitle(true);
   histGridMinv -> GetYaxis() -> SetTitleSize(0.05);
-  histGridMinv -> GetYaxis() -> SetTitleOffset(0.95);
+  histGridMinv -> GetYaxis() -> SetTitleOffset(1.1);
   histGridMinv -> GetYaxis() -> SetLabelSize(0);
 
   TGaxis *axisHistMinv = new TGaxis(2.,1.,2.,max_histo_value,1.,max_histo_value,510,"");
-  axisHistMinv->SetLabelFont(43); // Absolute font size in pixel (precision 3)
-  axisHistMinv->SetLabelSize(25);
+  axisHistMinv -> SetLabelFont(43); // Absolute font size in pixel (precision 3)
+  axisHistMinv -> SetLabelSize(35);
 
   TLine *lineRatio = new TLine(2.,1.,5.,1.0); lineRatio -> SetLineStyle(kDashed); lineRatio -> SetLineWidth(2);
 
@@ -360,7 +360,9 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   sprintf(title,"#it{m}_{J/#psi} = %4.3f #pm %4.3f GeV/#it{c}^{2}",fMassJpsi,fErrMassJpsi);
   TLatex *lat1 = new TLatex(0.5,0.76,title); lat1 -> SetTextSize(0.04); lat1 -> SetNDC(); lat1 -> SetTextFont(42);
 
-  sprintf(title,"#it{#sigma}_{J/#psi} = %3.0f #pm %3.0f MeV/#it{c}^{2}",fSigmaJpsi*1000,fErrSigmaJpsi*1000);
+  //sprintf(title,"#it{#sigma}_{J/#psi} = %3.0f #pm %3.0f MeV/#it{c}^{2}",fSigmaJpsi*1000,fErrSigmaJpsi*1000);
+  //TLatex *lat2 = new TLatex(0.5,0.70,title); lat2 -> SetTextSize(0.04); lat2 -> SetNDC(); lat2 -> SetTextFont(42);
+  sprintf(title,"#it{#sigma}_{J/#psi} = %3.0f MeV/#it{c}^{2}",fSigmaJpsi*1000,fErrSigmaJpsi*1000);
   TLatex *lat2 = new TLatex(0.5,0.70,title); lat2 -> SetTextSize(0.04); lat2 -> SetNDC(); lat2 -> SetTextFont(42);
 
   if(counterCosTheta == 100) sprintf(title,"%2.1f < cos#it{#theta} < %2.1f",-1.,1.);
@@ -378,7 +380,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   lat5 -> SetTextSize(0.04); lat5 -> SetNDC(); lat5 -> SetTextFont(42);
 
   //============================================================================
-  // DRAVING THE TH2D
+  // DRAWING THE TH2D
   //============================================================================
   TH1D *histFuncTot = new TH1D("histFuncTot","",120,2.,5.);
   if(specialFitConditions){histFuncTot -> Rebin(2);}
@@ -402,7 +404,19 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   canvasMinv -> SetFrameBorderMode(0);
   canvasMinv -> SetFrameBorderMode(0);
 
+  histMinv -> SetMarkerStyle(20); histMinv -> SetMarkerSize(0.8); histMinv -> SetMarkerColor(kBlue);
+
+  TLegend *legendMassFit = new TLegend(0.6,0.35,0.77,0.5); legendMassFit -> SetTextSize(0.035); legendMassFit -> SetBorderSize(0);
+  legendMassFit -> AddEntry(histMinv,"Data","LP");
+  legendMassFit -> AddEntry(funcTot,"Total fit","L");
+  legendMassFit -> AddEntry(funcBkgFix,"Background fit","L");
+  legendMassFit -> AddEntry(funcSigJpsiFix,"Signal fit","L");
+
   canvasMinv -> cd();
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Regular test plots
+  /*
   TPad *padHistMinv = new TPad("padHistMinv","padHistMinv",0.,0.25,1.,1.); padHistMinv -> SetBottomMargin(0);
   padHistMinv -> Draw();
   padHistMinv -> cd();
@@ -427,17 +441,46 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   axisRatio -> Draw("same");
   lineRatio -> Draw("same");
   histRatio -> Draw("Esame");
+  */
 
-  string nameHistMinv = (string) histMinv -> GetName() + ".png";
+  //////////////////////////////////////////////////////////////////////////////
+  // Preliminary plots
+  histGridMinv -> GetXaxis() -> SetTitle("#it{m}_{#mu^{#plus}#mu^{#minus}} (GeV/#it{c}^{2})");
+  histGridMinv -> GetXaxis() -> SetTitleSize(0.05);
+  histGridMinv -> GetXaxis() -> SetTitleOffset(1.1);
+  histGridMinv -> GetXaxis() -> SetLabelSize(0.045);
+
+  canvasMinv -> cd();
+  histGridMinv -> Draw();
+  axisHistMinv -> Draw("same");
+  histMinv -> Draw("sameE");
+  funcBkgFix -> Draw("same");
+  funcTot -> Draw("same");
+  funcSigJpsiFix -> Draw("same");
+  TLatex *latexLabel = new TLatex(); latexLabel -> SetTextSize(0.04); latexLabel -> SetNDC(); latexLabel -> SetTextFont(42);
+  latexLabel -> DrawLatex(0.25,0.82,"ALICE Preliminary, Inclusive J/#psi #rightarrow #mu^{#plus}#mu^{#minus}");
+  latexLabel -> DrawLatex(0.25,0.76,"Pb-Pb #sqrt{#it{s}_{NN}} = 5.02 TeV");
+  latexLabel -> DrawLatex(0.25,0.7,"2 < #it{p}_{T} < 4 GeV/#it{c} , 2.5 < #it{y} < 4 , Helicity");
+  lat3 -> Draw();
+  lat4 -> Draw();
+  legendMassFit -> Draw("same");
+  //////////////////////////////////////////////////////////////////////////////
+
+  string nameHistMinv = (string) histMinv -> GetName();
 
   if(strstr(nameHistMinv.c_str(),"HE")){
     if(strstr(outputDir.c_str(),"BadFit")){canvasMinv -> SaveAs(Form("%s/%s",outputDir.c_str(),nameHistMinv.c_str()));}
-    else{canvasMinv -> SaveAs(Form("%s/Helicity/%s_%s/%s",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));}
+    //else{canvasMinv -> SaveAs(Form("%s/Helicity/%s_%s/%s",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));}
+    else{
+      canvasMinv -> SaveAs(Form("%s/%s_%s_%s.png",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));
+      canvasMinv -> SaveAs(Form("%s/%s_%s_%s.pdf",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));
+    }
     canvasMinv -> Close();
   }
   if(strstr(nameHistMinv.c_str(),"CS")){
     if(strstr(outputDir.c_str(),"BadFit")){canvasMinv -> SaveAs(Form("%s/%s",outputDir.c_str(),nameHistMinv.c_str()));}
-    else{canvasMinv -> SaveAs(Form("%s/Collins_Soper/%s_%s/%s",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));}
+    //else{canvasMinv -> SaveAs(Form("%s/Collins_Soper/%s_%s/%s",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));}
+    else{canvasMinv -> SaveAs(Form("%s/%s_%s_%s.png",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));}
     canvasMinv -> Close();
   }
 
@@ -445,6 +488,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   delete histMinvBkg, histMinv;
   delete funcBkg, funcSigJpsi, funcTot, funcBkgFix, funcSigJpsiFix;
   delete lat0, lat1, lat2, lat3, lat4, lat5;
-  delete axisHistMinv, lineRatio, axisRatio, padHistMinv, padRatio;
+  //delete axisHistMinv, lineRatio, axisRatio, padHistMinv, padRatio;
+  delete axisHistMinv, lineRatio, axisRatio;
   delete canvasMinv;
 }
