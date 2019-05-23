@@ -416,7 +416,6 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
 
   //////////////////////////////////////////////////////////////////////////////
   // Regular test plots
-  /*
   TPad *padHistMinv = new TPad("padHistMinv","padHistMinv",0.,0.25,1.,1.); padHistMinv -> SetBottomMargin(0);
   padHistMinv -> Draw();
   padHistMinv -> cd();
@@ -441,10 +440,10 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   axisRatio -> Draw("same");
   lineRatio -> Draw("same");
   histRatio -> Draw("Esame");
-  */
 
   //////////////////////////////////////////////////////////////////////////////
   // Preliminary plots
+  /*
   histGridMinv -> GetXaxis() -> SetTitle("#it{m}_{#mu^{#plus}#mu^{#minus}} (GeV/#it{c}^{2})");
   histGridMinv -> GetXaxis() -> SetTitleSize(0.05);
   histGridMinv -> GetXaxis() -> SetTitleOffset(1.1);
@@ -464,6 +463,7 @@ void MassFitter::fit_of_minv(TH1D *histMinv, string sigShape, string bkgShape, i
   lat3 -> Draw();
   lat4 -> Draw();
   legendMassFit -> Draw("same");
+  */
   //////////////////////////////////////////////////////////////////////////////
 
   string nameHistMinv = (string) histMinv -> GetName();
