@@ -33,6 +33,9 @@ public:
   string GetFitStatus(){return fFitStatus;}
 
 private:
+  void PlotStandard(Bool_t);
+  void PlotPublications(Bool_t);
+
   TH1D*                  fHistMinv;
   TH1D*                  fHistJpsiWidth;
   Bool_t                 fSpecialFitConditions;
@@ -61,6 +64,17 @@ private:
   vector <Double_t>      fPhiValues;
   Int_t                  fNPhiTildeBins;
   vector <Double_t>      fPhiTildeValues;
+
+  TF1*                   fFuncBkgFix;
+  TF1*                   fFuncSigJpsiFix;
+  TF1*                   fFuncTot;
+
+  string                 fSigShape;
+  string                 fBkgShape;
+  string                 fOutputDir;
+
+  string                 fPlotType;
+  Bool_t                 fSavePlot;
 
 ClassDef(MassFitter_2,1)
 };
