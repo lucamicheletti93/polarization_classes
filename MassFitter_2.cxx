@@ -64,14 +64,13 @@ MassFitter_2::MassFitter_2(): TObject() {
 //______________________________________________________________________________
 MassFitter_2::MassFitter_2(TH1D *histMinv): TObject() {
   fHistMinv = histMinv;
-  fHistJpsiWidth = 0;
+  fScalingFactorJpsiSigma = 1.;
   fSpecialFitConditions = kFALSE;
   fJpsiWidthFixed = kFALSE;
   fTailParametersFixed = kTRUE;
   fIndexCosTheta = 100;
   fIndexPhi = 100;
-  fPlotType = "STANDARD";
-  fSavePlot = kTRUE;
+  fRebin = 1;
   // standard constructor
 }
 //______________________________________________________________________________
@@ -88,8 +87,9 @@ void MassFitter_2::SetFitRange(Double_t minFitRange, Double_t maxFitRange){
     fMaxFitRange = maxFitRange;
 }
 //______________________________________________________________________________
-void MassFitter_2::SetSpecialFitConditions(){
+void MassFitter_2::SetSpecialFitConditions(Int_t rebin){
     fSpecialFitConditions = kTRUE;
+    fRebin = rebin;
 }
 //______________________________________________________________________________
 void MassFitter_2::SetJpsiWidth(Double_t sigmaJpsi){
@@ -111,13 +111,16 @@ void MassFitter_2::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t
   fNPhiTildeBins = fPhiTildeValues.size() - 1;
 }
 //______________________________________________________________________________
-void MassFitter_2::fit_of_minv(string sigShape, string bkgShape, string outputDir){
+void MassFitter_2::fit_of_minv(string sigShape, string bkgShape, string outputDir, string plotType, Bool_t savePlot){
   gStyle -> SetOptStat(0);
   TGaxis::SetMaxDigits(2);
 
   fSigShape = sigShape;
   fBkgShape = bkgShape;
   fOutputDir = outputDir;
+
+  fPlotType = plotType;
+  fSavePlot = savePlot;
 
   double min_fit_range = fMinFitRange;
   double max_fit_range = fMaxFitRange;
@@ -177,7 +180,7 @@ void MassFitter_2::fit_of_minv(string sigShape, string bkgShape, string outputDi
   }
 
   if(fSpecialFitConditions){
-    fHistMinv -> Rebin(2);
+    fHistMinv -> Rebin(fRebin);
     //min_fit_range = 2.2;
     //max_fit_range = 4.5;
   }
@@ -306,6 +309,8 @@ void MassFitter_2::fit_of_minv(string sigShape, string bkgShape, string outputDi
   fFuncSigJpsiFix -> SetNpx(1000);
   for(int i = 0;i < nParSig + nParTails;i++){fFuncSigJpsiFix -> SetParameter(i,fFuncTot -> GetParameter(nParBkg + i));}
   fFuncSigJpsiFix -> SetLineStyle(2);
+  fFuncSigJpsiFix -> SetFillStyle(3001);
+  fFuncSigJpsiFix -> SetFillColor(kRed);
   fFuncSigJpsiFix -> Draw("same");
 
   fMassJpsi = fFuncTot -> GetParameter(nParBkg + 1);
@@ -375,7 +380,7 @@ void MassFitter_2::PlotStandard(bool savePlot){
   // DRAWING...
   //============================================================================
   TH1D *histFuncTot = new TH1D("histFuncTot","",120,2.,5.);
-  if(fSpecialFitConditions){histFuncTot -> Rebin(2);}
+  if(fSpecialFitConditions){histFuncTot -> Rebin(fRebin);}
   for(int i = 0;i < 120;i++){
     histFuncTot -> SetBinContent(i+1,fFuncTot -> Eval(histFuncTot -> GetBinCenter(i+1)));
     histFuncTot -> SetBinError(i+1,0.);
