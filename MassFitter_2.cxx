@@ -87,9 +87,10 @@ void MassFitter_2::SetFitRange(Double_t minFitRange, Double_t maxFitRange){
     fMaxFitRange = maxFitRange;
 }
 //______________________________________________________________________________
-void MassFitter_2::SetSpecialFitConditions(Int_t rebin){
+void MassFitter_2::SetSpecialFitConditions(Int_t rebin, Bool_t jpsiMassFixedToPDG){
     fSpecialFitConditions = kTRUE;
     fRebin = rebin;
+    fJpsiMassFixedToPDG = jpsiMassFixedToPDG;
 }
 //______________________________________________________________________________
 void MassFitter_2::SetJpsiWidth(Double_t sigmaJpsi){
@@ -226,7 +227,7 @@ void MassFitter_2::fit_of_minv(string sigShape, string bkgShape, string outputDi
 
       fFuncTot -> SetParameter(nParBkg + 0,funcSigJpsi -> GetParameter(nParBkg));
       fFuncTot -> SetParLimits(nParBkg + 0,0,10000000);
-      if(fSpecialFitConditions){
+      if(fJpsiMassFixedToPDG){
         fFuncTot -> FixParameter(nParBkg + 1,3.096);
       }
       else{
@@ -254,7 +255,6 @@ void MassFitter_2::fit_of_minv(string sigShape, string bkgShape, string outputDi
 
   fChiSquare_NDF = fFuncTot -> GetChisquare()/fFuncTot -> GetNDF();
 
-  //printf("\n\nfit status: %s \n\n",gMinuit.fCstatu.Data());
   if(gMinuit -> fCstatu.Contains("FAILED")){
     cout << "WARNING : FIT STATUS FAILED" << endl;
     fFitStatus = "FAILED";

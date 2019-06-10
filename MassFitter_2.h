@@ -18,7 +18,7 @@ public:
   void SetScalingFactor(Double_t);
   void SetBinning(vector <Double_t> , vector <Double_t>, vector <Double_t>);
   void SetFitRange(Double_t , Double_t);
-  void SetSpecialFitConditions(Int_t);
+  void SetSpecialFitConditions(Int_t, Bool_t);
   void SetJpsiWidth(Double_t);
   void SetCosThetaPhiIndex(Int_t, Int_t);
   void fit_of_minv(string, string, string, string, Bool_t);
@@ -39,6 +39,7 @@ private:
   TH1D*                  fHistMinv;
   Bool_t                 fSpecialFitConditions;
   Bool_t                 fJpsiWidthFixed;
+  Bool_t                 fJpsiMassFixedToPDG;
   Bool_t                 fTailParametersFixed;
 
   Int_t                  fIndexCosTheta;
