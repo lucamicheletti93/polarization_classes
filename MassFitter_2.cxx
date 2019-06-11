@@ -435,7 +435,7 @@ void MassFitter_2::PlotStandard(bool savePlot){
   if(fIndexPhi == 100) letexTitle -> DrawLatex(0.6,0.55,"0 < |#it{#varphi}| < #pi rad");
   else{letexTitle -> DrawLatex(0.6,0.55,Form("%3.2f < |#it{#varphi}| < %3.2f rad",fPhiValues[fIndexPhi],fPhiValues[fIndexPhi+1]));}
   letexTitle -> DrawLatex(0.6,0.48,Form("#chi^{2}/ndf = %3.1f/%i",(double) fFuncTot -> GetChisquare(),(int) fFuncTot -> GetNDF()));
-
+  if(fChiSquare_NDF > 2. || fMassJpsi < 3.){letexTitle -> DrawLatex(0.6,0.41,"#color[2]{BAD FIT}");}
   canvasMinv -> cd();
   TPad *padRatio = new TPad("padRatio","padRatio",0.,0.05,1.,0.25); padRatio -> SetTopMargin(0); padRatio -> SetBottomMargin(0.25);
   padRatio -> Draw();
