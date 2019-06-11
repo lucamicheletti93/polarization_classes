@@ -222,6 +222,7 @@ void MassFitter_2::fit_of_minv(string sigShape, string bkgShape, string outputDi
 
   TFitResultPtr fit_ptr;
   for(int i = 0;i < 100;i++){
+    //cout << i << " " << fFuncTot -> GetParameter(nParBkg + 1) << " " << fFuncTot -> GetParameter(nParBkg + 2) << endl;
     if(i == 0){
       for(int i = 0;i < nParBkg;i++){fFuncTot -> SetParameter(i,funcBkg -> GetParameter(i));}
 
@@ -448,12 +449,12 @@ void MassFitter_2::PlotStandard(bool savePlot){
 
   if(savePlot){
     if(strstr(nameHistMinv.c_str(),"HE")){
-      if(strstr(fOutputDir.c_str(),"BadFit")){canvasMinv -> SaveAs(Form("%s/%s",fOutputDir.c_str(),nameHistMinv.c_str()));}
+      if(strstr(fOutputDir.c_str(),"BadFit")){canvasMinv -> SaveAs(Form("%s/%s.png",fOutputDir.c_str(),nameHistMinv.c_str()));}
       else{canvasMinv -> SaveAs(Form("%s/Helicity/%s_%s/%s.png",fOutputDir.c_str(),fSigShape.c_str(),fBkgShape.c_str(),nameHistMinv.c_str()));}
       canvasMinv -> Close();
     }
     if(strstr(nameHistMinv.c_str(),"CS")){
-      if(strstr(fOutputDir.c_str(),"BadFit")){canvasMinv -> SaveAs(Form("%s/%s",fOutputDir.c_str(),nameHistMinv.c_str()));}
+      if(strstr(fOutputDir.c_str(),"BadFit")){canvasMinv -> SaveAs(Form("%s/%s.png",fOutputDir.c_str(),nameHistMinv.c_str()));}
       else{canvasMinv -> SaveAs(Form("%s/Collins_Soper/%s_%s/%s.png",fOutputDir.c_str(),fSigShape.c_str(),fBkgShape.c_str(),nameHistMinv.c_str()));}
       canvasMinv -> Close();
     }
