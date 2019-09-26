@@ -189,9 +189,24 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gr34 -> Draw("alp");
   */
 
+  TCanvas *canvasHistFitSim_CosTheta = new TCanvas("canvasHistFitSim_CosTheta","canvasHistFitSim_CosTheta",600,600);
+  gHistFit[0] -> Draw("EP"); gFuncFit[0] -> Draw("same");
+  latexTitle -> DrawLatex(0.2,5000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+
+  TCanvas *canvasHistFitSim_Phi = new TCanvas("canvasHistFitSim_Phi","canvasHistFitSim_Phi",600,600);
+  gHistFit[1] -> Draw("EP"); gFuncFit[1] -> Draw("same");
+  latexTitle -> DrawLatex(1.,2000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+
+  TCanvas *canvasHistFitSim_PhiTilde = new TCanvas("canvasHistFitSim_PhiTilde","canvasHistFitSim_PhiTilde",600,600);
+  gHistFit[2] -> Draw("EP"); gFuncFit[2] -> Draw("same");
+  latexTitle -> DrawLatex(2.,1000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+
   if(saveCanvas){
     canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
     //canvasContour -> SaveAs(Form("%s_contour.png",nameCanvas.c_str()));
+    canvasHistFitSim_CosTheta -> SaveAs(Form("%s_CosTheta.png",nameCanvas.c_str()));
+    canvasHistFitSim_Phi -> SaveAs(Form("%s_Phi.png",nameCanvas.c_str()));
+    canvasHistFitSim_PhiTilde -> SaveAs(Form("%s_PhiTilde.png",nameCanvas.c_str()));
   }
   delete canvasHistFit;
 }
@@ -437,7 +452,7 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   }
   canvasHistFit -> Update();
 
-  /*TCanvas *canvasHistFit_CosTheta = new TCanvas("canvasHistFit_CosTheta","canvasHistFit_CosTheta",600,600);
+  TCanvas *canvasHistFit_CosTheta = new TCanvas("canvasHistFit_CosTheta","canvasHistFit_CosTheta",600,600);
   gHistFit[0] -> Draw("EP"); gFuncFit[0] -> Draw("same");
   latexTitle -> DrawLatex(0.2,5000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
 
@@ -447,13 +462,13 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
 
   TCanvas *canvasHistFit_PhiTilde = new TCanvas("canvasHistFit_PhiTilde","canvasHistFit_PhiTilde",600,600);
   gHistFit[2] -> Draw("EP"); gFuncFit[2] -> Draw("same");
-  latexTitle -> DrawLatex(2.,1000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));*/
+  latexTitle -> DrawLatex(2.,1000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
 
   if(saveCanvas){
     canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
-    //canvasHistFit_CosTheta -> SaveAs(Form("%s_CosTheta.png",nameCanvas.c_str()));
-    //canvasHistFit_Phi -> SaveAs(Form("%s_Phi.png",nameCanvas.c_str()));
-    //canvasHistFit_PhiTilde -> SaveAs(Form("%s_PhiTilde.png",nameCanvas.c_str()));
+    canvasHistFit_CosTheta -> SaveAs(Form("%s_CosTheta.png",nameCanvas.c_str()));
+    canvasHistFit_Phi -> SaveAs(Form("%s_Phi.png",nameCanvas.c_str()));
+    canvasHistFit_PhiTilde -> SaveAs(Form("%s_PhiTilde.png",nameCanvas.c_str()));
   }
   delete canvasHistFit;
 }
