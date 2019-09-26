@@ -17,6 +17,7 @@
 #include "TF2.h"
 #include "TFile.h"
 #include "TLatex.h"
+#include "TGraph.h"
 #include <vector>
 #include "TMatrixD.h"
 
@@ -45,6 +46,13 @@ vector <Double_t> gCosThetaValues;
 vector <Double_t> gPhiValues;
 vector <Double_t> gPhiTildeValues;
 
+Int_t    gMinFitRangeCosTheta;
+Int_t    gMinFitRangePhi;
+Int_t    gMinFitRangePhiTilde;
+Int_t    gMaxFitRangeCosTheta;
+Int_t    gMaxFitRangePhi;
+Int_t    gMaxFitRangePhiTilde;
+
 Double_t funcCosTheta(Double_t , Double_t *);
 Double_t funcPhi(Double_t , Double_t *);
 Double_t funcPhiTilde(Double_t , Double_t *);
@@ -72,6 +80,15 @@ void SpecialFitCalculator::SetBinning(vector <Double_t> CosThetaValues, vector <
   gNPhiTildeBins = gPhiTildeValues.size() - 1;
 }
 //______________________________________________________________________________
+void SpecialFitCalculator::SetFitRange(Int_t minFitRange[], Int_t maxFitRange[]) {
+  gMinFitRangeCosTheta = minFitRange[0];
+  gMinFitRangePhi = minFitRange[1];
+  gMinFitRangePhiTilde = minFitRange[2];
+  gMaxFitRangeCosTheta = maxFitRange[0];
+  gMaxFitRangePhi = maxFitRange[1];
+  gMaxFitRangePhiTilde = maxFitRange[2];
+}
+//______________________________________________________________________________
 void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
   printf("\n------------------------------------------------------------------------\n");
   printf("This object allows you to compute simultaneous fit with 3 distributions \n");
@@ -89,8 +106,9 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
     cout << i << ") ndf = " << gHistFit[i] -> GetSize() << endl;
   }
   cout << "ndf = " << ndf << endl;
+  gHistFit[0] -> SetAxisRange(0.,0.7);
 
-  TCanvas *canvasHistFit = new TCanvas("canvasHistFit");
+  TCanvas *canvasHistFit = new TCanvas("canvasHistFit","canvasHistFit",1400,600);
   canvasHistFit -> Divide(gNDistrib,1);
   for(int i = 0;i < gNDistrib;i++){
     canvasHistFit -> cd(i+1);
@@ -137,6 +155,8 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   minuit -> GetParameter(4,fLambdaPhi,fErrorLambdaPhi);
   minuit -> GetParameter(5,fLambdaThetaPhi,fErrorLambdaThetaPhi);
 
+  fGraContour_lambdaTheta_lambdaPhi = (TGraph*) minuit -> Contour(40,3,4);
+
   gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
   gFuncFit[0] -> SetParameter(0,normCosTheta);
   gFuncFit[0] -> SetParameter(1,fLambdaTheta);
@@ -151,14 +171,27 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gFuncFit[2] -> SetParameter(1,fLambdaTheta);
   gFuncFit[2] -> SetParameter(2,fLambdaThetaPhi);
 
+  TLatex *latexTitle = new TLatex(); TLatex *letexTitle = new TLatex(); letexTitle -> SetTextSize(0.04); letexTitle -> SetNDC(); letexTitle -> SetTextFont(42);
+
   for(int i = 0;i < gNDistrib;i++){
     canvasHistFit -> cd(i+1);
     gFuncFit[i] -> Draw("same");
+    if(i == 0){latexTitle -> DrawLatex(0.2,18000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));}
+    if(i == 1){latexTitle -> DrawLatex(1.,9000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));}
+    if(i == 2){latexTitle -> DrawLatex(2.,5000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));}
   }
   canvasHistFit -> Update();
 
+  /*
+  TH2D *histGridContour = new TH2D("histGridContour","histGridContour",100,-1.,1.,100,-1.,1.);
+  TCanvas *canvasContour = new TCanvas("canvasContour","canvasContour",600,600);
+  histGridContour -> Draw();
+  gr34 -> Draw("alp");
+  */
+
   if(saveCanvas){
     canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
+    //canvasContour -> SaveAs(Form("%s_contour.png",nameCanvas.c_str()));
   }
   delete canvasHistFit;
 }
@@ -221,7 +254,7 @@ void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, st
   minuit -> mnparm(8,"lambdaThetaCS",0.,0.001,-1.,1.,ierflg);
   minuit -> mnparm(9,"lambdaThetaPhiCS",0.,0.001,-1.,1.,ierflg);
   minuit -> mnparm(10,"lambdaTilde",0.,0.001,-0.5,0.5,ierflg);
-  
+
 
   arglist[0] = 500;
   arglist[1] = 1.;
@@ -234,13 +267,13 @@ void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, st
   Int_t nvpar, nparx, icstat;
   minuit -> mnstat(amin,edm,errdef,nvpar,nparx,icstat);
   minuit -> mnprin(11,amin);
-  
+
   /*
   Double_t normCosTheta, errNormCosTheta;
   Double_t normPhi, errNormPhi;
   Double_t normPhiTilde, errNormPhiTilde;
   */
-  
+
   Double_t normCosThetaHE, errNormCosThetaHE;
   Double_t normPhiHE, errNormPhiHE;
   Double_t normPhiTildeHE, errNormPhiTildeHE;
@@ -248,7 +281,7 @@ void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, st
   Double_t normCosThetaCS, errNormCosThetaCS;
   Double_t normPhiCS, errNormPhiCS;
   Double_t normPhiTildeCS, errNormPhiTildeCS;
-  
+
   /*
   minuit -> GetParameter(0,normCosTheta,errNormCosTheta);
   minuit -> GetParameter(1,normPhi,errNormPhi);
@@ -259,7 +292,7 @@ void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, st
   minuit -> GetParameter(6,fLambdaThetaPhiCS,fErrorLambdaThetaPhiCS);
   minuit -> GetParameter(7,fLambdaTilde,fErrorLambdaTilde);
   */
-  
+
   minuit -> GetParameter(0,normCosThetaHE,errNormCosThetaHE);
   minuit -> GetParameter(1,normPhiHE,errNormPhiHE);
   minuit -> GetParameter(2,normPhiTildeHE,errNormPhiTildeHE);
@@ -271,7 +304,7 @@ void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, st
   minuit -> GetParameter(8,fLambdaThetaCS,fErrorLambdaThetaCS);
   minuit -> GetParameter(9,fLambdaThetaPhiCS,fErrorLambdaThetaPhiCS);
   minuit -> GetParameter(10,fLambdaTilde,fErrorLambdaTilde);
-  
+
 
   fLambdaPhiHE = (fLambdaTilde - fLambdaThetaHE)/(fLambdaTilde + 3);
   fLambdaPhiCS = (fLambdaTilde - fLambdaThetaCS)/(fLambdaTilde + 3);
@@ -341,16 +374,16 @@ void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, st
     gFuncBarbFit[i] -> Draw("same");
   }
   canvasHistFit -> Update();
-  
-  
+
+
   if(saveCanvas){
     canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
   }
-  
+
   delete canvasHistFit;
 }
 //______________________________________________________________________________
-void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
+void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas, double minFitRange, double maxFitRange) {
   printf("\n------------------------------------------------------------------------\n");
   printf("This object allows you to compute decoupled fit with 3 distributions \n");
   printf("If the class doesn't work REMEMBER to use the SetBinning() method! \n");
@@ -361,7 +394,7 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   cout << "n distributions = " << gNDistrib << endl;
 
   for(int i = 0;i < gNDistrib;i++){
-    gHistFit[i] = (TH1D*) data -> At(i); gHistFit[i] -> SetMarkerStyle(20); gHistFit[i] -> SetMarkerSize(0.8);
+    gHistFit[i] = (TH1D*) data -> At(i); gHistFit[i] -> SetMarkerStyle(20); gHistFit[i] -> SetMarkerSize(0.8); gHistFit[i] -> SetMarkerColor(kBlack); gHistFit[i] -> SetLineColor(kBlack);
     gHistFit[i] -> SetName(Form("Distrib%i",i));
     ndf += gHistFit[i] -> GetSize();
     cout << i << ") ndf = " << gHistFit[i] -> GetSize() << endl;
@@ -376,7 +409,7 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   }
   canvasHistFit -> Update();
 
-  gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",-1.,1.);
+  gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",minFitRange,maxFitRange);
   gHistFit[0] -> Fit(gFuncFit[0],"R0IQ");
 
   gFuncFit[1] = new TF1("gFuncFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
@@ -394,14 +427,33 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   fLambdaThetaPhi = gFuncFit[2] -> GetParameter(2);
   fErrorLambdaThetaPhi = gFuncFit[2] -> GetParError(2);
 
+  TLatex *latexTitle = new TLatex(); TLatex *letexTitle = new TLatex(); letexTitle -> SetTextSize(0.04); letexTitle -> SetNDC(); letexTitle -> SetTextFont(42);
   for(int i = 0;i < gNDistrib;i++){
     canvasHistFit -> cd(i+1);
     gFuncFit[i] -> Draw("same");
+    if(i == 0){latexTitle -> DrawLatex(0.2,18000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));}
+    if(i == 1){latexTitle -> DrawLatex(1.,9000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));}
+    if(i == 2){latexTitle -> DrawLatex(2.,5000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));}
   }
   canvasHistFit -> Update();
 
+  /*TCanvas *canvasHistFit_CosTheta = new TCanvas("canvasHistFit_CosTheta","canvasHistFit_CosTheta",600,600);
+  gHistFit[0] -> Draw("EP"); gFuncFit[0] -> Draw("same");
+  latexTitle -> DrawLatex(0.2,5000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+
+  TCanvas *canvasHistFit_Phi = new TCanvas("canvasHistFit_Phi","canvasHistFit_Phi",600,600);
+  gHistFit[1] -> Draw("EP"); gFuncFit[1] -> Draw("same");
+  latexTitle -> DrawLatex(1.,2000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+
+  TCanvas *canvasHistFit_PhiTilde = new TCanvas("canvasHistFit_PhiTilde","canvasHistFit_PhiTilde",600,600);
+  gHistFit[2] -> Draw("EP"); gFuncFit[2] -> Draw("same");
+  latexTitle -> DrawLatex(2.,1000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));*/
+
   if(saveCanvas){
     canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
+    //canvasHistFit_CosTheta -> SaveAs(Form("%s_CosTheta.png",nameCanvas.c_str()));
+    //canvasHistFit_Phi -> SaveAs(Form("%s_Phi.png",nameCanvas.c_str()));
+    //canvasHistFit_PhiTilde -> SaveAs(Form("%s_PhiTilde.png",nameCanvas.c_str()));
   }
   delete canvasHistFit;
 }
@@ -438,8 +490,25 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
 
   Double_t func = 0, pull = 0, chiSquare = 0;
 
-  Int_t fitBinMin[3] = {2,0,0};
-  Int_t fitBinMax[3] = {4,2,2};
+  // for Jpsi
+  //Int_t fitBinMin[3] = {2,0,0};
+  //Int_t fitBinMax[3] = {4,2,2};
+  // for Upsilon
+  Int_t fitBinMin[3];
+  Int_t fitBinMax[3];
+
+  fitBinMin[0] = gMinFitRangeCosTheta;
+  fitBinMin[1] = gMinFitRangePhi;
+  fitBinMin[2] = gMinFitRangePhiTilde;
+
+  fitBinMax[0] = gMaxFitRangeCosTheta;
+  fitBinMax[1] = gMaxFitRangePhi;
+  fitBinMax[2] = gMaxFitRangePhiTilde;
+
+  //cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
+  //cout << gMinFitRangeCosTheta << " " << gMinFitRangePhi << " " << gMinFitRangePhiTilde << endl;
+  //cout << gMaxFitRangeCosTheta << " " << gMaxFitRangePhi << " " << gMaxFitRangePhiTilde << endl;
+  //cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
 
   for(int i = 0;i < gNDistrib;i++){
     for(int j = fitBinMin[i];j < gHistFit[i] -> GetSize() - fitBinMax[i];j++){
@@ -532,12 +601,16 @@ void polarizationBarbatruccoFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare
   parPhiTildeCS[0] = par[7];
   parPhiTildeCS[1] = par[8];
   parPhiTildeCS[2] = par[9];
-  
+
 
   Double_t func = 0, pull = 0, chiSquare = 0;
 
-  Int_t fitBinMin[6] = {2,0,0,2,0,0};
-  Int_t fitBinMax[6] = {4,2,2,4,2,2};
+  // J/psi
+  //Int_t fitBinMin[6] = {2,0,0,2,0,0};
+  //Int_t fitBinMax[6] = {4,2,2,4,2,2};
+  // Upsilon(1S)
+  Int_t fitBinMin[6] = {0,0,0,0,0,0};
+  Int_t fitBinMax[6] = {3,2,2,3,2,2};
 
   for(int i = 0;i < gNDistrib;i++){
     //for(int j = fitBinMin[i];j < gHistBarbFit[i] -> GetSize() - fitBinMax[i];j++){

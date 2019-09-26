@@ -67,6 +67,7 @@ MassFitter_2::MassFitter_2(TH1D *histMinv): TObject() {
   fScalingFactorJpsiSigma = 1.;
   fSpecialFitConditions = kFALSE;
   fJpsiWidthFixed = kFALSE;
+  fJpsiMassFixedToPDG = kFALSE;
   fTailParametersFixed = kTRUE;
   fIndexCosTheta = 100;
   fIndexPhi = 100;

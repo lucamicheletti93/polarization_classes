@@ -5,6 +5,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
+#include "TGraph.h"
 #include <string>
 #include <vector>
 #include "TMatrixD.h"
@@ -17,9 +18,10 @@ class SpecialFitCalculator : public TObject
    virtual ~SpecialFitCalculator();                                             // Destructor
 
    void SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues);
+   void SetFitRange(Int_t [], Int_t []);
    void SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
    void BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
-   void DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
+   void DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas, double minFitrange, double maxFitRange);
 
    vector <Double_t> GetCosThetaParametersList();
    vector <Double_t> GetErrorCosThetaParametersList();
@@ -46,6 +48,8 @@ class SpecialFitCalculator : public TObject
    Double_t GetErrorLambdaPhiCS(){return fErrorLambdaPhiCS;};
    Double_t GetLambdaThetaPhiCS(){return fLambdaThetaPhiCS;};
    Double_t GetErrorLambdaThetaPhiCS(){return fErrorLambdaThetaPhiCS;};
+
+   TGraph*  GetContour_lambdaTheta_lambdaPhi(){return fGraContour_lambdaTheta_lambdaPhi;}
 
  private:
 
@@ -82,14 +86,14 @@ class SpecialFitCalculator : public TObject
 
    Double_t fLambdaTilde, fErrorLambdaTilde;
 
-
-
    vector <Double_t> fCosThetaParametersList;
    vector <Double_t> fErrorCosThetaParametersList;
    vector <Double_t> fPhiParametersList;
    vector <Double_t> fErrorPhiParametersList;
    vector <Double_t> fPhiTildeParametersList;
    vector <Double_t> fErrorPhiTildeParametersList;
+
+   TGraph *fGraContour_lambdaTheta_lambdaPhi;
 
    // Global variables
    Double_t gPi;

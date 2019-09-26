@@ -327,9 +327,11 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
     for(int j = 0;j < fNCostBins;j++){
       for(int k = 0;k < fNPhiBins;k++){
+        //cout << fCostBinsMin[j] << " - " << fCostBinsMax[j] << " " << fPhiBinsMin[k] << " - " << fPhiBinsMax[k] << endl;
         THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
         histNVarHEClone -> GetAxis(2) -> SetRange(fCostBinsMin[j],fCostBinsMax[j]); // cut in CosTheta
         histNVarHEClone -> GetAxis(3) -> SetRange(fPhiBinsMin[k],fPhiBinsMax[k]); // cut in Phi
+
         TH1D *histMassCosThetaPhiHE = (TH1D*) histNVarHEClone -> Projection(1);
         histMassCosThetaPhiHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_CosTheta_%3.2f__%3.2f_Phi_%3.2f",fMinPt[i],fMaxPt[i],fCostValues[j],fCostValues[j+1],fPhiValues[k],fPhiValues[k+1]));
         delete histMassCosThetaPhiHE;
