@@ -270,7 +270,7 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
 
   TFile *fileOutput = new TFile(nameOutputFile.c_str(),"RECREATE");
   for(int i = 1;i < (int) fMinPt.size() - 1;i++){
-    printf("Processing %f < pT < %f ... \n",fMinPt,fMaxPt);
+    printf("Processing %f < pT < %f ... \n",fMinPt[i],fMaxPt[i]);
     /*if(i == 1){
      fHistNVarHE -> GetAxis(0) -> SetRange(fHistNVarHE -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarHE -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
      fHistNVarCS -> GetAxis(0) -> SetRange(fHistNVarCS -> GetAxis(0) -> FindBin(fMinPt[i]),fHistNVarCS -> GetAxis(0) -> FindBin(fMaxPt[i])); // cut in pT
