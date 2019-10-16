@@ -19,7 +19,7 @@ Double_t Func_POL4EXP(Double_t *x, Double_t *par){
 //==============================================================================
 // J/psi
 //==============================================================================
-Double_t Func_Jpsi_CB2(Double_t *x, Double_t *par){
+Double_t Func_Jpsi_CB2_VWG(Double_t *x, Double_t *par){
   Double_t t = (x[0] - par[5])/par[6];
   if (par[7] < 0){t = -t;}
 
@@ -138,7 +138,7 @@ Double_t Func_Jpsi_NA60_fix(Double_t *x, Double_t *par){
 //==============================================================================
 // Psi(2S)
 //==============================================================================
-Double_t Func_Psi2S_CB2(Double_t *x, Double_t *par){
+Double_t Func_Psi2S_CB2_VWG(Double_t *x, Double_t *par){
   Double_t t = (x[0] - (par[5]+(3.686097-3.0969)))/(par[6]*1.05154);
   if (par[7] < 0){t = -t;}
 
@@ -258,7 +258,7 @@ Double_t Func_Psi2S_NA60_fix(Double_t *x, Double_t *par){
 // Total functions
 //==============================================================================
 Double_t Func_tot_CB2_VWG(Double_t *x, Double_t *par){
-  return Func_VWG(x,par) + Func_Jpsi_CB2(x,par) + Func_Psi2S_CB2(x,par);
+  return Func_VWG(x,par) + Func_Jpsi_CB2_VWG(x,par) + Func_Psi2S_CB2_VWG(x,par);
 }
 //------------------------------------------------------------------------------
 Double_t Func_tot_CB2_POL4EXP(Double_t *x, Double_t *par){
