@@ -22,7 +22,7 @@ public:
   void SetSpecialFitConditions(Int_t, Bool_t);
   void SetJpsiWidth(Double_t);
   void SetCosThetaPhiIndex(Int_t, Int_t);
-  void fit_of_minv(string, string, string, string, Bool_t);
+  void fit_of_minv(string, string, string, string, Bool_t, Bool_t);
 
   Double_t GetNJpsi(){return fNJpsi;}
   Double_t GetStatJpsi(){return fStatJpsi;}

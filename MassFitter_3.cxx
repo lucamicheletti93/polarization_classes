@@ -40,13 +40,13 @@
 // List of fitting-functions
 Double_t Func_VWG(Double_t *, Double_t *);
 Double_t Func_POL4EXP(Double_t *, Double_t *);
-Double_t Func_Jpsi_CB2(Double_t *, Double_t *);
+Double_t Func_Jpsi_CB2_VWG(Double_t *, Double_t *);
 Double_t Func_Jpsi_CB2_POL4EXP(Double_t *, Double_t *);
 Double_t Func_Jpsi_CB2_fix(Double_t *, Double_t *);
 Double_t Func_Jpsi_NA60_VWG(Double_t *, Double_t *);
 Double_t Func_Jpsi_NA60_POL4EXP(Double_t *, Double_t *);
 Double_t Func_Jpsi_NA60_fix(Double_t *, Double_t *);
-Double_t Func_Psi2S_CB2(Double_t *, Double_t *);
+Double_t Func_Psi2S_CB2_VWG(Double_t *, Double_t *);
 Double_t Func_Psi2S_CB2_POL4EXP(Double_t *, Double_t *);
 Double_t Func_Psi2S_CB2_fix(Double_t *, Double_t *);
 Double_t Func_Psi2S_NA60_VWG(Double_t *, Double_t *);
@@ -119,9 +119,9 @@ void MassFitter_3::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t
   fNPhiTildeBins = fPhiTildeValues.size() - 1;
 }
 //______________________________________________________________________________
-void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDir, string plotType, Bool_t savePlot){
+void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDir, string plotType, Bool_t showPlot, Bool_t savePlot){
   gStyle -> SetOptStat(0);
-  TGaxis::SetMaxDigits(2);
+  TGaxis::SetMaxDigits(1);
 
   fSigShape = sigShape;
   fBkgShape = bkgShape;
@@ -207,7 +207,7 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   // FIT OF THE JPSI SIGNAL
   //============================================================================
   TF1 *funcSigJpsi;
-  if(sigShape == "CB2" && bkgShape == "VWG"){funcSigJpsi = new TF1("funcSigJpsi",Func_Jpsi_CB2,2.9,3.2,nParBkg + nParSig + nParTails);}
+  if(sigShape == "CB2" && bkgShape == "VWG"){funcSigJpsi = new TF1("funcSigJpsi",Func_Jpsi_CB2_VWG,2.9,3.2,nParBkg + nParSig + nParTails);}
   if(sigShape == "NA60" && bkgShape == "VWG"){funcSigJpsi = new TF1("funcSigJpsi",Func_Jpsi_NA60_VWG,2.9,3.2,nParBkg + nParSig + nParTails);}
   if(sigShape == "CB2" && bkgShape == "POL4EXP"){funcSigJpsi = new TF1("funcSigJpsi",Func_Jpsi_CB2_POL4EXP,2.9,3.2,nParBkg + nParSig + nParTails);}
   if(sigShape == "NA60" && bkgShape == "POL4EXP"){funcSigJpsi = new TF1("funcSigJpsi",Func_Jpsi_NA60_POL4EXP,2.9,3.2,nParBkg + nParSig + nParTails);}
@@ -333,18 +333,18 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   }
   fFuncSigJpsiFix -> SetNpx(1000);
   for(int i = 0;i < nParSig + nParTails;i++){fFuncSigJpsiFix -> SetParameter(i,fFuncTot -> GetParameter(nParBkg + i));}
-  fFuncSigJpsiFix -> SetLineColor(kRed+1);
-  fFuncSigJpsiFix -> SetFillStyle(1001);
-  fFuncSigJpsiFix -> SetFillColorAlpha(kRed,0.3);
+  fFuncSigJpsiFix -> SetLineColor(kBlue+1);
+  fFuncSigJpsiFix -> SetFillStyle(3335);
+  fFuncSigJpsiFix -> SetFillColorAlpha(kBlue,0.3);
   fFuncSigJpsiFix -> Draw("same");
 
   fFuncSigPsi2SFix -> SetParameter(0,fFuncTot -> GetParameter(nParBkg + 0));
   fFuncSigPsi2SFix -> SetParameter(1,(fFuncTot -> GetParameter(nParBkg + 1)) + (3.686097-3.0969));
   fFuncSigPsi2SFix -> SetParameter(2,(fFuncTot -> GetParameter(nParBkg + 2))*1.05154);
   for(int i = nParSig;i < nParSig + nParTails + 1;i++){fFuncSigPsi2SFix -> SetParameter(i,fFuncTot -> GetParameter(nParBkg + i));}
-  fFuncSigPsi2SFix -> SetLineColor(kBlue+1);
-  fFuncSigPsi2SFix -> SetFillStyle(1001);
-  fFuncSigPsi2SFix -> SetFillColorAlpha(kBlue,0.4);
+  fFuncSigPsi2SFix -> SetLineColor(kGreen+1);
+  fFuncSigPsi2SFix -> SetFillStyle(3353);
+  fFuncSigPsi2SFix -> SetFillColorAlpha(kGreen,0.4);
 
   fMassJpsi = fFuncTot -> GetParameter(nParBkg + 1);
   fErrMassJpsi = fFuncTot -> GetParError(nParBkg + 1);
@@ -366,10 +366,10 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   fNPsi2S = fFuncSigPsi2SFix -> Integral(7.,13.)/m_width;
   fStatPsi2S = fFuncSigPsi2SFix -> IntegralError(7.,13.,Psi2S_par,covPsi2S.GetMatrixArray())/m_width;
 
-  /*
-  if(fPlotType == "STANDARD"){PlotStandard(fSavePlot);}
-  if(fPlotType == "PUBLICATION"){PlotPublications(fSavePlot);}
-  */
+  if(showPlot){
+    if(fPlotType == "STANDARD"){PlotStandard(fSavePlot);}
+    if(fPlotType == "PUBLICATION"){PlotPublications(fSavePlot);}
+  }
 
   /*
   delete histGridMinv, histGridRatio, histFuncTot;
@@ -383,6 +383,7 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
 }
 //______________________________________________________________________________
 void MassFitter_3::PlotStandard(bool savePlot){
+  TGaxis::SetMaxDigits(1);
   gStyle -> SetCanvasPreferGL(kTRUE);
   //============================================================================
   // PREPARING THE FRAME
