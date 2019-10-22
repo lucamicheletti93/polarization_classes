@@ -257,8 +257,8 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
       else{for(int i = 0;i < nParTails;i++){fFuncTot -> SetParameter(nParBkg + nParSig + i,funcSigJpsi -> GetParameter(nParBkg + nParSig + i));}}
 
       // Psi(2S) : only normalization is a parameter
-      fFuncTot -> SetParameter(nParBkg + nParSig + nParTails,1.);
-      fFuncTot -> SetParLimits(nParBkg + nParSig + nParTails,0.,50000.);
+      fFuncTot -> SetParameter(nParBkg + nParSig + nParTails,2.37767e-02);
+      fFuncTot -> SetParLimits(nParBkg + nParSig + nParTails,0.,0.1);
     
     }
     else{fFuncTot -> SetParameters(fFuncTot -> GetParameters());}

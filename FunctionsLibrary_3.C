@@ -262,7 +262,7 @@ Double_t Func_tot_CB2_VWG(Double_t *x, Double_t *par){
 }
 //------------------------------------------------------------------------------
 Double_t Func_tot_CB2_POL4EXP(Double_t *x, Double_t *par){
-  return Func_POL4EXP(x,par) + Func_Jpsi_CB2_POL4EXP(x,par) + Func_Psi2S_CB2_POL4EXP(x,par);
+  return Func_POL4EXP(x,par) + Func_Psi2S_CB2_POL4EXP(x,par) + Func_Jpsi_CB2_POL4EXP(x,par);
 }
 //------------------------------------------------------------------------------
 Double_t Func_tot_NA60_VWG(Double_t *x, Double_t *par){
