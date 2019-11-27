@@ -106,7 +106,7 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
     cout << i << ") ndf = " << gHistFit[i] -> GetSize() << endl;
   }
   cout << "ndf = " << ndf << endl;
-  gHistFit[0] -> SetAxisRange(0.,0.7);
+  gHistFit[0] -> SetAxisRange(-0.7,0.7);
 
   TCanvas *canvasHistFit = new TCanvas("canvasHistFit","canvasHistFit",1400,600);
   canvasHistFit -> Divide(gNDistrib,1);
@@ -189,8 +189,10 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gr34 -> Draw("alp");
   */
 
+  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,-1.,1.,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
+
   TCanvas *canvasHistFitSim_CosTheta = new TCanvas("canvasHistFitSim_CosTheta","canvasHistFitSim_CosTheta",600,600);
-  gHistFit[0] -> Draw("EP"); gFuncFit[0] -> Draw("same");
+  histGridCosTheta -> Draw(); gHistFit[0] -> Draw("EPsame"); gFuncFit[0] -> Draw("same");
   latexTitle -> DrawLatex(0.2,5000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
 
   TCanvas *canvasHistFitSim_Phi = new TCanvas("canvasHistFitSim_Phi","canvasHistFitSim_Phi",600,600);
@@ -202,7 +204,7 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   latexTitle -> DrawLatex(2.,1000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
 
   if(saveCanvas){
-    canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
+    //canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
     //canvasContour -> SaveAs(Form("%s_contour.png",nameCanvas.c_str()));
     canvasHistFitSim_CosTheta -> SaveAs(Form("%s_CosTheta.png",nameCanvas.c_str()));
     canvasHistFitSim_Phi -> SaveAs(Form("%s_Phi.png",nameCanvas.c_str()));
