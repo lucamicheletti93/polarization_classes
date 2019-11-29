@@ -684,3 +684,153 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
   fHistAllPt_35eta4 -> Write();
   fileTriggerResponseFunction -> Close();
 }
+
+
+
+
+
+//______________________________________________________________________________
+void DataProcessor::ComputeTriggerResponseFunction_new(TTree *treeData, string flagTRF, string strSample, string nameOutputFile) {
+  char fTrigClass[500];
+  Float_t fPercV0M, fPercCL0, fPercCL1;
+  Int_t fNMuons, fNTracklets, fNContributors;
+  Double_t fVertex[3];
+  Double_t fPt[300], fE[300], fPx[300], fPy[300], fPz[300], fY[300], fEta[300];
+  Double_t fTrackChi2[300], fMatchTrigChi2[300], fDCA[300], fRAtAbsEnd[300];
+  Int_t fCharge[300], fMatchTrig[300];
+  Int_t fNDimu;
+  Double_t fDimuPt[3000], fDimuPx[3000], fDimuPy[3000], fDimuPz[3000], fDimuY[3000];
+  Double_t fDimuMass[3000];
+  Int_t fDimuCharge[3000], fDimuMatch[3000];
+  Int_t fDimuMu[3000][2];
+  Double_t fDimuCostHE[3000], fDimuPhiHE[3000], fDimuCostCS[3000], fDimuPhiCS[3000];
+  Double_t fDimuPhiTildeHE[3000], fDimuPhiTildeCS[3000];
+  UInt_t fInpmask;
+  Bool_t fIsPhysSelected;
+  Int_t fPDCA[300];
+
+  treeData -> SetBranchAddress("FiredTriggerClasses",fTrigClass);
+  treeData -> SetBranchAddress("NMuons",&fNMuons);
+  treeData -> SetBranchAddress("Vertex",fVertex);
+  treeData -> SetBranchAddress("PercentV0M",&fPercV0M);
+  treeData -> SetBranchAddress("Pt",fPt);
+  treeData -> SetBranchAddress("E",fE);
+  treeData -> SetBranchAddress("Px",fPx);
+  treeData -> SetBranchAddress("Py",fPy);
+  treeData -> SetBranchAddress("Pz",fPz);
+  treeData -> SetBranchAddress("Y",fY);
+  treeData -> SetBranchAddress("Eta",fEta);
+  treeData -> SetBranchAddress("MatchTrig",fMatchTrig);
+  treeData -> SetBranchAddress("MatchTrigChi2",fMatchTrigChi2);
+  treeData -> SetBranchAddress("Charge",fCharge);
+  treeData -> SetBranchAddress("RAtAbsEnd",fRAtAbsEnd);
+  treeData -> SetBranchAddress("NDimu",&fNDimu);
+  treeData -> SetBranchAddress("DimuPt",fDimuPt);
+  treeData -> SetBranchAddress("DimuPx",fDimuPx);
+  treeData -> SetBranchAddress("DimuPy",fDimuPy);
+  treeData -> SetBranchAddress("DimuPz",fDimuPz);
+  treeData -> SetBranchAddress("DimuY",fDimuY);
+  treeData -> SetBranchAddress("DimuMass",fDimuMass);
+  treeData -> SetBranchAddress("DimuCharge",fDimuCharge);
+  treeData -> SetBranchAddress("DimuMatch",fDimuMatch);
+  treeData -> SetBranchAddress("DimuMu",fDimuMu);
+  treeData -> SetBranchAddress("DimuCostHE",fDimuCostHE);
+  treeData -> SetBranchAddress("DimuPhiHE",fDimuPhiHE);
+  treeData -> SetBranchAddress("DimuCostCS",fDimuCostCS);
+  treeData -> SetBranchAddress("DimuPhiCS",fDimuPhiCS);
+  treeData -> SetBranchAddress("IsPhysSelected",&fIsPhysSelected);
+  treeData -> SetBranchAddress("pDCA",fPDCA);
+
+  fHistLowPt_25eta4 = new TH1D("fHistLowPt_25eta4","fHistLowPt_25eta4",500,0.,50.); fHistLowPt_25eta4 -> Sumw2();
+  fHistAllPt_25eta4 = new TH1D("fHistAllPt_25eta4","fHistAllPt_25eta4",500,0.,50.); fHistAllPt_25eta4 -> Sumw2();
+  fHistLowPt_25eta3 = new TH1D("fHistLowPt_25eta3","fHistLowPt_25eta3",500,0.,50.); fHistLowPt_25eta3 -> Sumw2();
+  fHistAllPt_25eta3 = new TH1D("fHistAllPt_25eta3","fHistAllPt_25eta3",500,0.,50.); fHistAllPt_25eta3 -> Sumw2();
+  fHistLowPt_3eta35 = new TH1D("fHistLowPt_3eta35","fHistLowPt_3eta35",500,0.,50.); fHistLowPt_3eta35 -> Sumw2();
+  fHistAllPt_3eta35 = new TH1D("fHistAllPt_3eta35","fHistAllPt_3eta35",500,0.,50.); fHistAllPt_3eta35 -> Sumw2();
+  fHistLowPt_35eta4 = new TH1D("fHistLowPt_35eta4","fHistLowPt_35eta4",500,0.,50.); fHistLowPt_35eta4 -> Sumw2();
+  fHistAllPt_35eta4 = new TH1D("fHistAllPt_35eta4","fHistAllPt_35eta4",500,0.,50.); fHistAllPt_35eta4 -> Sumw2();
+
+  int nEvents = 0;
+  if(strSample == "FullStat"){nEvents = treeData -> GetEntries();}
+  if(strSample == "TestStat"){nEvents = 100000;}
+  printf("N events = %i \n",nEvents);
+  Int_t muonId0 = 0, muonId1 = 0;
+
+  for(int i = 0;i < nEvents;i++){
+    treeData -> GetEntry(i);
+    printf("Reading : %2.1f %% \r",((double) i)/((double) nEvents)*100);
+    TString Trigger = fTrigClass;
+    Bool_t TriggerSelected_CINT7 = kFALSE;
+    if(Trigger.Contains("CINT7-B-NOPF-MUFAST")){TriggerSelected_CINT7 = kTRUE;} // single muon trigger
+    Bool_t TriggerSelected_CMUL7 = kFALSE;
+    if(Trigger.Contains("CMUL7-B-NOPF-MUFAST")){TriggerSelected_CMUL7 = kTRUE;} // Di-muon trigger
+
+    if(TriggerSelected_CINT7){
+      //if(TriggerSelected_CMUL7){
+        if(fIsPhysSelected){
+          for(int k = 0;k < fNDimu;k++){
+            if(fDimuY[k] > -4. && fDimuY[k] < -2.5){
+
+                if((fEta[fDimuMu[k][0]] > -4 && fEta[fDimuMu[k][0]] < -2.5) && (fEta[fDimuMu[k][1]] > -4 && fEta[fDimuMu[k][1]] < -2.5)){
+                  if((fRAtAbsEnd[fDimuMu[k][0]] > 17.6 && fRAtAbsEnd[fDimuMu[k][0]] < 89.5) && (fRAtAbsEnd[fDimuMu[k][1]] > 17.6 && fRAtAbsEnd[fDimuMu[k][1]] < 89.5)){
+                    if(fPDCA[fDimuMu[k][0]] > 0 && fPDCA[fDimuMu[k][1]] > 0){
+                      if(fDimuPt[k] > 0 && fDimuPt[k] < 50){
+                        if(fDimuMass[k] > 2.9 && fDimuMass[k] < 3.3){
+                          if(fMatchTrig[fDimuMu[k][0]] >= 1){fHistAllPt_25eta4 -> Fill(fPt[fDimuMu[k][0]]);}
+                          if(fMatchTrig[fDimuMu[k][1]] >= 1){fHistAllPt_25eta4 -> Fill(fPt[fDimuMu[k][1]]);}
+                          if(fMatchTrig[fDimuMu[k][0]] >= 2){fHistLowPt_25eta4 -> Fill(fPt[fDimuMu[k][0]]);}
+                          if(fMatchTrig[fDimuMu[k][1]] >= 2){fHistLowPt_25eta4 -> Fill(fPt[fDimuMu[k][1]]);}
+
+                          if(fEta[fDimuMu[k][0]] > -3.0 && fEta[fDimuMu[k][0]] < -2.5){
+                            if(fMatchTrig[fDimuMu[k][0]] >= 1){fHistAllPt_25eta3 -> Fill(fPt[fDimuMu[k][0]]);}
+                            if(fMatchTrig[fDimuMu[k][0]] >= 2){fHistLowPt_25eta3 -> Fill(fPt[fDimuMu[k][0]]);}
+                          }
+
+                          if(fEta[fDimuMu[k][0]] > -3.5 && fEta[fDimuMu[k][0]] < -3.0){
+                            if(fMatchTrig[fDimuMu[k][0]] >= 1){fHistAllPt_3eta35 -> Fill(fPt[fDimuMu[k][0]]);}
+                            if(fMatchTrig[fDimuMu[k][0]] >= 2){fHistLowPt_3eta35 -> Fill(fPt[fDimuMu[k][0]]);}
+                          }
+
+                          if(fEta[fDimuMu[k][0]] > -4.0 && fEta[fDimuMu[k][0]] < -3.5){
+                            if(fMatchTrig[fDimuMu[k][0]] >= 1){fHistAllPt_35eta4 -> Fill(fPt[fDimuMu[k][0]]);}
+                            if(fMatchTrig[fDimuMu[k][0]] >= 2){fHistLowPt_35eta4 -> Fill(fPt[fDimuMu[k][0]]);}
+                          }
+
+                          if(fEta[fDimuMu[k][1]] > -3.0 && fEta[fDimuMu[k][1]] < -2.5){
+                            if(fMatchTrig[fDimuMu[k][1]] >= 1){fHistAllPt_25eta3 -> Fill(fPt[fDimuMu[k][1]]);}
+                            if(fMatchTrig[fDimuMu[k][1]] >= 2){fHistLowPt_25eta3 -> Fill(fPt[fDimuMu[k][1]]);}
+                          }
+
+                          if(fEta[fDimuMu[k][1]] > -3.5 && fEta[fDimuMu[k][1]] < -3.0){
+                            if(fMatchTrig[fDimuMu[k][1]] >= 1){fHistAllPt_3eta35 -> Fill(fPt[fDimuMu[k][1]]);}
+                            if(fMatchTrig[fDimuMu[k][1]] >= 2){fHistLowPt_3eta35 -> Fill(fPt[fDimuMu[k][1]]);}
+                          }
+
+                          if(fEta[fDimuMu[k][1]] > -4.0 && fEta[fDimuMu[k][1]] < -3.5){
+                            if(fMatchTrig[fDimuMu[k][1]] >= 1){fHistAllPt_35eta4 -> Fill(fPt[fDimuMu[k][1]]);}
+                            if(fMatchTrig[fDimuMu[k][1]] >= 2){fHistLowPt_35eta4 -> Fill(fPt[fDimuMu[k][1]]);}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+            }
+          }
+        }
+      //}
+    }
+  }
+  printf("\n");
+
+  TFile *fileTriggerResponseFunction = new TFile(nameOutputFile.c_str(),"RECREATE");
+  fHistLowPt_25eta4 -> Write();
+  fHistAllPt_25eta4 -> Write();
+  fHistLowPt_25eta3 -> Write();
+  fHistAllPt_25eta3 -> Write();
+  fHistLowPt_3eta35 -> Write();
+  fHistAllPt_3eta35 -> Write();
+  fHistLowPt_35eta4 -> Write();
+  fHistAllPt_35eta4 -> Write();
+  fileTriggerResponseFunction -> Close();
+}

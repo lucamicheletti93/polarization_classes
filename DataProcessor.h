@@ -28,6 +28,7 @@ class DataProcessor : public TObject
    void CutFilteredTree(string nameOutputFile);
    void CreateInvMassHistograms(TFile *, string strSample);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
+   void ComputeTriggerResponseFunction_new(TTree *treeData, string flagTRF, string strSample, string nameOutputFile);
 
  private:
    Int_t fNPtBins;
