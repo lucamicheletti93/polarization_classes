@@ -14,6 +14,7 @@ class AccxEffCalculator : public TObject
  public:
    AccxEffCalculator();
    AccxEffCalculator(TTree *treeAccxEff);
+   AccxEffCalculator(Double_t scaleFactor_PbPb2015, TTree *treeAccxEff_PbPb2015, Double_t  scaleFactor_PbPb2018, TTree *treeAccxEff_PbPb2018);
    virtual ~AccxEffCalculator();
 
    void SetPtBins(Int_t, Double_t [],Double_t []);
@@ -23,6 +24,7 @@ class AccxEffCalculator : public TObject
    //void ReWeightAccxEff(string refFrame, Double_t LambdaTheta, Double_t LambdaPhi, string strSample, Bool_t saveFile, string nameOutputFile);
    //void ReWeightAccxEff(Double_t polParHE[], Double_t polParCS[], string strSample, Bool_t saveFile, string nameOutputFile);
    void ReWeightAccxEff(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
+   void ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
    //void ComputeReweightTRFAccxEff(string , string , bool , TH1D *);
    void ComputeReweightTRFAccxEff(string , string , bool , TObjArray *);
@@ -47,6 +49,9 @@ class AccxEffCalculator : public TObject
    Double_t fPhiTilde;
 
    TTree *fTreeAccxEff;
+   
+   Double_t fScaleFactor_PbPb2015_PbPb2018[2];
+   TTree *fTreeAccxEff_PbPb2015_PbPb2018[2];
 
    // Resolution
    /*TH1D *fHistResolutionCosThetaHE;
