@@ -622,7 +622,7 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
                   if((fRAtAbsEnd[muonId0] > 17.6 && fRAtAbsEnd[muonId0] < 89.5) && (fRAtAbsEnd[muonId1] > 17.6 && fRAtAbsEnd[muonId1] < 89.5)){
                     if(fPDCA[muonId0] > 0 && fPDCA[muonId1] > 0){
                       if(fDimuPt[k] > 0 && fDimuPt[k] < 50){
-                        if(fDimuMass[k] > 2.9 && fDimuMass[k] < 3.3){
+                        //if(fDimuMass[k] > 2.9 && fDimuMass[k] < 3.3){
                           if(fMatchTrig[muonId0] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId0]);}
                           if(fMatchTrig[muonId1] >= 1){fHistAllPt_25eta4 -> Fill(fPt[muonId1]);}
                           if(fMatchTrig[muonId0] >= 2){fHistLowPt_25eta4 -> Fill(fPt[muonId0]);}
@@ -657,7 +657,7 @@ void DataProcessor::ComputeTriggerResponseFunction(string strSample, string name
                             if(fMatchTrig[muonId1] >= 1){fHistAllPt_35eta4 -> Fill(fPt[muonId1]);}
                             if(fMatchTrig[muonId1] >= 2){fHistLowPt_35eta4 -> Fill(fPt[muonId1]);}
                           }
-                        }
+                        //}
                       }
                     }
                   }
