@@ -38,6 +38,7 @@
 #include "MassFitter_3.h"
 
 // List of fitting-functions
+/*
 Double_t Func_VWG(Double_t *, Double_t *);
 Double_t Func_POL4EXP(Double_t *, Double_t *);
 Double_t Func_Jpsi_CB2_VWG(Double_t *, Double_t *);
@@ -56,10 +57,11 @@ Double_t Func_tot_CB2_VWG(Double_t *, Double_t *);
 Double_t Func_tot_CB2_POL4EXP(Double_t *, Double_t *);
 Double_t Func_tot_NA60_VWG(Double_t *, Double_t *);
 Double_t Func_tot_NA60_POL4EXP(Double_t *, Double_t *);
+*/
 
 // List of global variables
-double gPi = TMath::Pi();
-Long_t *dummy1 = 0, *dummy2 = 0, *dummy3 = 0, *dummy4 = 0;
+//double gPi = TMath::Pi();
+//Long_t *dummy1 = 0, *dummy2 = 0, *dummy3 = 0, *dummy4 = 0;
 
 ClassImp(MassFitter_3)
 
@@ -259,7 +261,7 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
       // Psi(2S) : only normalization is a parameter
       fFuncTot -> SetParameter(nParBkg + nParSig + nParTails,2.37767e-02);
       fFuncTot -> SetParLimits(nParBkg + nParSig + nParTails,0.,0.1);
-    
+
     }
     else{fFuncTot -> SetParameters(fFuncTot -> GetParameters());}
     fit_ptr = (TFitResultPtr) fHistMinv -> Fit(fFuncTot,"RLS0Q");

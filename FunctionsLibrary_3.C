@@ -4,7 +4,7 @@
 #include "TF1.h"
 #include "TROOT.h"
 
-Double_t scaling_factor = 1.05154; //factor introduced to pass from the sigma of Jpsi to the sigma of Psi(2S) -> WARNING! TO SUBSTITUTE
+//Double_t scaling_factor = 1.05154; //factor introduced to pass from the sigma of Jpsi to the sigma of Psi(2S) -> WARNING! TO SUBSTITUTE
 //==============================================================================
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //==============================================================================

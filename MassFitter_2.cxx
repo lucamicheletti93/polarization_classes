@@ -52,7 +52,7 @@ Double_t Func_tot_NA60_VWG(Double_t *, Double_t *);
 Double_t Func_tot_NA60_POL4EXP(Double_t *, Double_t *);
 
 // List of global variables
-double gPi = TMath::Pi();
+//double gPi = TMath::Pi();
 Long_t *dummy1 = 0, *dummy2 = 0, *dummy3 = 0, *dummy4 = 0;
 
 ClassImp(MassFitter_2)
