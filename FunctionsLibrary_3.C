@@ -4,7 +4,8 @@
 #include "TF1.h"
 #include "TROOT.h"
 
-//Double_t scaling_factor = 1.05154; //factor introduced to pass from the sigma of Jpsi to the sigma of Psi(2S) -> WARNING! TO SUBSTITUTE
+// Double_t scaling_factor = 1.05154; //factor introduced to pass from the sigma of Jpsi to the sigma of Psi(2S) -> old value used in previous analysis
+// Double_t scaling_factor = 1.07365; //value estimated in evaluation_ratio_2S_1S.C
 //==============================================================================
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //==============================================================================
@@ -139,7 +140,7 @@ Double_t Func_Jpsi_NA60_fix(Double_t *x, Double_t *par){
 // Psi(2S)
 //==============================================================================
 Double_t Func_Psi2S_CB2_VWG(Double_t *x, Double_t *par){
-  Double_t t = (x[0] - (par[5]+(3.686097-3.0969)))/(par[6]*1.05154);
+  Double_t t = (x[0] - (par[5]+(3.686097-3.0969)))/(par[6]*1.07365);
   if (par[7] < 0){t = -t;}
 
   Double_t absAlpha = fabs((Double_t)par[7]);
@@ -162,7 +163,7 @@ Double_t Func_Psi2S_CB2_VWG(Double_t *x, Double_t *par){
 }
 //------------------------------------------------------------------------------
 Double_t Func_Psi2S_CB2_POL4EXP(Double_t *x, Double_t *par){
-  Double_t t = (x[0] - (par[7]+(3.686097-3.0969)))/(par[8]*1.05154);
+  Double_t t = (x[0] - (par[7]+(3.686097-3.0969)))/(par[8]*1.07365);
   if (par[9] < 0){t = -t;}
 
   Double_t absAlpha = fabs((Double_t)par[9]);
@@ -188,7 +189,7 @@ Double_t Func_Psi2S_NA60_VWG(Double_t *x, Double_t *par){
   Double_t t0 = 0.;
   Double_t t1 = par[13];
   Double_t t2 = par[14];
-  Double_t t = (x[0] - (par[5]+(3.686097-3.0969)))/(par[6]*1.05154);
+  Double_t t = (x[0] - (par[5]+(3.686097-3.0969)))/(par[6]*1.07365);
 
   if (t >= t1 && t < t2){
     t0 = 1;
@@ -204,7 +205,7 @@ Double_t Func_Psi2S_NA60_POL4EXP(Double_t *x, Double_t *par){
   Double_t t0 = 0.;
   Double_t t1 = par[15];
   Double_t t2 = par[16];
-  Double_t t = (x[0] - (par[7]+(3.686097-3.0969)))/(par[8]*1.05154);
+  Double_t t = (x[0] - (par[7]+(3.686097-3.0969)))/(par[8]*1.07365);
 
   if (t >= t1 && t < t2){
     t0 = 1;
