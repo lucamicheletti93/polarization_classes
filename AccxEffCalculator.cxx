@@ -55,7 +55,7 @@ AccxEffCalculator::AccxEffCalculator(TTree *treeAccxEff): TObject() {
   fTreeAccxEff -> SetBranchAddress("Charge_rec",fChargeRec);
   fTreeAccxEff -> SetBranchAddress("MatchTrig_rec",fMatchTrigRec);
 }
-
+//______________________________________________________________________________
 AccxEffCalculator::AccxEffCalculator(Double_t scaleFactor_PbPb2015, TTree *treeAccxEff_PbPb2015, Double_t  scaleFactor_PbPb2018, TTree *treeAccxEff_PbPb2018): TObject() {
   // standard constructor
   fPi = TMath::Pi();
@@ -1343,7 +1343,9 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
   }
 
   double tmpVar = 0;
-
+  /*
+  //______________________________________________________________________________
+  ////////////////////////////////////////////////////////////////////////////////
   for(int ii = 0;ii < 2;ii++){
     nEvents = fTreeAccxEff_PbPb2015_PbPb2018[ii] -> GetEntries();
     for(int i = 0;i < nEvents;i++){
@@ -1378,7 +1380,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
           fHistGenCosThetaHEReWeighted[indexPt] -> Fill(CosThetaHEGen,weightCosThetaHE);
           fHistGenPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(PhiHEGen),weightPhiHE);
           fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(PhiTildeHEGen,weightPhiTildeHE);
-          fHistGenCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHEGen,TMath::Abs(PhiHEGen),weightCosThetaPhiHE);;
+          fHistGenCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHEGen,TMath::Abs(PhiHEGen),weightCosThetaPhiHE);
           indexPt = 0;
           // COLLINS-SOPER
           while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
@@ -1528,6 +1530,284 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
     }
     fileAccxEffReWeighted -> Close();
   }
+  */
+
+  //______________________________________________________________________________
+  ////////////////////////////////////////////////////////////////////////////////
+  Long_t *dummy1 = 0, *dummy2 = 0, *dummy3 = 0, *dummy4 = 0;
+
+  // Computing the sum of N_CMUL7 - PbPb2015
+  string simName_PbPb2015 = "LHC18c11_nofastb";
+  string filePath_PbPb2015 = "/home/luca/data_storage/PbPb2015/pure_signal_MC";
+  ifstream fileNCMUL7_PbPb2015 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2015/run_info.txt");
+  string runNumber_PbPb2015;
+  double NCMUL7_PbPb2015;
+  double sum_NCMUL7_PbPb2015 = 0.;
+  if (fileNCMUL7_PbPb2015.is_open()){
+    while (fileNCMUL7_PbPb2015 >> runNumber_PbPb2015 >> NCMUL7_PbPb2015){
+      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Pure_signal_MC_%s.root",filePath_PbPb2015.c_str(),simName_PbPb2015.c_str(),runNumber_PbPb2015.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        sum_NCMUL7_PbPb2015 += NCMUL7_PbPb2015;
+      }
+    }
+  }
+  cout << "Total CMUL7 triggers (PbPb2015) = " << sum_NCMUL7_PbPb2015 << endl;
+
+  // Computing the sum of N_CMUL7 - PbPb2018
+  string simName_PbPb2018 = "LHC19i1";
+  string filePath_PbPb2018 = "/home/luca/data_storage/PbPb2018/pure_signal_MC";
+  ifstream fileNCMUL7_PbPb2018 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2018/run_info.txt");
+  string runNumber_PbPb2018;
+  double NCMUL7_PbPb2018;
+  double sum_NCMUL7_PbPb2018 = 0.;
+  if (fileNCMUL7_PbPb2018.is_open()){
+    while (fileNCMUL7_PbPb2018 >> runNumber_PbPb2018 >> NCMUL7_PbPb2018){
+      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Pure_signal_MC_%s.root",filePath_PbPb2018.c_str(),simName_PbPb2018.c_str(),runNumber_PbPb2018.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        sum_NCMUL7_PbPb2018 += NCMUL7_PbPb2018;
+      }
+    }
+  }
+  cout << "Total CMUL7 triggers (PbPb2018) = " << sum_NCMUL7_PbPb2018 << endl;
+
+  double sum_NCMUL7 = sum_NCMUL7_PbPb2015 + sum_NCMUL7_PbPb2018;
+  cout << "Total CMUL7 triggers (PbPb2015 + PbPb2018) = " << sum_NCMUL7 << endl;
+  string filePath[2];
+  filePath[0] = filePath_PbPb2015;
+  filePath[1] = filePath_PbPb2018;
+  int period[2] = {2015,2018};
+  string simName[2];
+  simName[0] = simName_PbPb2015;
+  simName[1] = simName_PbPb2018;
+
+  int runCounter = 0;
+  int indexCosTheta = 0;
+  int indexPhi = 0;
+  int indexCentr = 0;
+
+  string runNumber;
+  double NCMUL7;
+  string namePtRanges[3] = {"2pT4","4pT6","6pT10"};
+
+  vector <string> vectorRunList;
+  vector <double> vectorNCMUL7;
+
+  for(int ii = 0;ii < 2;ii++){
+    ifstream fileRunList (Form("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_%i/run_info.txt",period[ii]));
+    if (fileRunList.is_open()){
+      while (fileRunList >> runNumber >> NCMUL7){
+        //if(gSystem -> GetPathInfo(Form("/home/luca/cernbox/JPSI/Jpsi_polarization_data_sync_PbPb2015_PbPb2018/pure_signal_MC/reweighted_pure_signal_MC_PbPb%i/Hist_RW_%s.root",period[ii],runNumber.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+          //runCounter++;
+          //vectorRunList.push_back(runNumber);
+          //vectorNCMUL7.push_back(NCMUL7);
+          //continue;
+        //}
+        if(gSystem -> GetPathInfo(Form("%s/tree_%s/Pure_signal_MC_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+          runCounter++;
+          vectorRunList.push_back(runNumber);
+          vectorNCMUL7.push_back(NCMUL7);
+          printf("Reading run %s \n",runNumber.c_str());
+
+          TFile *file = new TFile(Form("%s/tree_%s/Pure_signal_MC_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),"READ");
+          TTree *tree = (TTree*) file -> Get("MCTree");
+          tree -> SetBranchAddress("NDimu_gen",&fNDimuGen);
+          tree -> SetBranchAddress("DimuPt_gen",fDimuPtGen);
+          tree -> SetBranchAddress("DimuY_gen",fDimuYGen);
+          tree -> SetBranchAddress("CostHE_gen",fCosThetaHEGen);
+          tree -> SetBranchAddress("PhiHE_gen",fPhiHEGen);
+          tree -> SetBranchAddress("CostCS_gen",fCosThetaCSGen);
+          tree -> SetBranchAddress("PhiCS_gen",fPhiCSGen);
+
+          tree -> SetBranchAddress("NDimu_rec",&fNDimuRec);
+          tree -> SetBranchAddress("DimuPt_rec",fDimuPtRec);
+          tree -> SetBranchAddress("DimuY_rec",fDimuYRec);
+          tree -> SetBranchAddress("DimuMass_rec",fDimuMassRec);
+          tree -> SetBranchAddress("DimuMatch_rec",fDimuMatchRec);
+          tree -> SetBranchAddress("CostHE_rec",fCosThetaHERec);
+          tree -> SetBranchAddress("PhiHE_rec",fPhiHERec);
+          tree -> SetBranchAddress("CostCS_rec",fCosThetaCSRec);
+          tree -> SetBranchAddress("PhiCS_rec",fPhiCSRec);
+
+          tree -> SetBranchAddress("NMuons_rec",&fNMuonsRec);
+          tree -> SetBranchAddress("Pt_rec",fPtRec);
+          tree -> SetBranchAddress("Eta_rec",fEtaRec);
+          tree -> SetBranchAddress("Charge_rec",fChargeRec);
+          tree -> SetBranchAddress("MatchTrig_rec",fMatchTrigRec);
+
+          nEvents = tree -> GetEntries();
+          for(int i = 0;i < nEvents;i++){
+            printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
+            tree -> GetEntry(i);
+
+            for(int j = 0;j < fNDimuGen;j++){
+              if(fDimuPtGen[j] < 2.){continue;}
+              if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
+                ////////////////////////////////////////////////////////////////////////
+                // HELICITY
+                while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+                if(indexPt >= 4){indexPt = 0; continue;}
+
+                tmpVar = fPhiHEGen[j] + fPi;
+                if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                weightCosThetaHE = (funcCosThetaHE[indexPt] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexPt] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
+                weightPhiHE = (funcPhiHE[indexPt] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexPt] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
+                weightPhiTildeHE = (funcPhiTildeHE[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeHE[indexPt] -> GetMaximum()); PhiTildeHEGen = fPhiTilde;
+                weightCosThetaPhiHE = (funcCosThetaPhiHE[indexPt] -> Eval(fCosThetaHEGen[j],fPhiHEGen[j]))/(funcCosThetaPhiHE[indexPt] -> GetMaximum());
+
+                fHistGenCosThetaHEReWeighted[indexPt] -> Fill(CosThetaHEGen,weightCosThetaHE*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(PhiHEGen),weightPhiHE*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(PhiTildeHEGen,weightPhiTildeHE*(NCMUL7/sum_NCMUL7));
+                fHistGenCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHEGen,TMath::Abs(PhiHEGen),weightCosThetaPhiHE*(NCMUL7/sum_NCMUL7));
+                indexPt = 0;
+                // COLLINS-SOPER
+                while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+                if(indexPt >= 4){indexPt = 0; continue;}
+
+                tmpVar = fPhiCSGen[j] + fPi;
+                if(fCosThetaCSGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaCSGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                weightCosThetaCS = (funcCosThetaCS[indexPt] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexPt] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
+                weightPhiCS = (funcPhiCS[indexPt] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexPt] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
+                weightPhiTildeCS = (funcPhiTildeCS[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeCS[indexPt] -> GetMaximum()); PhiTildeCSGen = fPhiTilde;
+                weightCosThetaPhiCS = (funcCosThetaPhiCS[indexPt] -> Eval(fCosThetaCSGen[j],fPhiCSGen[j]))/(funcCosThetaPhiCS[indexPt] -> GetMaximum());
+
+                fHistGenCosThetaCSReWeighted[indexPt] -> Fill(CosThetaCSGen,weightCosThetaCS*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(PhiCSGen),weightPhiCS*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiTildeCSReWeighted[indexPt] -> Fill(PhiTildeCSGen,weightPhiTildeCS*(NCMUL7/sum_NCMUL7));
+                fHistGenCosThetaPhiCSReWeighted[indexPt] -> Fill(CosThetaCSGen,TMath::Abs(PhiCSGen),weightCosThetaPhiCS*(NCMUL7/sum_NCMUL7));
+                indexPt = 0;
+                ////////////////////////////////////////////////////////////////////////
+              }
+            }
+
+            for(int j = 0;j < fNDimuRec;j++){
+              if(fDimuPtRec[j] < 2.){continue;}
+              if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
+                if(fDimuMatchRec[j] == 2){
+                  if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+                    ////////////////////////////////////////////////////////////////////
+                    // HELICITY
+                    if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
+                      if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                        while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                        if(indexPt >= 4){indexPt = 0; continue;}
+
+                        tmpVar = fPhiHERec[j] + fPi;
+                        if(fCosThetaHERec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                        if(fCosThetaHERec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                        fHistRecCosThetaHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],weightCosThetaHE*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhiHE*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiTildeHEReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeHE*(NCMUL7/sum_NCMUL7));
+                        fHistRecCosThetaPhiHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]),weightCosThetaPhiHE*(NCMUL7/sum_NCMUL7));
+                        indexPt = 0;
+                      }
+                    }
+                    // COLLINS-SOPER
+                    if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
+                      if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                        while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                        if(indexPt >= 4){indexPt = 0; continue;}
+
+                        tmpVar = fPhiCSRec[j] + fPi;
+                        if(fCosThetaCSRec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                        if(fCosThetaCSRec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                        fHistRecCosThetaCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],weightCosThetaCS*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]),weightPhiCS*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiTildeCSReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeCS*(NCMUL7/sum_NCMUL7));
+                        fHistRecCosThetaPhiCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],TMath::Abs(fPhiCSRec[j]),weightCosThetaPhiCS*(NCMUL7/sum_NCMUL7));
+                        indexPt = 0;
+                      }
+                    }
+                    ////////////////////////////////////////////////////////////////////
+                  }
+                }
+              }
+            }
+          }
+          printf("\n");
+        }
+      }
+    }
+  }
+
+
+  for(int i = 0;i < fNPtBins;i++){
+    fHistAccxEffCosThetaHEReWeighted[i] = new TH1D(Form("histAccxEffCosThetaHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
+    fHistAccxEffCosThetaHEReWeighted[i] -> Divide(fHistRecCosThetaHEReWeighted[i],fHistGenCosThetaHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiHEReWeighted[i] = new TH1D(Form("histAccxEffPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffPhiHEReWeighted[i] -> Divide(fHistRecPhiHEReWeighted[i],fHistGenPhiHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiTildeHEReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
+    fHistAccxEffPhiTildeHEReWeighted[i] -> Divide(fHistRecPhiTildeHEReWeighted[i],fHistGenPhiTildeHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffCosThetaPhiHEReWeighted[i] = new TH2D(Form("histAccxEffCosThetaPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffCosThetaPhiHEReWeighted[i] -> Divide(fHistRecCosThetaPhiHEReWeighted[i],fHistGenCosThetaPhiHEReWeighted[i],1,1,"B");
+
+
+    fHistAccxEffCosThetaCSReWeighted[i] = new TH1D(Form("histAccxEffCosThetaCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
+    fHistAccxEffCosThetaCSReWeighted[i] -> Divide(fHistRecCosThetaCSReWeighted[i],fHistGenCosThetaCSReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiCSReWeighted[i] = new TH1D(Form("histAccxEffPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffPhiCSReWeighted[i] -> Divide(fHistRecPhiCSReWeighted[i],fHistGenPhiCSReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiTildeCSReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
+    fHistAccxEffPhiTildeCSReWeighted[i] -> Divide(fHistRecPhiTildeCSReWeighted[i],fHistGenPhiTildeCSReWeighted[i],1,1,"B");
+
+    fHistAccxEffCosThetaPhiCSReWeighted[i] = new TH2D(Form("histAccxEffCosThetaPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffCosThetaPhiCSReWeighted[i] -> Divide(fHistRecCosThetaPhiCSReWeighted[i],fHistGenCosThetaPhiCSReWeighted[i],1,1,"B");
+  }
+
+  if(saveFile){
+    TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
+    for(int i = 1;i < fNPtBins;i++){
+      fHistGenCosThetaHEReWeighted[i] -> Write();
+      fHistRecCosThetaHEReWeighted[i] -> Write();
+      fHistAccxEffCosThetaHEReWeighted[i] -> Write();
+
+      fHistGenPhiHEReWeighted[i] -> Write();
+      fHistRecPhiHEReWeighted[i] -> Write();
+      fHistAccxEffPhiHEReWeighted[i] -> Write();
+
+      fHistGenPhiTildeHEReWeighted[i] -> Write();
+      fHistRecPhiTildeHEReWeighted[i] -> Write();
+      fHistAccxEffPhiTildeHEReWeighted[i] -> Write();
+
+      fHistGenCosThetaCSReWeighted[i] -> Write();
+      fHistRecCosThetaCSReWeighted[i] -> Write();
+      fHistAccxEffCosThetaCSReWeighted[i] -> Write();
+
+      fHistGenPhiCSReWeighted[i] -> Write();
+      fHistRecPhiCSReWeighted[i] -> Write();
+      fHistAccxEffPhiCSReWeighted[i] -> Write();
+
+      fHistGenPhiTildeCSReWeighted[i] -> Write();
+      fHistRecPhiTildeCSReWeighted[i] -> Write();
+      fHistAccxEffPhiTildeCSReWeighted[i] -> Write();
+
+      fHistGenCosThetaPhiHEReWeighted[i] -> Write();
+      fHistRecCosThetaPhiHEReWeighted[i] -> Write();
+      fHistAccxEffCosThetaPhiHEReWeighted[i] -> Write();
+
+      fHistGenCosThetaPhiCSReWeighted[i] -> Write();
+      fHistRecCosThetaPhiCSReWeighted[i] -> Write();
+      fHistAccxEffCosThetaPhiCSReWeighted[i] -> Write();
+    }
+    fileAccxEffReWeighted -> Close();
+  }
+
+
 }
 //______________________________________________________________________________
 ////////////////////////////////////////////////////////////////////////////////
