@@ -1735,6 +1735,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
               }
             }
           }
+          file -> Close();
           printf("\n");
         }
       }
