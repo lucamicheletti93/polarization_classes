@@ -19,6 +19,7 @@ class SpecialFitCalculator : public TObject
 
    void SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues);
    void SetFitRange(Int_t [], Int_t []);
+   void SetFitNormalization(Double_t initNormCosTheta, Double_t initNormPhi, Double_t initNormPhiTilde);
    void SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
    void BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
    void DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas, double minFitrange, double maxFitRange);
@@ -52,6 +53,10 @@ class SpecialFitCalculator : public TObject
    TGraph*  GetContour_lambdaTheta_lambdaPhi(){return fGraContour_lambdaTheta_lambdaPhi;}
 
  private:
+   Bool_t   fInitNorm;
+   Double_t fInitNormCosTheta;
+   Double_t fInitNormPhi;
+   Double_t fInitNormPhiTilde;
 
    Double_t fNormCosTheta;
    Double_t fErrorNormCosTheta;

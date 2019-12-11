@@ -64,6 +64,7 @@ ClassImp(SpecialFitCalculator)
 //______________________________________________________________________________
 SpecialFitCalculator::SpecialFitCalculator(): TObject() {
   gPi = TMath::Pi();
+  fInitNorm = kFALSE;
   // default constructor
 }
 //______________________________________________________________________________
@@ -87,6 +88,13 @@ void SpecialFitCalculator::SetFitRange(Int_t minFitRange[], Int_t maxFitRange[])
   gMaxFitRangeCosTheta = maxFitRange[0];
   gMaxFitRangePhi = maxFitRange[1];
   gMaxFitRangePhiTilde = maxFitRange[2];
+}
+//______________________________________________________________________________
+void SpecialFitCalculator::SetFitNormalization(Double_t NormCosTheta, Double_t NormPhi, Double_t NormPhiTilde){
+  fInitNorm = kTRUE;
+  fInitNormCosTheta = NormCosTheta;
+  fInitNormPhi = NormPhi;
+  fInitNormPhiTilde = NormPhiTilde;
 }
 //______________________________________________________________________________
 void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
@@ -125,9 +133,16 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   arglist[0] = 1;
   minuit -> mnexcm("SET ERR",arglist,1,ierflg);
 
-  minuit -> mnparm(0,"normCosTheta",1.e7,1.,0.,0.,ierflg);
-  minuit -> mnparm(1,"normPhi",1.e7,1.,0.,0.,ierflg);
-  minuit -> mnparm(2,"normPhiTilde",1.e7,1.,0.,0.,ierflg);
+  if(fInitNorm){
+    minuit -> mnparm(0,"normCosTheta",fInitNormCosTheta,1.,0.,0.,ierflg);
+    minuit -> mnparm(1,"normPhi",fInitNormPhi,1.,0.,0.,ierflg);
+    minuit -> mnparm(2,"normPhiTilde",fInitNormPhiTilde,1.,0.,0.,ierflg);
+  }
+  else{
+    minuit -> mnparm(0,"normCosTheta",1.e7,1.,0.,0.,ierflg);
+    minuit -> mnparm(1,"normPhi",1.e7,1.,0.,0.,ierflg);
+    minuit -> mnparm(2,"normPhiTilde",1.e7,1.,0.,0.,ierflg);
+  }
   minuit -> mnparm(3,"lambdaTheta",0.,0.001,-1.,1.,ierflg);
   minuit -> mnparm(4,"lambdaPhi",0.,0.001,-1.,1.,ierflg);
   minuit -> mnparm(5,"lambdaThetaPhi",0.,0.001,-1.,1.,ierflg);
