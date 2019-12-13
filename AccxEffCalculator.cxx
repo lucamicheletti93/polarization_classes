@@ -1255,9 +1255,6 @@ void AccxEffCalculator::ComputeReweightTRFAccxEff(string strSample, string nameO
 
   fileAccxEff -> Close();
 }
-
-
-
 //______________________________________________________________________________
 void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4], Double_t polParCS[3][4], string strSample, Bool_t saveFile, string nameOutputFile) {
   int indexPt = 0;
@@ -1266,7 +1263,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
   TF1 *funcCosThetaHE[4], *funcPhiHE[4], *funcPhiTildeHE[4];
   TF1 *funcCosThetaCS[4], *funcPhiCS[4], *funcPhiTildeCS[4];
 
-  TF1 *funcCosThetaPhiHE[4], *funcCosThetaPhiCS[4];
+  TF2 *funcCosThetaPhiHE[4], *funcCosThetaPhiCS[4];
 
   for(int i = 0;i < 4;i++){
     funcCosThetaHE[i] = new TF1(Form("funcCosThetaHE_%i",i),"(1/(3 + [0]))*(1 + [0]*x*x)",-1,1); funcCosThetaHE[i] -> SetParameter(0,polParHE[0][i]);
@@ -1343,197 +1340,6 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
   }
 
   double tmpVar = 0;
-  /*
-  //______________________________________________________________________________
-  ////////////////////////////////////////////////////////////////////////////////
-  for(int ii = 0;ii < 2;ii++){
-    nEvents = fTreeAccxEff_PbPb2015_PbPb2018[ii] -> GetEntries();
-    for(int i = 0;i < nEvents;i++){
-      printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
-      fTreeAccxEff_PbPb2015_PbPb2018[ii] -> GetEntry(i);
-
-      for(int j = 0;j < fNDimuGen;j++){
-        if(fDimuPtGen[j] < 2.){continue;}
-        if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
-          ////////////////////////////////////////////////////////////////////////
-          // HELICITY
-          while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
-          if(indexPt >= 4){indexPt = 0; continue;}
-
-          tmpVar = fPhiHEGen[j] + fPi;
-          if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-          if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-          if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-          if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-
-          weightCosThetaHE = (funcCosThetaHE[indexPt] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexPt] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
-          weightPhiHE = (funcPhiHE[indexPt] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexPt] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
-          weightPhiTildeHE = (funcPhiTildeHE[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeHE[indexPt] -> GetMaximum()); PhiTildeHEGen = fPhiTilde;
-          weightCosThetaPhiHE = (funcCosThetaPhiHE[indexPt] -> Eval(fCosThetaHEGen[j],fPhiHEGen[j]))/(funcCosThetaPhiHE[indexPt] -> GetMaximum());
-          
-          // Taking into account the real number of CMUL7 triggers
-          weightCosThetaHE = weightCosThetaHE*fScaleFactor_PbPb2015_PbPb2018[ii];
-          weightPhiHE = weightPhiHE*fScaleFactor_PbPb2015_PbPb2018[ii];
-          weightPhiTildeHE = weightPhiTildeHE*fScaleFactor_PbPb2015_PbPb2018[ii];
-          weightCosThetaPhiHE = weightCosThetaPhiHE*fScaleFactor_PbPb2015_PbPb2018[ii];
-
-          fHistGenCosThetaHEReWeighted[indexPt] -> Fill(CosThetaHEGen,weightCosThetaHE);
-          fHistGenPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(PhiHEGen),weightPhiHE);
-          fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(PhiTildeHEGen,weightPhiTildeHE);
-          fHistGenCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHEGen,TMath::Abs(PhiHEGen),weightCosThetaPhiHE);
-          indexPt = 0;
-          // COLLINS-SOPER
-          while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
-          if(indexPt >= 4){indexPt = 0; continue;}
-
-          tmpVar = fPhiCSGen[j] + fPi;
-          if(fCosThetaCSGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-          if(fCosThetaCSGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-          if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-          if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-
-          weightCosThetaCS = (funcCosThetaCS[indexPt] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexPt] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
-          weightPhiCS = (funcPhiCS[indexPt] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexPt] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
-          weightPhiTildeCS = (funcPhiTildeCS[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeCS[indexPt] -> GetMaximum()); PhiTildeCSGen = fPhiTilde;
-          weightCosThetaPhiCS = (funcCosThetaPhiCS[indexPt] -> Eval(fCosThetaCSGen[j],fPhiCSGen[j]))/(funcCosThetaPhiCS[indexPt] -> GetMaximum());
-
-          // Taking into account the real number of CMUL7 triggers
-          weightCosThetaCS = weightCosThetaCS*fScaleFactor_PbPb2015_PbPb2018[ii];
-          weightPhiCS = weightPhiCS*fScaleFactor_PbPb2015_PbPb2018[ii];
-          weightPhiTildeCS = weightPhiTildeCS*fScaleFactor_PbPb2015_PbPb2018[ii];
-          weightCosThetaPhiCS = weightCosThetaPhiCS*fScaleFactor_PbPb2015_PbPb2018[ii];
-
-          fHistGenCosThetaCSReWeighted[indexPt] -> Fill(CosThetaCSGen,weightCosThetaCS);
-          fHistGenPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(PhiCSGen),weightPhiCS);
-          fHistGenPhiTildeCSReWeighted[indexPt] -> Fill(PhiTildeCSGen,weightPhiTildeCS);
-          fHistGenCosThetaPhiCSReWeighted[indexPt] -> Fill(CosThetaCSGen,TMath::Abs(PhiCSGen),weightCosThetaPhiCS);
-          indexPt = 0;
-          ////////////////////////////////////////////////////////////////////////
-        }
-      }
-
-      for(int j = 0;j < fNDimuRec;j++){
-        if(fDimuPtRec[j] < 2.){continue;}
-        if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
-          if(fDimuMatchRec[j] == 2){
-            if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
-              ////////////////////////////////////////////////////////////////////
-              // HELICITY
-              if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
-                if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
-                  while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
-                  if(indexPt >= 4){indexPt = 0; continue;}
-
-                  tmpVar = fPhiHERec[j] + fPi;
-                  if(fCosThetaHERec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-                  if(fCosThetaHERec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-                  if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-                  if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-
-                  fHistRecCosThetaHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],weightCosThetaHE);
-                  fHistRecPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhiHE);
-                  fHistRecPhiTildeHEReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeHE);
-                  fHistRecCosThetaPhiHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]),weightCosThetaPhiHE);
-                  indexPt = 0;
-                }
-              }
-              // COLLINS-SOPER
-              if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
-                if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
-                  while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
-                  if(indexPt >= 4){indexPt = 0; continue;}
-
-                  tmpVar = fPhiCSRec[j] + fPi;
-                  if(fCosThetaCSRec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
-                  if(fCosThetaCSRec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
-                  if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
-                  if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
-
-                  fHistRecCosThetaCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],weightCosThetaCS);
-                  fHistRecPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]),weightPhiCS);
-                  fHistRecPhiTildeCSReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeCS);
-                  fHistRecCosThetaPhiCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],TMath::Abs(fPhiCSRec[j]),weightCosThetaPhiCS);
-                  indexPt = 0;
-                }
-              }
-              ////////////////////////////////////////////////////////////////////
-            }
-          }
-        }
-      }
-
-    }
-    printf("\n");
-  }
-
-  for(int i = 0;i < fNPtBins;i++){
-    fHistAccxEffCosThetaHEReWeighted[i] = new TH1D(Form("histAccxEffCosThetaHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
-    fHistAccxEffCosThetaHEReWeighted[i] -> Divide(fHistRecCosThetaHEReWeighted[i],fHistGenCosThetaHEReWeighted[i],1,1,"B");
-
-    fHistAccxEffPhiHEReWeighted[i] = new TH1D(Form("histAccxEffPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
-    fHistAccxEffPhiHEReWeighted[i] -> Divide(fHistRecPhiHEReWeighted[i],fHistGenPhiHEReWeighted[i],1,1,"B");
-
-    fHistAccxEffPhiTildeHEReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
-    fHistAccxEffPhiTildeHEReWeighted[i] -> Divide(fHistRecPhiTildeHEReWeighted[i],fHistGenPhiTildeHEReWeighted[i],1,1,"B");
-
-    fHistAccxEffCosThetaPhiHEReWeighted[i] = new TH2D(Form("histAccxEffCosThetaPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
-    fHistAccxEffCosThetaPhiHEReWeighted[i] -> Divide(fHistRecCosThetaPhiHEReWeighted[i],fHistGenCosThetaPhiHEReWeighted[i],1,1,"B");
-
-
-    fHistAccxEffCosThetaCSReWeighted[i] = new TH1D(Form("histAccxEffCosThetaCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
-    fHistAccxEffCosThetaCSReWeighted[i] -> Divide(fHistRecCosThetaCSReWeighted[i],fHistGenCosThetaCSReWeighted[i],1,1,"B");
-
-    fHistAccxEffPhiCSReWeighted[i] = new TH1D(Form("histAccxEffPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
-    fHistAccxEffPhiCSReWeighted[i] -> Divide(fHistRecPhiCSReWeighted[i],fHistGenPhiCSReWeighted[i],1,1,"B");
-
-    fHistAccxEffPhiTildeCSReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
-    fHistAccxEffPhiTildeCSReWeighted[i] -> Divide(fHistRecPhiTildeCSReWeighted[i],fHistGenPhiTildeCSReWeighted[i],1,1,"B");
-
-    fHistAccxEffCosThetaPhiCSReWeighted[i] = new TH2D(Form("histAccxEffCosThetaPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0],fNPhiBins,&fPhiValues[0]);
-    fHistAccxEffCosThetaPhiCSReWeighted[i] -> Divide(fHistRecCosThetaPhiCSReWeighted[i],fHistGenCosThetaPhiCSReWeighted[i],1,1,"B");
-  }
-
-  if(saveFile){
-    TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
-    for(int i = 1;i < fNPtBins;i++){
-      fHistGenCosThetaHEReWeighted[i] -> Write();
-      fHistRecCosThetaHEReWeighted[i] -> Write();
-      fHistAccxEffCosThetaHEReWeighted[i] -> Write();
-
-      fHistGenPhiHEReWeighted[i] -> Write();
-      fHistRecPhiHEReWeighted[i] -> Write();
-      fHistAccxEffPhiHEReWeighted[i] -> Write();
-
-      fHistGenPhiTildeHEReWeighted[i] -> Write();
-      fHistRecPhiTildeHEReWeighted[i] -> Write();
-      fHistAccxEffPhiTildeHEReWeighted[i] -> Write();
-
-      fHistGenCosThetaCSReWeighted[i] -> Write();
-      fHistRecCosThetaCSReWeighted[i] -> Write();
-      fHistAccxEffCosThetaCSReWeighted[i] -> Write();
-
-      fHistGenPhiCSReWeighted[i] -> Write();
-      fHistRecPhiCSReWeighted[i] -> Write();
-      fHistAccxEffPhiCSReWeighted[i] -> Write();
-
-      fHistGenPhiTildeCSReWeighted[i] -> Write();
-      fHistRecPhiTildeCSReWeighted[i] -> Write();
-      fHistAccxEffPhiTildeCSReWeighted[i] -> Write();
-
-      fHistGenCosThetaPhiHEReWeighted[i] -> Write();
-      fHistRecCosThetaPhiHEReWeighted[i] -> Write();
-      fHistAccxEffCosThetaPhiHEReWeighted[i] -> Write();
-
-      fHistGenCosThetaPhiCSReWeighted[i] -> Write();
-      fHistRecCosThetaPhiCSReWeighted[i] -> Write();
-      fHistAccxEffCosThetaPhiCSReWeighted[i] -> Write();
-    }
-    fileAccxEffReWeighted -> Close();
-  }
-  */
-
-  //______________________________________________________________________________
-  ////////////////////////////////////////////////////////////////////////////////
   Long_t *dummy1 = 0, *dummy2 = 0, *dummy3 = 0, *dummy4 = 0;
 
   // Computing the sum of N_CMUL7 - PbPb2015
@@ -1807,8 +1613,396 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
     }
     fileAccxEffReWeighted -> Close();
   }
+}
+//______________________________________________________________________________
+void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Upsilon(Double_t polParHE[3][1], Double_t polParCS[3][1], string strSample, Bool_t saveFile, string nameOutputFile) {
+  int indexPt = 0;
+  int nEvents = 0;
+
+  TF1 *funcCosThetaHE[4], *funcPhiHE[4], *funcPhiTildeHE[4];
+  TF1 *funcCosThetaCS[4], *funcPhiCS[4], *funcPhiTildeCS[4];
+
+  for(int i = 0;i < 1;i++){
+    funcCosThetaHE[i] = new TF1(Form("funcCosThetaHE_%i",i),"(1/(3 + [0]))*(1 + [0]*x*x)",-1,1); funcCosThetaHE[i] -> SetParameter(0,polParHE[0][i]);
+    funcPhiHE[i] = new TF1(Form("funcPhiHE_%i",i),"(1 + ((2*[1])/(3 + [0]))*cos(2*x))",0,fPi); funcPhiHE[i] -> SetParameter(0,polParHE[0][i]); funcPhiHE[i] -> SetParameter(1,polParHE[1][i]);
+    funcPhiTildeHE[i] = new TF1(Form("funcPhiTildeHE_%i",i),"(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*fPi); funcPhiTildeHE[i] -> SetParameter(0,polParHE[0][i]); funcPhiTildeHE[i] -> SetParameter(2,polParHE[2][i]);
+
+    funcCosThetaCS[i] = new TF1(Form("funcCosThetaCS_%i",i),"(1/(3 + [0]))*(1 + [0]*x*x)",-1,1); funcCosThetaCS[i] -> SetParameter(0,polParCS[0][i]);
+    funcPhiCS[i] = new TF1(Form("funcPhiCS_%i",i),"(1 + ((2*[1])/(3 + [0]))*cos(2*x))",0,fPi); funcPhiCS[i] -> SetParameter(0,polParCS[0][i]); funcPhiCS[i] -> SetParameter(1,polParCS[1][i]);
+    funcPhiTildeCS[i] = new TF1(Form("funcPhiTildeCS_%i",i),"(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*fPi); funcPhiTildeCS[i] -> SetParameter(0,polParCS[0][i]); funcPhiTildeCS[i] -> SetParameter(2,polParCS[2][i]);
+  }
+
+  //if(strSample == "FullStat"){nEvents = fTreeAccxEff_PbPb2015_PbPb2018[ii] -> GetEntries();}
+  //if(strSample == "TestStat"){nEvents = 300000;}
+  //printf("N events = %i \n",nEvents);
+
+  double CosThetaHEGen = 0;
+  double CosThetaHERec = 0;
+  double PhiHEGen = 0;
+  double PhiHERec = 0;
+  double PhiTildeHEGen = 0;
+  double PhiTildeHERec = 0;
+
+  double weightCosThetaHE = 0;
+  double weightPhiHE = 0;
+  double weightPhiTildeHE = 0;
+
+  double weightCosThetaPhiHE = 0;
+
+  double CosThetaCSGen = 0;
+  double CosThetaCSRec = 0;
+  double PhiCSGen = 0;
+  double PhiCSRec = 0;
+  double PhiTildeCSGen = 0;
+  double PhiTildeCSRec = 0;
+
+  double weightCosThetaCS = 0;
+  double weightPhiCS = 0;
+  double weightPhiTildeCS = 0;
+
+  double weightCosThetaPhiCS = 0;
+
+  for(int i = 0;i < fNPtBins;i++){
+    fHistGenCosThetaHEReWeighted[i] = new TH1D(Form("histGenCosThetaHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaHEReWeighted[i] -> Sumw2();
+    fHistRecCosThetaHEReWeighted[i] = new TH1D(Form("histRecCosThetaHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistRecCosThetaHEReWeighted[i] -> Sumw2();
+    fHistGenPhiHEReWeighted[i] = new TH1D(Form("histGenPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]); fHistGenPhiHEReWeighted[i] -> Sumw2();
+    fHistRecPhiHEReWeighted[i] = new TH1D(Form("histRecPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]); fHistRecPhiHEReWeighted[i] -> Sumw2();
+    fHistGenPhiTildeHEReWeighted[i] = new TH1D(Form("histGenPhiTildeHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistGenPhiTildeHEReWeighted[i] -> Sumw2();
+    fHistRecPhiTildeHEReWeighted[i] = new TH1D(Form("histRecPhiTildeHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistRecPhiTildeHEReWeighted[i] -> Sumw2();
+
+    fHistGenCosThetaCSReWeighted[i] = new TH1D(Form("histGenCosThetaCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaCSReWeighted[i] -> Sumw2();
+    fHistRecCosThetaCSReWeighted[i] = new TH1D(Form("histRecCosThetaCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistRecCosThetaCSReWeighted[i] -> Sumw2();
+    fHistGenPhiCSReWeighted[i] = new TH1D(Form("histGenPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]); fHistGenPhiCSReWeighted[i] -> Sumw2();
+    fHistRecPhiCSReWeighted[i] = new TH1D(Form("histRecPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]); fHistRecPhiCSReWeighted[i] -> Sumw2();
+    fHistGenPhiTildeCSReWeighted[i] = new TH1D(Form("histGenPhiTildeCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistGenPhiTildeCSReWeighted[i] -> Sumw2();
+    fHistRecPhiTildeCSReWeighted[i] = new TH1D(Form("histRecPhiTildeCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistRecPhiTildeCSReWeighted[i] -> Sumw2();
+  }
+
+  double tmpVar = 0;
+  Long_t *dummy1 = 0, *dummy2 = 0, *dummy3 = 0, *dummy4 = 0;
+
+  // Table 1 ALICE-PUBLIC-2018-011 [https://cds.cern.ch/record/2636623/files/centrality%20determination%20note.pdf]
+  double centrClass[6] = {0,20,40,60,80,90};
+  const int NCentrClass = 5;
+  double minCentrClass[NCentrClass] = {0,20,40,60,80};
+  double maxCentrClass[NCentrClass] = {20,40,60,80,90};
+  double Ncoll[NCentrClass] = {1273,468.2,138.5,28.31,1.708};
+
+  double sum_Ncoll = 0;
+  for(int i = 0;i < NCentrClass;i++){sum_Ncoll += Ncoll[i];}
+
+  // Computing the event-per-event weight on NColl
+  double weight_Ncoll[NCentrClass];
+  for(int i = 0;i < NCentrClass;i++){weight_Ncoll[i] = Ncoll[i]/sum_Ncoll;}
+
+  // Computing the sum of N_CMUL7 - PbPb2015
+  string simName_PbPb2015 = "LHC16e2_plus";
+  string filePath_PbPb2015 = "/home/luca/data_storage/PbPb2015/embedding_MC";
+  ifstream fileNCMUL7_PbPb2015 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2015/run_info.txt");
+  string runNumber_PbPb2015;
+  double NCMUL7_PbPb2015;
+  double sum_NCMUL7_PbPb2015 = 0.;
+  if (fileNCMUL7_PbPb2015.is_open()){
+    while (fileNCMUL7_PbPb2015 >> runNumber_PbPb2015 >> NCMUL7_PbPb2015){
+      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath_PbPb2015.c_str(),simName_PbPb2015.c_str(),runNumber_PbPb2015.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        sum_NCMUL7_PbPb2015 += NCMUL7_PbPb2015;
+      }
+    }
+  }
+  cout << "Total CMUL7 triggers (PbPb2015) = " << sum_NCMUL7_PbPb2015 << endl;
+
+  // Computing the sum of N_CMUL7 - PbPb2018
+  string simName_PbPb2018 = "LHC19a2";
+  string filePath_PbPb2018 = "/home/luca/data_storage/PbPb2018/embedding_MC";
+  ifstream fileNCMUL7_PbPb2018 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2018/run_info.txt");
+  string runNumber_PbPb2018;
+  double NCMUL7_PbPb2018;
+  double sum_NCMUL7_PbPb2018 = 0.;
+  if (fileNCMUL7_PbPb2018.is_open()){
+    while (fileNCMUL7_PbPb2018 >> runNumber_PbPb2018 >> NCMUL7_PbPb2018){
+      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath_PbPb2018.c_str(),simName_PbPb2018.c_str(),runNumber_PbPb2018.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        sum_NCMUL7_PbPb2018 += NCMUL7_PbPb2018;
+      }
+    }
+  }
+  cout << "Total CMUL7 triggers (PbPb2018) = " << sum_NCMUL7_PbPb2018 << endl;
+
+  double sum_NCMUL7 = sum_NCMUL7_PbPb2015 + sum_NCMUL7_PbPb2018;
+  cout << "Total CMUL7 triggers (PbPb2015 + PbPb2018) = " << sum_NCMUL7 << endl;
+
+  string filePath[2];
+  filePath[0] = filePath_PbPb2015;
+  filePath[1] = filePath_PbPb2018;
+  int period[2] = {2015,2018};
+  string simName[2];
+  simName[0] = simName_PbPb2015;
+  simName[1] = simName_PbPb2018;
+
+  int runCounter = 0;
+  int indexCosTheta = 0;
+  int indexPhi = 0;
+  int indexCentr = 0;
+
+  string runNumber;
+  double NCMUL7;
+
+  vector <string> vectorRunList;
+  vector <double> vectorNCMUL7;
+
+  for(int ii = 0;ii < 2;ii++){
+    ifstream fileRunList (Form("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_%i/run_info.txt",period[ii]));
+    if (fileRunList.is_open()){
+      while (fileRunList >> runNumber >> NCMUL7){
+        if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+          runCounter++;
+          vectorRunList.push_back(runNumber);
+          vectorNCMUL7.push_back(NCMUL7);
+          printf("Reading run %s \n",runNumber.c_str());
+
+          TFile *file = new TFile(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),"READ");
+          TTree *tree = (TTree*) file -> Get("MCTree");
+          tree -> SetBranchAddress("PercV0M",&fPercV0M);
+          tree -> SetBranchAddress("NDimu_gen",&fNDimuGen);
+          tree -> SetBranchAddress("DimuY_gen",fDimuYGen);
+          tree -> SetBranchAddress("DimuPt_gen",fDimuPtGen);
+
+          tree -> SetBranchAddress("CostHE_gen",fCosThetaHEGen);
+          tree -> SetBranchAddress("PhiHE_gen",fPhiHEGen);
+          tree -> SetBranchAddress("CostCS_gen",fCosThetaCSGen);
+          tree -> SetBranchAddress("PhiCS_gen",fPhiCSGen);
+
+          tree -> SetBranchAddress("CostHE_rec",fCosThetaHERec);
+          tree -> SetBranchAddress("PhiHE_rec",fPhiHERec);
+          tree -> SetBranchAddress("CostCS_rec",fCosThetaCSRec);
+          tree -> SetBranchAddress("PhiCS_rec",fPhiCSRec);
+
+          tree -> SetBranchAddress("NDimu_rec",&fNDimuRec);
+          tree -> SetBranchAddress("DimuY_rec",fDimuYRec);
+          tree -> SetBranchAddress("DimuPt_rec",fDimuPtRec);
+          tree -> SetBranchAddress("DimuPDG_gen",fDimuPDG_gen);
+          tree -> SetBranchAddress("DimuPDG_rec",fDimuPDG_rec);
+
+          tree -> SetBranchAddress("DimuMu_rec",fDimuMu_rec);
+          tree -> SetBranchAddress("Pt_rec",fPt_rec);
 
 
+          nEvents = tree -> GetEntries();
+          //nEvents = 1000;
+          for(int i = 0;i < nEvents;i++){
+            printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
+            tree -> GetEntry(i);
+            indexCentr = 0;
+            while(fPercV0M < minCentrClass[indexCentr] || fPercV0M > maxCentrClass[indexCentr]){indexCentr++;}
+            for(int j = 0;j < fNDimuGen;j++){
+              if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
+                if(fDimuPDG_gen[j] == 553){
+                  indexPt = 0;
+                  if(fDimuPtGen[j] > 15.){continue;}
+                  //while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+                  // Weight Helicity
+                  weightCosThetaHE = (funcCosThetaHE[indexPt] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexPt] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
+                  weightPhiHE = (funcPhiHE[indexPt] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexPt] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
+                  weightPhiTildeHE = (funcPhiTildeHE[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeHE[indexPt] -> GetMaximum()); PhiTildeHEGen = fPhiTilde;
+
+                  fHistGenCosThetaHEReWeighted[indexPt] -> Fill(fabs(fCosThetaHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaHE);
+                  fHistGenPhiHEReWeighted[indexPt] -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiHE);
+                  fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeHE);
+
+                  weightCosThetaCS = (funcCosThetaCS[indexPt] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexPt] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
+                  weightPhiCS = (funcPhiCS[indexPt] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexPt] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
+                  weightPhiTildeCS = (funcPhiTildeCS[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeCS[indexPt] -> GetMaximum()); PhiTildeCSGen = fPhiTilde;
+
+                  fHistGenCosThetaCSReWeighted[indexPt] -> Fill(fabs(fCosThetaCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaCS);
+                  fHistGenPhiCSReWeighted[indexPt] -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiCS);
+                  fHistGenPhiTildeCSReWeighted[indexPt] -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeCS);
+                  indexPt = 0;
+                }
+              }
+            }
+
+            for(int j = 0;j < fNDimuRec;j++){
+              if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
+                if(fDimuPDG_rec[j] == 553){
+                  if(fPt_rec[fDimuMu_rec[j][0]] < 2. && fPt_rec[fDimuMu_rec[j][1]] < 2.){continue;}                                        // Cut on the single muon pT rec
+                  indexPt = 0;
+                  if(fDimuPtRec[j] > 15.){continue;}
+                  //while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                  // Weight Collins-Soper
+                  fHistRecCosThetaHEReWeighted[indexPt] -> Fill(fabs(fCosThetaHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaHE);
+                  fHistRecPhiHEReWeighted[indexPt] -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiHE);
+                  fHistRecPhiTildeHEReWeighted[indexPt] -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeHE);
+
+                  fHistRecCosThetaCSReWeighted[indexPt] -> Fill(fabs(fCosThetaCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaCS);
+                  fHistRecPhiCSReWeighted[indexPt] -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiCS);
+                  fHistRecPhiTildeCSReWeighted[indexPt] -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeCS);
+                  indexPt = 0;
+                }
+              }
+            }
+          }
+
+          /*
+          nEvents = tree -> GetEntries();
+          for(int i = 0;i < nEvents;i++){
+            printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
+            tree -> GetEntry(i);
+
+            for(int j = 0;j < fNDimuGen;j++){
+              if(fDimuPtGen[j] < 2.){continue;}
+              if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
+                ////////////////////////////////////////////////////////////////////////
+                // HELICITY
+                while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+                if(indexPt >= 4){indexPt = 0; continue;}
+
+                tmpVar = fPhiHEGen[j] + fPi;
+                if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaHEGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                weightCosThetaHE = (funcCosThetaHE[indexPt] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexPt] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
+                weightPhiHE = (funcPhiHE[indexPt] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexPt] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
+                weightPhiTildeHE = (funcPhiTildeHE[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeHE[indexPt] -> GetMaximum()); PhiTildeHEGen = fPhiTilde;
+                weightCosThetaPhiHE = (funcCosThetaPhiHE[indexPt] -> Eval(fCosThetaHEGen[j],fPhiHEGen[j]))/(funcCosThetaPhiHE[indexPt] -> GetMaximum());
+
+                fHistGenCosThetaHEReWeighted[indexPt] -> Fill(CosThetaHEGen,weightCosThetaHE*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(PhiHEGen),weightPhiHE*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiTildeHEReWeighted[indexPt] -> Fill(PhiTildeHEGen,weightPhiTildeHE*(NCMUL7/sum_NCMUL7));
+                fHistGenCosThetaPhiHEReWeighted[indexPt] -> Fill(CosThetaHEGen,TMath::Abs(PhiHEGen),weightCosThetaPhiHE*(NCMUL7/sum_NCMUL7));
+                indexPt = 0;
+                // COLLINS-SOPER
+                while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
+                if(indexPt >= 4){indexPt = 0; continue;}
+
+                tmpVar = fPhiCSGen[j] + fPi;
+                if(fCosThetaCSGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                if(fCosThetaCSGen[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                weightCosThetaCS = (funcCosThetaCS[indexPt] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexPt] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
+                weightPhiCS = (funcPhiCS[indexPt] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexPt] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
+                weightPhiTildeCS = (funcPhiTildeCS[indexPt] -> Eval(fPhiTilde))/(funcPhiTildeCS[indexPt] -> GetMaximum()); PhiTildeCSGen = fPhiTilde;
+                weightCosThetaPhiCS = (funcCosThetaPhiCS[indexPt] -> Eval(fCosThetaCSGen[j],fPhiCSGen[j]))/(funcCosThetaPhiCS[indexPt] -> GetMaximum());
+
+                fHistGenCosThetaCSReWeighted[indexPt] -> Fill(CosThetaCSGen,weightCosThetaCS*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(PhiCSGen),weightPhiCS*(NCMUL7/sum_NCMUL7));
+                fHistGenPhiTildeCSReWeighted[indexPt] -> Fill(PhiTildeCSGen,weightPhiTildeCS*(NCMUL7/sum_NCMUL7));
+                fHistGenCosThetaPhiCSReWeighted[indexPt] -> Fill(CosThetaCSGen,TMath::Abs(PhiCSGen),weightCosThetaPhiCS*(NCMUL7/sum_NCMUL7));
+                indexPt = 0;
+                ////////////////////////////////////////////////////////////////////////
+              }
+            }
+
+            for(int j = 0;j < fNDimuRec;j++){
+              if(fDimuPtRec[j] < 2.){continue;}
+              if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
+                if(fDimuMatchRec[j] == 2){
+                  if(fDimuMassRec[j] > 2 && fDimuMassRec[j] < 5){
+                    ////////////////////////////////////////////////////////////////////
+                    // HELICITY
+                    if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
+                      if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                        while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                        if(indexPt >= 4){indexPt = 0; continue;}
+
+                        tmpVar = fPhiHERec[j] + fPi;
+                        if(fCosThetaHERec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                        if(fCosThetaHERec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                        fHistRecCosThetaHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],weightCosThetaHE*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiHEReWeighted[indexPt] -> Fill(TMath::Abs(fPhiHERec[j]),weightPhiHE*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiTildeHEReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeHE*(NCMUL7/sum_NCMUL7));
+                        fHistRecCosThetaPhiHEReWeighted[indexPt] -> Fill(fCosThetaHERec[j],TMath::Abs(fPhiHERec[j]),weightCosThetaPhiHE*(NCMUL7/sum_NCMUL7));
+                        indexPt = 0;
+                      }
+                    }
+                    // COLLINS-SOPER
+                    if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
+                      if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                        while(fDimuPtRec[j] < fMinPt[indexPt] || fDimuPtRec[j] > fMaxPt[indexPt]){indexPt++;}
+                        if(indexPt >= 4){indexPt = 0; continue;}
+
+                        tmpVar = fPhiCSRec[j] + fPi;
+                        if(fCosThetaCSRec[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
+                        if(fCosThetaCSRec[j] > 0.){fPhiTilde = tmpVar - (1./4.)*fPi;}
+                        if(fPhiTilde > 2*fPi){fPhiTilde = fPhiTilde - 2*fPi;}
+                        if(fPhiTilde < 0.){fPhiTilde = 2*fPi + fPhiTilde;}
+
+                        fHistRecCosThetaCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],weightCosThetaCS*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiCSReWeighted[indexPt] -> Fill(TMath::Abs(fPhiCSRec[j]),weightPhiCS*(NCMUL7/sum_NCMUL7));
+                        fHistRecPhiTildeCSReWeighted[indexPt] -> Fill(fPhiTilde,weightPhiTildeCS*(NCMUL7/sum_NCMUL7));
+                        fHistRecCosThetaPhiCSReWeighted[indexPt] -> Fill(fCosThetaCSRec[j],TMath::Abs(fPhiCSRec[j]),weightCosThetaPhiCS*(NCMUL7/sum_NCMUL7));
+                        indexPt = 0;
+                      }
+                    }
+                    ////////////////////////////////////////////////////////////////////
+                  }
+                }
+              }
+            }
+          }
+          */
+          file -> Close();
+          printf("\n");
+        }
+      }
+    }
+  }
+
+
+  for(int i = 0;i < fNPtBins;i++){
+    fHistAccxEffCosThetaHEReWeighted[i] = new TH1D(Form("histAccxEffCosThetaHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
+    fHistAccxEffCosThetaHEReWeighted[i] -> Divide(fHistRecCosThetaHEReWeighted[i],fHistGenCosThetaHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiHEReWeighted[i] = new TH1D(Form("histAccxEffPhiHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffPhiHEReWeighted[i] -> Divide(fHistRecPhiHEReWeighted[i],fHistGenPhiHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiTildeHEReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeHEReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
+    fHistAccxEffPhiTildeHEReWeighted[i] -> Divide(fHistRecPhiTildeHEReWeighted[i],fHistGenPhiTildeHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffCosThetaCSReWeighted[i] = new TH1D(Form("histAccxEffCosThetaCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
+    fHistAccxEffCosThetaCSReWeighted[i] -> Divide(fHistRecCosThetaCSReWeighted[i],fHistGenCosThetaCSReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiCSReWeighted[i] = new TH1D(Form("histAccxEffPhiCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffPhiCSReWeighted[i] -> Divide(fHistRecPhiCSReWeighted[i],fHistGenPhiCSReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiTildeCSReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeCSReWeighted_%ipT%i",(int) fMinPt[i],(int) fMaxPt[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
+    fHistAccxEffPhiTildeCSReWeighted[i] -> Divide(fHistRecPhiTildeCSReWeighted[i],fHistGenPhiTildeCSReWeighted[i],1,1,"B");
+  }
+
+  if(saveFile){
+    TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
+    for(int i = 0;i < fNPtBins;i++){
+      fHistGenCosThetaHEReWeighted[i] -> Write();
+      fHistRecCosThetaHEReWeighted[i] -> Write();
+      fHistAccxEffCosThetaHEReWeighted[i] -> Write();
+
+      fHistGenPhiHEReWeighted[i] -> Write();
+      fHistRecPhiHEReWeighted[i] -> Write();
+      fHistAccxEffPhiHEReWeighted[i] -> Write();
+
+      fHistGenPhiTildeHEReWeighted[i] -> Write();
+      fHistRecPhiTildeHEReWeighted[i] -> Write();
+      fHistAccxEffPhiTildeHEReWeighted[i] -> Write();
+
+      fHistGenCosThetaCSReWeighted[i] -> Write();
+      fHistRecCosThetaCSReWeighted[i] -> Write();
+      fHistAccxEffCosThetaCSReWeighted[i] -> Write();
+
+      fHistGenPhiCSReWeighted[i] -> Write();
+      fHistRecPhiCSReWeighted[i] -> Write();
+      fHistAccxEffPhiCSReWeighted[i] -> Write();
+
+      fHistGenPhiTildeCSReWeighted[i] -> Write();
+      fHistRecPhiTildeCSReWeighted[i] -> Write();
+      fHistAccxEffPhiTildeCSReWeighted[i] -> Write();
+    }
+    fileAccxEffReWeighted -> Close();
+  }
 }
 //______________________________________________________________________________
 ////////////////////////////////////////////////////////////////////////////////

@@ -25,6 +25,7 @@ class AccxEffCalculator : public TObject
    //void ReWeightAccxEff(Double_t polParHE[], Double_t polParCS[], string strSample, Bool_t saveFile, string nameOutputFile);
    void ReWeightAccxEff(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
    void ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
+   void ReWeightAccxEff_PbPb2015_PbPb2018_Upsilon(Double_t polParHE[3][1], Double_t polParCS[3][1], string strSample, Bool_t saveFile, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
    //void ComputeReweightTRFAccxEff(string , string , bool , TH1D *);
    void ComputeReweightTRFAccxEff(string , string , bool , TObjArray *);
@@ -202,6 +203,7 @@ class AccxEffCalculator : public TObject
 
    // tree variables
    Int_t fNDimuGen;
+   Float_t  fPercV0M;
    Double_t fDimuPtGen[3000];
    Double_t fDimuYGen[3000];
    Double_t fCosThetaHEGen[3000];
@@ -224,6 +226,13 @@ class AccxEffCalculator : public TObject
    Double_t fEtaRec[3000];
    Int_t fChargeRec[3000];
    Int_t fMatchTrigRec[3000];
+
+   Int_t    fDimuPDG_gen[3000];
+   Int_t    fDimuPDG_rec[3000];
+
+   Int_t    fDimuMu_rec[3000][2];
+   Double_t fPt_rec[3000];
+   Double_t fPt_gen[3000];
 
 ClassDef(AccxEffCalculator,1)
 };
