@@ -72,7 +72,6 @@ class SpecialFitCalculator : public TObject
    Double_t fErrorLambdaThetaPhi;
    Double_t fErrorLambdaThetaLambdaPhi;
 
-
    Double_t fNormCosThetaHE, fErrorNormCosThetaHE;
    Double_t fLambdaThetaHE, fErrorLambdaThetaHE;
    Double_t fNormPhiHE, fErrorNormPhiHE;

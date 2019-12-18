@@ -478,14 +478,19 @@ void MassFitter_3::PlotStandard(bool savePlot){
   letexTitle -> DrawLatex(0.55,0.82,Form("N_{J/#psi} = %2.0f #pm %2.0f",fNJpsi,fStatJpsi));
   letexTitle -> DrawLatex(0.55,0.76,Form("#it{m}_{J/#psi} = %4.3f #pm %4.3f GeV/#it{c}^{2}",fMassJpsi,fErrMassJpsi));
   letexTitle -> DrawLatex(0.55,0.7,Form("#it{#sigma}_{J/#psi} = %3.0f #pm %3.0f MeV/#it{c}^{2}",fSigmaJpsi*1000,fErrSigmaJpsi*1000));
-  letexTitle -> DrawLatex(0.55,0.64,Form("N_{#psi(2S)} = %2.0f #pm %2.0f",fNPsi2S,fStatPsi2S));
-  letexTitle -> DrawLatex(0.55,0.58,Form("#it{m}_{#psi(2S)} = %4.3f #pm %4.3f GeV/#it{c}^{2}",fMassPsi2S,fErrMassPsi2S));
-  letexTitle -> DrawLatex(0.55,0.52,Form("#it{#sigma}_{#psi(2S)} = %3.0f #pm %3.0f MeV/#it{c}^{2}",fSigmaPsi2S*1000,fErrSigmaPsi2S*1000));
-  if(fIndexCosTheta == 100) letexTitle -> DrawLatex(0.6,0.45,"-0.8 < cos#it{#theta} < 0.8");
-  else{letexTitle -> DrawLatex(0.6,0.45,Form("%3.2f < cos#it{#theta} < %3.2f",fCosThetaValues[fIndexCosTheta],fCosThetaValues[fIndexCosTheta+1]));}
-  if(fIndexPhi == 100) letexTitle -> DrawLatex(0.6,0.4,"0.5 < |#it{#varphi}| < 2.64 rad");
-  else{letexTitle -> DrawLatex(0.6,0.4,Form("%3.2f < |#it{#varphi}| < %3.2f rad",fPhiValues[fIndexPhi],fPhiValues[fIndexPhi+1]));}
-  letexTitle -> DrawLatex(0.6,0.35,Form("#chi^{2}/ndf = %3.1f/%i",(double) fFuncTot -> GetChisquare(),(int) fFuncTot -> GetNDF()));
+  //letexTitle -> DrawLatex(0.55,0.64,Form("N_{#psi(2S)} = %2.0f #pm %2.0f",fNPsi2S,fStatPsi2S));
+  //letexTitle -> DrawLatex(0.55,0.58,Form("#it{m}_{#psi(2S)} = %4.3f #pm %4.3f GeV/#it{c}^{2}",fMassPsi2S,fErrMassPsi2S));
+  //letexTitle -> DrawLatex(0.55,0.52,Form("#it{#sigma}_{#psi(2S)} = %3.0f #pm %3.0f MeV/#it{c}^{2}",fSigmaPsi2S*1000,fErrSigmaPsi2S*1000));
+  //if(fIndexCosTheta == 100) letexTitle -> DrawLatex(0.6,0.45,"-0.8 < cos#it{#theta} < 0.8");
+  //else{letexTitle -> DrawLatex(0.6,0.45,Form("%3.2f < cos#it{#theta} < %3.2f",fCosThetaValues[fIndexCosTheta],fCosThetaValues[fIndexCosTheta+1]));}
+  //if(fIndexPhi == 100) letexTitle -> DrawLatex(0.6,0.4,"0.5 < |#it{#varphi}| < 2.64 rad");
+  //else{letexTitle -> DrawLatex(0.6,0.4,Form("%3.2f < |#it{#varphi}| < %3.2f rad",fPhiValues[fIndexPhi],fPhiValues[fIndexPhi+1]));}
+  if(fIndexCosTheta == 100) letexTitle -> DrawLatex(0.6,0.64,"-0.8 < cos#it{#theta} < 0.8");
+  else{letexTitle -> DrawLatex(0.6,0.64,Form("%3.2f < cos#it{#theta} < %3.2f",fCosThetaValues[fIndexCosTheta],fCosThetaValues[fIndexCosTheta+1]));}
+  if(fIndexPhi == 100) letexTitle -> DrawLatex(0.6,0.58,"0.5 < |#it{#varphi}| < 2.64 rad");
+  else{letexTitle -> DrawLatex(0.6,0.58,Form("%3.2f < |#it{#varphi}| < %3.2f rad",fPhiValues[fIndexPhi],fPhiValues[fIndexPhi+1]));}
+  letexTitle -> DrawLatex(0.6,0.52,Form("#chi^{2}/ndf = %3.1f/%i",(double) fFuncTot -> GetChisquare(),(int) fFuncTot -> GetNDF()));
+
   if(fChiSquare_NDF > 2. || fMassJpsi < 3.){letexTitle -> DrawLatex(0.6,0.41,"#color[2]{BAD FIT}");}
   canvasMinv -> cd();
   TPad *padRatio = new TPad("padRatio","padRatio",0.,0.05,1.,0.25); padRatio -> SetTopMargin(0); padRatio -> SetBottomMargin(0.25);

@@ -53,6 +53,8 @@ Int_t    gMaxFitRangeCosTheta;
 Int_t    gMaxFitRangePhi;
 Int_t    gMaxFitRangePhiTilde;
 
+Double_t globalChiSquare;
+
 Double_t funcCosTheta(Double_t , Double_t *);
 Double_t funcPhi(Double_t , Double_t *);
 Double_t funcPhiTilde(Double_t , Double_t *);
@@ -204,26 +206,40 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gr34 -> Draw("alp");
   */
 
-  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,-1.,1.,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
+  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,0.,1.,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
+  histGridCosTheta -> GetXaxis() -> SetTitle("cos#theta");
+
+  TH2D *histGridPhi = new TH2D("histGridPhi","",100,0.,gPi,100.,0.,gHistFit[1] -> GetMaximum() + 0.3*gHistFit[1] -> GetMaximum());
+  histGridPhi -> GetXaxis() -> SetTitle("#varphi");
+
+  TH2D *histGridPhiTilde = new TH2D("histGridPhiTilde","",100,0.,2*gPi,100.,0.,gHistFit[2] -> GetMaximum() + 0.3*gHistFit[2] -> GetMaximum());
+  histGridPhiTilde -> GetXaxis() -> SetTitle("#tilde{#varphi}");
+
+  gHistFit[0] -> SetMarkerStyle(20); gHistFit[0] -> SetMarkerColor(kBlack); gHistFit[0] -> SetLineColor(kBlack); 
+  gHistFit[1] -> SetMarkerStyle(20); gHistFit[1] -> SetMarkerColor(kBlack); gHistFit[1] -> SetLineColor(kBlack);
+  gHistFit[2] -> SetMarkerStyle(20); gHistFit[2] -> SetMarkerColor(kBlack); gHistFit[2] -> SetLineColor(kBlack);
 
   TCanvas *canvasHistFitSim_CosTheta = new TCanvas("canvasHistFitSim_CosTheta","canvasHistFitSim_CosTheta",600,600);
   histGridCosTheta -> Draw(); gHistFit[0] -> Draw("EPsame"); gFuncFit[0] -> Draw("same");
-  latexTitle -> DrawLatex(0.2,5000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  latexTitle -> DrawLatex(0.3,25000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  //latexTitle -> DrawLatex(0.2,3000.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
 
   TCanvas *canvasHistFitSim_Phi = new TCanvas("canvasHistFitSim_Phi","canvasHistFitSim_Phi",600,600);
-  gHistFit[1] -> Draw("EP"); gFuncFit[1] -> Draw("same");
-  latexTitle -> DrawLatex(1.,2000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  histGridPhi -> Draw(); gHistFit[1] -> Draw("EPsame"); gFuncFit[1] -> Draw("same");
+  latexTitle -> DrawLatex(1.,8000.,Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  //latexTitle -> DrawLatex(1,1000.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
 
   TCanvas *canvasHistFitSim_PhiTilde = new TCanvas("canvasHistFitSim_PhiTilde","canvasHistFitSim_PhiTilde",600,600);
-  gHistFit[2] -> Draw("EP"); gFuncFit[2] -> Draw("same");
-  latexTitle -> DrawLatex(2.,1000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  histGridPhiTilde -> Draw(); gHistFit[2] -> Draw("EPsame"); gFuncFit[2] -> Draw("same");
+  latexTitle -> DrawLatex(2.,4000.,Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  //latexTitle -> DrawLatex(2,500.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
 
   if(saveCanvas){
     //canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
     //canvasContour -> SaveAs(Form("%s_contour.png",nameCanvas.c_str()));
-    canvasHistFitSim_CosTheta -> SaveAs(Form("%s_CosTheta.png",nameCanvas.c_str()));
-    canvasHistFitSim_Phi -> SaveAs(Form("%s_Phi.png",nameCanvas.c_str()));
-    canvasHistFitSim_PhiTilde -> SaveAs(Form("%s_PhiTilde.png",nameCanvas.c_str()));
+    canvasHistFitSim_CosTheta -> SaveAs(Form("%s_CosTheta.pdf",nameCanvas.c_str()));
+    canvasHistFitSim_Phi -> SaveAs(Form("%s_Phi.pdf",nameCanvas.c_str()));
+    canvasHistFitSim_PhiTilde -> SaveAs(Form("%s_PhiTilde.pdf",nameCanvas.c_str()));
   }
   delete canvasHistFit;
 }
@@ -568,6 +584,7 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
   }
 
   gChiSquare = chiSquare;
+  globalChiSquare = chiSquare;
 }
 //______________________________________________________________________________
 void polarizationBarbatruccoFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t *par, Int_t iflag){
