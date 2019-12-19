@@ -20,6 +20,7 @@
 #include "TGraph.h"
 #include <vector>
 #include "TMatrixD.h"
+#include "TPaveText.h"
 
 #include "Fit/Fitter.h"
 #include "Fit/BinData.h"
@@ -52,6 +53,8 @@ Int_t    gMinFitRangePhiTilde;
 Int_t    gMaxFitRangeCosTheta;
 Int_t    gMaxFitRangePhi;
 Int_t    gMaxFitRangePhiTilde;
+
+string   gPlotTitle;
 
 Double_t globalChiSquare;
 
@@ -97,6 +100,10 @@ void SpecialFitCalculator::SetFitNormalization(Double_t NormCosTheta, Double_t N
   fInitNormCosTheta = NormCosTheta;
   fInitNormPhi = NormPhi;
   fInitNormPhiTilde = NormPhiTilde;
+}
+//______________________________________________________________________________
+void SpecialFitCalculator::SetPlotTitle(string plotTitle){
+   gPlotTitle = plotTitle;
 }
 //______________________________________________________________________________
 void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
@@ -219,19 +226,40 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gHistFit[1] -> SetMarkerStyle(20); gHistFit[1] -> SetMarkerColor(kBlack); gHistFit[1] -> SetLineColor(kBlack);
   gHistFit[2] -> SetMarkerStyle(20); gHistFit[2] -> SetMarkerColor(kBlack); gHistFit[2] -> SetLineColor(kBlack);
 
+  TPaveText *paveTextPolCosTheta = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  paveTextPolCosTheta -> SetFillColor(kWhite);
+  paveTextPolCosTheta -> AddText(gPlotTitle.c_str());
+  paveTextPolCosTheta -> AddText(Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+
+  TPaveText *paveTextPolPhi = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  paveTextPolPhi -> SetFillColor(kWhite);
+  paveTextPolPhi -> AddText(gPlotTitle.c_str());
+  paveTextPolPhi -> AddText(Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+
+  TPaveText *paveTextPolPhiTilde = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  paveTextPolPhiTilde -> SetFillColor(kWhite);
+  paveTextPolPhiTilde -> AddText(gPlotTitle.c_str());
+  paveTextPolPhiTilde -> AddText(Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+
   TCanvas *canvasHistFitSim_CosTheta = new TCanvas("canvasHistFitSim_CosTheta","canvasHistFitSim_CosTheta",600,600);
   histGridCosTheta -> Draw(); gHistFit[0] -> Draw("EPsame"); gFuncFit[0] -> Draw("same");
-  latexTitle -> DrawLatex(0.3,25000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  paveTextPolCosTheta -> Draw();
+  //latexTitle -> DrawLatex(0.05,27000.,gPlotTitle.c_str());
+  //latexTitle -> DrawLatex(0.3,25000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
   //latexTitle -> DrawLatex(0.2,3000.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
 
   TCanvas *canvasHistFitSim_Phi = new TCanvas("canvasHistFitSim_Phi","canvasHistFitSim_Phi",600,600);
   histGridPhi -> Draw(); gHistFit[1] -> Draw("EPsame"); gFuncFit[1] -> Draw("same");
-  latexTitle -> DrawLatex(1.,8000.,Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  paveTextPolPhi -> Draw();
+  //latexTitle -> DrawLatex(0.2,9000.,gPlotTitle.c_str());
+  //latexTitle -> DrawLatex(1.,8000.,Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
   //latexTitle -> DrawLatex(1,1000.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
 
   TCanvas *canvasHistFitSim_PhiTilde = new TCanvas("canvasHistFitSim_PhiTilde","canvasHistFitSim_PhiTilde",600,600);
   histGridPhiTilde -> Draw(); gHistFit[2] -> Draw("EPsame"); gFuncFit[2] -> Draw("same");
-  latexTitle -> DrawLatex(2.,4000.,Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  paveTextPolPhiTilde -> Draw();
+  //latexTitle -> DrawLatex(0.1,4800.,gPlotTitle.c_str());
+  //latexTitle -> DrawLatex(2.,4000.,Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
   //latexTitle -> DrawLatex(2,500.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
 
   if(saveCanvas){

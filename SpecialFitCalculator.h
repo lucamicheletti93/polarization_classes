@@ -29,6 +29,8 @@ class SpecialFitCalculator : public TObject
    vector <Double_t> GetPhiParametersList();
    vector <Double_t> GetErrorPhiParametersList();
 
+   void SetPlotTitle(string);
+
    Double_t GetLambdaTheta(){return fLambdaTheta;};
    Double_t GetErrorLambdaTheta(){return fErrorLambdaTheta;};
    Double_t GetLambdaPhi(){return fLambdaPhi;};
