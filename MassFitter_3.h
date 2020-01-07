@@ -21,6 +21,7 @@ public:
   void SetFitRange(Double_t , Double_t);
   void SetSpecialFitConditions(Int_t, Bool_t);
   void SetJpsiWidth(Double_t);
+  void SetPhilippeCorrectionFactor(Double_t);
   void SetCosThetaPhiIndex(Int_t, Int_t);
   void fit_of_minv(string, string, string, string, Bool_t, Bool_t);
 
@@ -83,6 +84,8 @@ private:
   string                 fPlotType;
   Bool_t                 fSavePlot;
   Int_t                  fRebin;
+
+  Double_t               fPhilippeCorrectionFactor;
 
 ClassDef(MassFitter_3,1)
 };

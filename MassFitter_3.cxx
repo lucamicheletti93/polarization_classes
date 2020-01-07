@@ -81,6 +81,8 @@ MassFitter_3::MassFitter_3(TH1D *histMinv): TObject() {
   fIndexPhi = 100;
   fRebin = 1;
   // standard constructor
+
+  fPhilippeCorrectionFactor = 0.;
 }
 //______________________________________________________________________________
 MassFitter_3::~MassFitter_3() {
@@ -105,6 +107,10 @@ void MassFitter_3::SetSpecialFitConditions(Int_t rebin, Bool_t jpsiMassFixedToPD
 void MassFitter_3::SetJpsiWidth(Double_t sigmaJpsi){
     fJpsiWidthFixed = kTRUE;
     fSigmaJpsi = sigmaJpsi;
+}
+//______________________________________________________________________________
+void MassFitter_3::SetPhilippeCorrectionFactor(Double_t philippeCorrectionFactor){
+  fPhilippeCorrectionFactor = philippeCorrectionFactor;
 }
 //______________________________________________________________________________
 void MassFitter_3::SetCosThetaPhiIndex(Int_t indexCosTheta, Int_t indexPhi){
@@ -247,7 +253,10 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       // J/psi width conditions
       if(fJpsiWidthFixed){
-        fSigmaJpsi = fScalingFactorJpsiSigma*fSigmaJpsi;
+        // RESTORE IN CASE OF PROBLEMS
+        //fSigmaJpsi = fScalingFactorJpsiSigma*fSigmaJpsi;
+        // PHILIPPE CORRECTION FACTOR
+        fSigmaJpsi = fScalingFactorJpsiSigma*fSigmaJpsi + fPhilippeCorrectionFactor;
         fFuncTot -> FixParameter(nParBkg + 2,fSigmaJpsi);
       }
       else{
