@@ -76,6 +76,7 @@ MassFitter_3::MassFitter_3(TH1D *histMinv): TObject() {
   fSpecialFitConditions = kFALSE;
   fJpsiWidthFixed = kFALSE;
   fJpsiMassFixedToPDG = kFALSE;
+  fJpsiMassFixedToIntegrated = kFALSE;
   fTailParametersFixed = kTRUE;
   fIndexCosTheta = 100;
   fIndexPhi = 100;
@@ -102,6 +103,11 @@ void MassFitter_3::SetSpecialFitConditions(Int_t rebin, Bool_t jpsiMassFixedToPD
     fSpecialFitConditions = kTRUE;
     fRebin = rebin;
     fJpsiMassFixedToPDG = jpsiMassFixedToPDG;
+}
+//______________________________________________________________________________
+void MassFitter_3::SetJpsiMass(Double_t massJpsi){
+    fJpsiMassFixedToIntegrated = kTRUE;
+    fMassIntegrated = massJpsi;
 }
 //______________________________________________________________________________
 void MassFitter_3::SetJpsiWidth(Double_t sigmaJpsi){
@@ -243,10 +249,9 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
 
       fFuncTot -> SetParameter(nParBkg + 0,funcSigJpsi -> GetParameter(nParBkg));
       fFuncTot -> SetParLimits(nParBkg + 0,0,10000000);
-      if(fJpsiMassFixedToPDG){
-        fFuncTot -> FixParameter(nParBkg + 1,3.096);
-      }
-      else{
+      if(fJpsiMassFixedToPDG){fFuncTot -> FixParameter(nParBkg + 1,3.096);}
+      if(fJpsiMassFixedToIntegrated){fFuncTot -> FixParameter(nParBkg + 1,fMassIntegrated);}
+      if(fJpsiMassFixedToIntegrated == kFALSE && fJpsiMassFixedToPDG == kFALSE){
         fFuncTot -> SetParameter(nParBkg + 1,3.096);
         fFuncTot -> SetParLimits(nParBkg + 1,2.9,3.2);
       }

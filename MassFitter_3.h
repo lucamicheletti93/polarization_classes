@@ -21,6 +21,7 @@ public:
   void SetFitRange(Double_t , Double_t);
   void SetSpecialFitConditions(Int_t, Bool_t);
   void SetJpsiWidth(Double_t);
+  void SetJpsiMass(Double_t);
   void SetPhilippeCorrectionFactor(Double_t);
   void SetCosThetaPhiIndex(Int_t, Int_t);
   void fit_of_minv(string, string, string, string, Bool_t, Bool_t);
@@ -44,6 +45,7 @@ private:
   Bool_t                 fSpecialFitConditions;
   Bool_t                 fJpsiWidthFixed;
   Bool_t                 fJpsiMassFixedToPDG;
+  Bool_t                 fJpsiMassFixedToIntegrated;
   Bool_t                 fTailParametersFixed;
 
   Int_t                  fIndexCosTheta;
@@ -56,6 +58,8 @@ private:
   Double_t               fMaxFitRange;
 
   string                 fFitStatus;
+
+  Double_t               fMassIntegrated;
 
   Double_t               fNJpsi, fStatJpsi;
   Double_t               fMassJpsi, fErrMassJpsi;
