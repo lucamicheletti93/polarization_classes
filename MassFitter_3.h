@@ -24,6 +24,7 @@ public:
   void SetJpsiMass(Double_t);
   void SetPhilippeCorrectionFactor(Double_t);
   void SetCosThetaPhiIndex(Int_t, Int_t);
+  void SetTailsParameters(Double_t [], Double_t []);
   void fit_of_minv(string, string, string, string, Bool_t, Bool_t);
 
   Double_t GetNJpsi(){return fNJpsi;}
@@ -50,7 +51,7 @@ private:
 
   Int_t                  fIndexCosTheta;
   Int_t                  fIndexPhi;
-   
+
   Double_t               fPi;
 
   Double_t               fScalingFactorJpsiSigma;
@@ -90,6 +91,9 @@ private:
   Int_t                  fRebin;
 
   Double_t               fPhilippeCorrectionFactor;
+
+  Double_t               fParTailsCB2[4];
+  Double_t               fParTailsNA60[8];
 
 ClassDef(MassFitter_3,1)
 };

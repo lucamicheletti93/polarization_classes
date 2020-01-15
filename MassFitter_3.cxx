@@ -81,6 +81,11 @@ MassFitter_3::MassFitter_3(TH1D *histMinv): TObject() {
   fIndexCosTheta = 100;
   fIndexPhi = 100;
   fRebin = 1;
+  double parTailsCB2[4] = {0.970014,3.9789,2.29866,3.0301};                                                 // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
+  double parTailsNA60[8] = {0.227822,1.14006,0.0357395,0.187828,1.22477,0.0569524,-0.630315,2.36889};       // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
+
+  for(int i = 0;i < 4;i++){fParTailsCB2[i] = parTailsCB2[i];}
+  for(int i = 0;i < 8;i++){fParTailsNA60[i] = parTailsNA60[i];}
   // standard constructor
 
   fPhilippeCorrectionFactor = 0.;
@@ -124,6 +129,11 @@ void MassFitter_3::SetCosThetaPhiIndex(Int_t indexCosTheta, Int_t indexPhi){
     fIndexPhi = indexPhi;
 }
 //______________________________________________________________________________
+void MassFitter_3::SetTailsParameters(Double_t tmpParTailsCB2[4], Double_t tmpParTailsNA60[8]){
+    for(int i = 0;i < 4;i++){fParTailsCB2[i] = tmpParTailsCB2[i];}
+    for(int i = 0;i < 8;i++){fParTailsNA60[i] = tmpParTailsNA60[i];}
+}
+//______________________________________________________________________________
 void MassFitter_3::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues) {
   for(int i = 0;i < (int) CosThetaValues.size();i++){fCosThetaValues.push_back(CosThetaValues[i]);}
   fNCosThetaBins = fCosThetaValues.size() - 1;
@@ -165,11 +175,11 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   if(sigShape == "CB2"){parSig = &(parSigCB2[0]); nParSig = sizeof(parSigCB2)/sizeof(double);}
   if(sigShape == "NA60"){parSig = &(parSigNA60[0]); nParSig = sizeof(parSigCB2)/sizeof(double);}
 
-  double parTailsCB2[4] = {0.970014,3.9789,2.29866,3.0301};                                                 // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
-  double parTailsNA60[8] = {0.227822,1.14006,0.0357395,0.187828,1.22477,0.0569524,-0.630315,2.36889};       // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
+  //double parTailsCB2[4] = {0.970014,3.9789,2.29866,3.0301};                                                 // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
+  //double parTailsNA60[8] = {0.227822,1.14006,0.0357395,0.187828,1.22477,0.0569524,-0.630315,2.36889};       // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
   double *parTails;
-  if(sigShape == "CB2"){parTails = &(parTailsCB2[0]); nParTails = sizeof(parTailsCB2)/sizeof(double);}
-  if(sigShape == "NA60"){parTails = &(parTailsNA60[0]); nParTails = sizeof(parTailsNA60)/sizeof(double);}
+  if(sigShape == "CB2"){parTails = &(fParTailsCB2[0]); nParTails = sizeof(fParTailsCB2)/sizeof(double);}
+  if(sigShape == "NA60"){parTails = &(fParTailsNA60[0]); nParTails = sizeof(fParTailsNA60)/sizeof(double);}
 
   cout << nParBkg << " " << nParSig << " " << nParTails << endl;
 
@@ -459,7 +469,7 @@ void MassFitter_3::PlotStandard(bool savePlot){
   TLegend *legendMassFit2 = new TLegend(0.3,0.65,0.45,0.75); legendMassFit2 -> SetTextSize(0.04); legendMassFit2 -> SetBorderSize(0);
   legendMassFit2 -> AddEntry(fFuncTot,"Total fit","L");
   legendMassFit2 -> AddEntry(fFuncSigJpsiFix,"J/#psi","L");
-  
+
 
   TCanvas *canvasMinv = new TCanvas("canvasMinv","canvasMinv",65,73,900,806);
   canvasMinv -> Range(1.825,-6776.052,5.019444,37862.12);
