@@ -581,13 +581,13 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
   fitBinMax[1] = gMaxFitRangePhi;
   fitBinMax[2] = gMaxFitRangePhiTilde;
 
-  //cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
-  //cout << gMinFitRangeCosTheta << " " << gMinFitRangePhi << " " << gMinFitRangePhiTilde << endl;
-  //cout << gMaxFitRangeCosTheta << " " << gMaxFitRangePhi << " " << gMaxFitRangePhiTilde << endl;
-  //cout << gHistFit[0] -> GetBinCenter(fitBinMin[0] + 1) << " " << gHistFit[0] -> GetBinCenter(gHistFit[0] -> GetSize() - fitBinMax[0] - 1) << endl;
-  //cout << gHistFit[1] -> GetBinCenter(fitBinMin[1] + 1) << " " << gHistFit[1] -> GetBinCenter(gHistFit[1] -> GetSize() - fitBinMax[1] - 1) << endl;
-  //cout << gHistFit[2] -> GetBinCenter(fitBinMin[2] + 1) << " " << gHistFit[2] -> GetBinCenter(gHistFit[2] -> GetSize() - fitBinMax[2] - 1) << endl;
-  //cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
+  cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
+  cout << gMinFitRangeCosTheta << " " << gMinFitRangePhi << " " << gMinFitRangePhiTilde << endl;
+  cout << gMaxFitRangeCosTheta << " " << gMaxFitRangePhi << " " << gMaxFitRangePhiTilde << endl;
+  cout << gHistFit[0] -> GetBinCenter(fitBinMin[0] + 1) << " " << gHistFit[0] -> GetBinCenter(gHistFit[0] -> GetSize() - fitBinMax[0] - 1) << endl;
+  cout << gHistFit[1] -> GetBinCenter(fitBinMin[1] + 1) << " " << gHistFit[1] -> GetBinCenter(gHistFit[1] -> GetSize() - fitBinMax[1] - 1) << endl;
+  cout << gHistFit[2] -> GetBinCenter(fitBinMin[2] + 1) << " " << gHistFit[2] -> GetBinCenter(gHistFit[2] -> GetSize() - fitBinMax[2] - 1) << endl;
+  cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
 
   for(int i = 0;i < gNDistrib;i++){
     for(int j = fitBinMin[i];j < gHistFit[i] -> GetSize() - fitBinMax[i];j++){
