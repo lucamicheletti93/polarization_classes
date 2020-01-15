@@ -130,7 +130,10 @@ void MassFitter_3::SetCosThetaPhiIndex(Int_t indexCosTheta, Int_t indexPhi){
 }
 //______________________________________________________________________________
 void MassFitter_3::SetTailsParameters(Double_t tmpParTailsCB2[4], Double_t tmpParTailsNA60[8]){
-    for(int i = 0;i < 4;i++){fParTailsCB2[i] = tmpParTailsCB2[i];}
+    for(int i = 0;i < 4;i++){fParTailsCB2[i] = tmpParTailsCB2[i];
+      cout << "+++++++++++++++++++++++++++++++++++" << endl;
+      cout << fParTailsCB2[i] << endl;
+    }
     for(int i = 0;i < 8;i++){fParTailsNA60[i] = tmpParTailsNA60[i];}
 }
 //______________________________________________________________________________
