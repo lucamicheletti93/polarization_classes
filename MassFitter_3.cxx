@@ -130,15 +130,18 @@ void MassFitter_3::SetCosThetaPhiIndex(Int_t indexCosTheta, Int_t indexPhi){
 }
 //______________________________________________________________________________
 void MassFitter_3::SetTailsParameters(Double_t tmpParTailsCB2[4], Double_t tmpParTailsNA60[8]){
+    cout << "Tails parameters" << endl;
+    cout << "CB2  = {";
     for(int i = 0;i < 4;i++){
       fParTailsCB2[i] = tmpParTailsCB2[i];
-      cout << "+++++++++++++++++++++++++++++++++++" << endl;
-      cout << fParTailsCB2[i] << endl;
+      if(i == 3){cout << fParTailsCB2[i] << "};" << endl;}
+      else{cout << fParTailsCB2[i] << ",";}
     }
+    cout << "NA60 = {";
     for(int i = 0;i < 8;i++){
       fParTailsNA60[i] = tmpParTailsNA60[i];
-      cout << "+++++++++++++++++++++++++++++++++++" << endl;
-      cout << fParTailsNA60[i] << endl;
+      if(i == 7){cout << fParTailsNA60[i] << "};" << endl;}
+      else{cout << fParTailsNA60[i] << ",";}
     }
 }
 //______________________________________________________________________________
@@ -399,6 +402,11 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   fErrSigmaPsi2S = (fFuncTot -> GetParError(nParBkg + 2))*1.07365;
   fNPsi2S = fFuncSigPsi2SFix -> Integral(0,5)/m_width;
   fStatPsi2S = fFuncSigPsi2SFix -> IntegralError(0,5,Psi2S_par,covPsi2S.GetMatrixArray())/m_width;
+
+  //cout << "################################################" << endl;
+  //cout << "N J/Psi   = " << fNJpsi  << " +/- " << fStatJpsi  << endl;
+  //cout << "N Psi(2S) = " << fNPsi2S << " +/- " << fStatPsi2S << endl;
+  //cout << "################################################" << endl;
 
   if(showPlot){
     if(fPlotType == "STANDARD"){PlotStandard(fSavePlot);}
