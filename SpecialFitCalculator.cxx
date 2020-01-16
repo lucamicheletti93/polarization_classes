@@ -125,14 +125,6 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   cout << "ndf = " << ndf << endl;
   gHistFit[0] -> SetAxisRange(-0.7,0.7);
 
-  TCanvas *canvasHistFit = new TCanvas("canvasHistFit","canvasHistFit",1400,600);
-  canvasHistFit -> Divide(gNDistrib,1);
-  for(int i = 0;i < gNDistrib;i++){
-    canvasHistFit -> cd(i+1);
-    gHistFit[i] -> Draw("PE");
-  }
-  canvasHistFit -> Update();
-
   TMinuit *minuit = new TMinuit(6);
   minuit -> SetFCN(polarizationFCN);
 
@@ -194,17 +186,6 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gFuncFit[2] -> SetParameter(0,normPhiTilde);
   gFuncFit[2] -> SetParameter(1,fLambdaTheta);
   gFuncFit[2] -> SetParameter(2,fLambdaThetaPhi);
-
-  TLatex *latexTitle = new TLatex(); TLatex *letexTitle = new TLatex(); letexTitle -> SetTextSize(0.04); letexTitle -> SetNDC(); letexTitle -> SetTextFont(42);
-
-  for(int i = 0;i < gNDistrib;i++){
-    canvasHistFit -> cd(i+1);
-    gFuncFit[i] -> Draw("same");
-    if(i == 0){latexTitle -> DrawLatex(0.2,18000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));}
-    if(i == 1){latexTitle -> DrawLatex(1.,9000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));}
-    if(i == 2){latexTitle -> DrawLatex(2.,5000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));}
-  }
-  canvasHistFit -> Update();
 
   /*
   TH2D *histGridContour = new TH2D("histGridContour","histGridContour",100,-1.,1.,100,-1.,1.);
@@ -269,7 +250,10 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
     canvasHistFitSim_Phi -> SaveAs(Form("%s_Phi.pdf",nameCanvas.c_str()));
     canvasHistFitSim_PhiTilde -> SaveAs(Form("%s_PhiTilde.pdf",nameCanvas.c_str()));
   }
-  delete canvasHistFit;
+
+  delete canvasHistFitSim_CosTheta;
+  delete canvasHistFitSim_Phi;
+  delete canvasHistFitSim_PhiTilde;
 }
 //______________________________________________________________________________
 void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
@@ -477,14 +461,6 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   }
   cout << "ndf = " << ndf << endl;
 
-  TCanvas *canvasHistFit = new TCanvas("canvasHistFit");
-  canvasHistFit -> Divide(gNDistrib,1);
-  for(int i = 0;i < gNDistrib;i++){
-    canvasHistFit -> cd(i+1);
-    gHistFit[i] -> Draw("PE");
-  }
-  canvasHistFit -> Update();
-
   gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",minFitRange,maxFitRange);
   gHistFit[0] -> Fit(gFuncFit[0],"R0IQ");
 
@@ -503,35 +479,67 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   fLambdaThetaPhi = gFuncFit[2] -> GetParameter(2);
   fErrorLambdaThetaPhi = gFuncFit[2] -> GetParError(2);
 
-  TLatex *latexTitle = new TLatex(); TLatex *letexTitle = new TLatex(); letexTitle -> SetTextSize(0.04); letexTitle -> SetNDC(); letexTitle -> SetTextFont(42);
-  for(int i = 0;i < gNDistrib;i++){
-    canvasHistFit -> cd(i+1);
-    gFuncFit[i] -> Draw("same");
-    if(i == 0){latexTitle -> DrawLatex(0.2,18000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));}
-    if(i == 1){latexTitle -> DrawLatex(1.,9000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));}
-    if(i == 2){latexTitle -> DrawLatex(2.,5000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));}
-  }
-  canvasHistFit -> Update();
+  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,0.,1.,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
+  histGridCosTheta -> GetXaxis() -> SetTitle("cos#theta");
 
-  TCanvas *canvasHistFit_CosTheta = new TCanvas("canvasHistFit_CosTheta","canvasHistFit_CosTheta",600,600);
-  gHistFit[0] -> Draw("EP"); gFuncFit[0] -> Draw("same");
-  latexTitle -> DrawLatex(0.2,5000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  TH2D *histGridPhi = new TH2D("histGridPhi","",100,0.,gPi,100.,0.,gHistFit[1] -> GetMaximum() + 0.3*gHistFit[1] -> GetMaximum());
+  histGridPhi -> GetXaxis() -> SetTitle("#varphi");
 
-  TCanvas *canvasHistFit_Phi = new TCanvas("canvasHistFit_Phi","canvasHistFit_Phi",600,600);
-  gHistFit[1] -> Draw("EP"); gFuncFit[1] -> Draw("same");
-  latexTitle -> DrawLatex(1.,2000.,Form("#lambda_{#phi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  TH2D *histGridPhiTilde = new TH2D("histGridPhiTilde","",100,0.,2*gPi,100.,0.,gHistFit[2] -> GetMaximum() + 0.3*gHistFit[2] -> GetMaximum());
+  histGridPhiTilde -> GetXaxis() -> SetTitle("#tilde{#varphi}");
 
-  TCanvas *canvasHistFit_PhiTilde = new TCanvas("canvasHistFit_PhiTilde","canvasHistFit_PhiTilde",600,600);
-  gHistFit[2] -> Draw("EP"); gFuncFit[2] -> Draw("same");
-  latexTitle -> DrawLatex(2.,1000.,Form("#lambda_{#theta#phi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  gHistFit[0] -> SetMarkerStyle(20); gHistFit[0] -> SetMarkerColor(kBlack); gHistFit[0] -> SetLineColor(kBlack); 
+  gHistFit[1] -> SetMarkerStyle(20); gHistFit[1] -> SetMarkerColor(kBlack); gHistFit[1] -> SetLineColor(kBlack);
+  gHistFit[2] -> SetMarkerStyle(20); gHistFit[2] -> SetMarkerColor(kBlack); gHistFit[2] -> SetLineColor(kBlack);
+
+  TPaveText *paveTextPolCosTheta = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  paveTextPolCosTheta -> SetFillColor(kWhite);
+  paveTextPolCosTheta -> AddText(gPlotTitle.c_str());
+  paveTextPolCosTheta -> AddText(Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  paveTextPolCosTheta -> AddText(Form("#chi^{2}/NDF = %3.2f",gFuncFit[0] -> GetChisquare()/gFuncFit[0] -> GetNDF()));
+
+  TPaveText *paveTextPolPhi = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  paveTextPolPhi -> SetFillColor(kWhite);
+  paveTextPolPhi -> AddText(gPlotTitle.c_str());
+  paveTextPolPhi -> AddText(Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  paveTextPolPhi -> AddText(Form("#chi^{2}/NDF = %3.2f",gFuncFit[1] -> GetChisquare()/gFuncFit[1] -> GetNDF()));
+
+  TPaveText *paveTextPolPhiTilde = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  paveTextPolPhiTilde -> SetFillColor(kWhite);
+  paveTextPolPhiTilde -> AddText(gPlotTitle.c_str());
+  paveTextPolPhiTilde -> AddText(Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  paveTextPolPhiTilde -> AddText(Form("#chi^{2}/NDF = %3.2f",gFuncFit[2] -> GetChisquare()/gFuncFit[2] -> GetNDF()));
+
+  TCanvas *canvasHistFitDec_CosTheta = new TCanvas("canvasHistFitDec_CosTheta","canvasHistFitDec_CosTheta",600,600);
+  histGridCosTheta -> Draw(); gHistFit[0] -> Draw("EPsame"); gFuncFit[0] -> Draw("same");
+  paveTextPolCosTheta -> Draw();
+  //latexTitle -> DrawLatex(0.05,27000.,gPlotTitle.c_str());
+  //latexTitle -> DrawLatex(0.3,25000.,Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  //latexTitle -> DrawLatex(0.2,3000.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
+
+  TCanvas *canvasHistFitDec_Phi = new TCanvas("canvasHistFitDec_Phi","canvasHistFitDec_Phi",600,600);
+  histGridPhi -> Draw(); gHistFit[1] -> Draw("EPsame"); gFuncFit[1] -> Draw("same");
+  paveTextPolPhi -> Draw();
+  //latexTitle -> DrawLatex(0.2,9000.,gPlotTitle.c_str());
+  //latexTitle -> DrawLatex(1.,8000.,Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  //latexTitle -> DrawLatex(1,1000.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
+
+  TCanvas *canvasHistFitDec_PhiTilde = new TCanvas("canvasHistFitDec_PhiTilde","canvasHistFitDec_PhiTilde",600,600);
+  histGridPhiTilde -> Draw(); gHistFit[2] -> Draw("EPsame"); gFuncFit[2] -> Draw("same");
+  paveTextPolPhiTilde -> Draw();
+  //latexTitle -> DrawLatex(0.1,4800.,gPlotTitle.c_str());
+  //latexTitle -> DrawLatex(2.,4000.,Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  //latexTitle -> DrawLatex(2,500.,Form("#chi^{2}/NDF = %3.2f",chiSquare/NDF));
 
   if(saveCanvas){
-    canvasHistFit -> SaveAs(Form("%s.png",nameCanvas.c_str()));
-    canvasHistFit_CosTheta -> SaveAs(Form("%s_CosTheta.png",nameCanvas.c_str()));
-    canvasHistFit_Phi -> SaveAs(Form("%s_Phi.png",nameCanvas.c_str()));
-    canvasHistFit_PhiTilde -> SaveAs(Form("%s_PhiTilde.png",nameCanvas.c_str()));
+    canvasHistFitDec_CosTheta -> SaveAs(Form("%s_CosTheta.pdf",nameCanvas.c_str()));
+    canvasHistFitDec_Phi -> SaveAs(Form("%s_Phi.pdf",nameCanvas.c_str()));
+    canvasHistFitDec_PhiTilde -> SaveAs(Form("%s_PhiTilde.pdf",nameCanvas.c_str()));
   }
-  delete canvasHistFit;
+
+  delete canvasHistFitDec_CosTheta;
+  delete canvasHistFitDec_Phi;
+  delete canvasHistFitDec_PhiTilde;
 }
 //______________________________________________________________________________
 Double_t funcCosTheta(Double_t x, Double_t *par){
