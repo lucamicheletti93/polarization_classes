@@ -462,15 +462,15 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   cout << "ndf = " << ndf << endl;
 
   gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",minFitRange,maxFitRange);
-  gHistFit[0] -> Fit(gFuncFit[0],"R0IQ");
+  gHistFit[0] -> Fit(gFuncFit[0],"R0IQ+rob");
 
   gFuncFit[1] = new TF1("gFuncFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
   gFuncFit[1] -> FixParameter(1,gFuncFit[0] -> GetParameter(1));
-  gHistFit[1] -> Fit(gFuncFit[1],"R0IQ");
+  gHistFit[1] -> Fit(gFuncFit[1],"R0IQ+rob");
 
   gFuncFit[2] = new TF1("gFuncFit2","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
   gFuncFit[2] -> FixParameter(1,gFuncFit[0] -> GetParameter(1));
-  gHistFit[2] -> Fit(gFuncFit[2],"R0IQ");
+  gHistFit[2] -> Fit(gFuncFit[2],"R0IQ+rob");
 
   fLambdaTheta = gFuncFit[0] -> GetParameter(1);
   fErrorLambdaTheta = gFuncFit[0] -> GetParError(1);
@@ -589,13 +589,18 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
   fitBinMax[1] = gMaxFitRangePhi;
   fitBinMax[2] = gMaxFitRangePhiTilde;
 
-  cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
-  cout << gMinFitRangeCosTheta << " " << gMinFitRangePhi << " " << gMinFitRangePhiTilde << endl;
-  cout << gMaxFitRangeCosTheta << " " << gMaxFitRangePhi << " " << gMaxFitRangePhiTilde << endl;
-  cout << gHistFit[0] -> GetBinCenter(fitBinMin[0] + 1) << " " << gHistFit[0] -> GetBinCenter(gHistFit[0] -> GetSize() - fitBinMax[0] - 1) << endl;
-  cout << gHistFit[1] -> GetBinCenter(fitBinMin[1] + 1) << " " << gHistFit[1] -> GetBinCenter(gHistFit[1] -> GetSize() - fitBinMax[1] - 1) << endl;
-  cout << gHistFit[2] -> GetBinCenter(fitBinMin[2] + 1) << " " << gHistFit[2] -> GetBinCenter(gHistFit[2] -> GetSize() - fitBinMax[2] - 1) << endl;
-  cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
+  //cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
+  //cout << gMinFitRangeCosTheta << " " << gMinFitRangePhi << " " << gMinFitRangePhiTilde << endl;
+  //cout << gMaxFitRangeCosTheta << " " << gMaxFitRangePhi << " " << gMaxFitRangePhiTilde << endl;
+  //cout << gHistFit[0] -> GetBinCenter(fitBinMin[0] + 1) << " " << gHistFit[0] -> GetBinCenter(gHistFit[0] -> GetSize() - fitBinMax[0] - 1) << endl;
+  //cout << gHistFit[1] -> GetBinCenter(fitBinMin[1] + 1) << " " << gHistFit[1] -> GetBinCenter(gHistFit[1] -> GetSize() - fitBinMax[1] - 1) << endl;
+  //cout << gHistFit[2] -> GetBinCenter(fitBinMin[2] + 1) << " " << gHistFit[2] -> GetBinCenter(gHistFit[2] -> GetSize() - fitBinMax[2] - 1) << endl;
+
+  //cout << "Histo range" << endl;
+  //for(int i = 0;i < 7;i++){cout << gHistFit[0] -> GetBinContent(i+1) << " -- " << gHistFit[0] -> GetBinCenter(i+1) << endl;}
+  //cout << "Fit range" << endl;
+  //for(int j = fitBinMin[0];j < gHistFit[0] -> GetSize() - fitBinMax[0];j++){cout << gHistFit[0] -> GetBinContent(j+1) << " -- " << gHistFit[0] -> GetBinCenter(j+1) << endl;}
+  //cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
 
   for(int i = 0;i < gNDistrib;i++){
     for(int j = fitBinMin[i];j < gHistFit[i] -> GetSize() - fitBinMax[i];j++){
