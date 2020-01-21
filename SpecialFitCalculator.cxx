@@ -203,7 +203,7 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   TH2D *histGridPhiTilde = new TH2D("histGridPhiTilde","",100,0.,2*gPi,100.,0.,gHistFit[2] -> GetMaximum() + 0.3*gHistFit[2] -> GetMaximum());
   histGridPhiTilde -> GetXaxis() -> SetTitle("#tilde{#varphi}");
 
-  gHistFit[0] -> SetMarkerStyle(20); gHistFit[0] -> SetMarkerColor(kBlack); gHistFit[0] -> SetLineColor(kBlack); 
+  gHistFit[0] -> SetMarkerStyle(20); gHistFit[0] -> SetMarkerColor(kBlack); gHistFit[0] -> SetLineColor(kBlack);
   gHistFit[1] -> SetMarkerStyle(20); gHistFit[1] -> SetMarkerColor(kBlack); gHistFit[1] -> SetLineColor(kBlack);
   gHistFit[2] -> SetMarkerStyle(20); gHistFit[2] -> SetMarkerColor(kBlack); gHistFit[2] -> SetLineColor(kBlack);
 
@@ -462,15 +462,15 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   cout << "ndf = " << ndf << endl;
 
   gFuncFit[0] = new TF1("gFuncFit0","([0]/(3 + [1]))*(1 + [1]*x*x)",minFitRange,maxFitRange);
-  gHistFit[0] -> Fit(gFuncFit[0],"R0IQ+rob");
+  gHistFit[0] -> Fit(gFuncFit[0],"R0IQ");
 
   gFuncFit[1] = new TF1("gFuncFit1","[0]*(1 + ((2*[2])/(3 + [1]))*cos(2*x))",0.,gPi);
   gFuncFit[1] -> FixParameter(1,gFuncFit[0] -> GetParameter(1));
-  gHistFit[1] -> Fit(gFuncFit[1],"R0IQ+rob");
+  gHistFit[1] -> Fit(gFuncFit[1],"R0IQ");
 
   gFuncFit[2] = new TF1("gFuncFit2","[0]*(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*gPi);
   gFuncFit[2] -> FixParameter(1,gFuncFit[0] -> GetParameter(1));
-  gHistFit[2] -> Fit(gFuncFit[2],"R0IQ+rob");
+  gHistFit[2] -> Fit(gFuncFit[2],"R0IQ");
 
   fLambdaTheta = gFuncFit[0] -> GetParameter(1);
   fErrorLambdaTheta = gFuncFit[0] -> GetParError(1);
@@ -488,7 +488,7 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   TH2D *histGridPhiTilde = new TH2D("histGridPhiTilde","",100,0.,2*gPi,100.,0.,gHistFit[2] -> GetMaximum() + 0.3*gHistFit[2] -> GetMaximum());
   histGridPhiTilde -> GetXaxis() -> SetTitle("#tilde{#varphi}");
 
-  gHistFit[0] -> SetMarkerStyle(20); gHistFit[0] -> SetMarkerColor(kBlack); gHistFit[0] -> SetLineColor(kBlack); 
+  gHistFit[0] -> SetMarkerStyle(20); gHistFit[0] -> SetMarkerColor(kBlack); gHistFit[0] -> SetLineColor(kBlack);
   gHistFit[1] -> SetMarkerStyle(20); gHistFit[1] -> SetMarkerColor(kBlack); gHistFit[1] -> SetLineColor(kBlack);
   gHistFit[2] -> SetMarkerStyle(20); gHistFit[2] -> SetMarkerColor(kBlack); gHistFit[2] -> SetLineColor(kBlack);
 
