@@ -194,7 +194,7 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gr34 -> Draw("alp");
   */
 
-  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,0.,1.,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
+  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,-1.,1.,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
   histGridCosTheta -> GetXaxis() -> SetTitle("cos#theta");
 
   TH2D *histGridPhi = new TH2D("histGridPhi","",100,0.,gPi,100.,0.,gHistFit[1] -> GetMaximum() + 0.3*gHistFit[1] -> GetMaximum());
