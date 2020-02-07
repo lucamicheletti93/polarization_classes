@@ -37,6 +37,9 @@ public:
   string   GetFitStatus(){return fFitStatus;}
 
   TF1*     GetFuncTot(){return fFuncTot;}
+  TF1*     GetFuncBkgFix(){return fFuncBkgFix;}
+  TF1*     GetFuncSigJpsiFix(){return fFuncSigJpsiFix;}
+  TF1*     GetFuncSigPsi2SFix(){return fFuncSigPsi2SFix;}
 
 private:
   void PlotStandard(Bool_t);

@@ -2,3 +2,7 @@
 *.so
 
 *.d
+
+MassFitter_3_cxx_ACLiC_dict_rdict\.pcm
+
+Binning_cxx_ACLiC_dict_rdict\.pcm
