@@ -326,6 +326,26 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
       delete histNVarCSClone;
     }
 
+    for(int j = 0;j < fNPhiTildeBins;j++){
+      //cout << fPhiTildeValues[j] << " " << fPhiTildeValues[j+1] << endl;
+
+      THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
+      histNVarHEClone -> GetAxis(4) -> SetRange(fPhiTildeBinsMin[j],fPhiTildeBinsMax[j]); // cut in PhiTilde
+      TH1D *histMassPhiTildeHE = (TH1D*) histNVarHEClone -> Projection(1);
+      histMassPhiTildeHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_PhiTilde_%3.2f",fMinPt[i],fMaxPt[i],fPhiTildeValues[j],fPhiTildeValues[j+1]));
+      delete histMassPhiTildeHE;
+      delete histNVarHEClone;
+
+      THnSparse *histNVarCSClone = (THnSparse*) fHistNVarCS -> Clone("histNVarCSClone");
+      histNVarCSClone -> GetAxis(4) -> SetRange(fPhiTildeBinsMin[j],fPhiTildeBinsMax[j]); // cut in PhiTilde
+      TH1D *histMassPhiTildeCS = (TH1D*) histNVarCSClone -> Projection(1);
+      histMassPhiTildeCS -> Write(Form("histCS_%2.1f_pT_%2.1f__%3.2f_PhiTilde_%3.2f",fMinPt[i],fMaxPt[i],fPhiTildeValues[j],fPhiTildeValues[j+1]));
+      delete histMassPhiTildeCS;
+      delete histNVarCSClone;
+    }
+
+    printf("REMOVING FOR THE MOMENT THE 2D CUT... \n");
+    /*
     for(int j = 0;j < fNCostBins;j++){
       for(int k = 0;k < fNPhiBins;k++){
         //cout << fCostBinsMin[j] << " - " << fCostBinsMax[j] << " " << fPhiBinsMin[k] << " - " << fPhiBinsMax[k] << endl;
@@ -347,24 +367,8 @@ void DataProcessor::CutTHnSparse(string nameOutputFile) {
         delete histNVarCSClone;
       }
     }
+    */
 
-    for(int j = 0;j < fNPhiTildeBins;j++){
-      //cout << fPhiTildeValues[j] << " " << fPhiTildeValues[j+1] << endl;
-
-      THnSparse *histNVarHEClone = (THnSparse*) fHistNVarHE -> Clone("histNVarHEClone");
-      histNVarHEClone -> GetAxis(4) -> SetRange(fPhiTildeBinsMin[j],fPhiTildeBinsMax[j]); // cut in PhiTilde
-      TH1D *histMassPhiTildeHE = (TH1D*) histNVarHEClone -> Projection(1);
-      histMassPhiTildeHE -> Write(Form("histHE_%2.1f_pT_%2.1f__%3.2f_PhiTilde_%3.2f",fMinPt[i],fMaxPt[i],fPhiTildeValues[j],fPhiTildeValues[j+1]));
-      delete histMassPhiTildeHE;
-      delete histNVarHEClone;
-
-      THnSparse *histNVarCSClone = (THnSparse*) fHistNVarCS -> Clone("histNVarCSClone");
-      histNVarCSClone -> GetAxis(4) -> SetRange(fPhiTildeBinsMin[j],fPhiTildeBinsMax[j]); // cut in PhiTilde
-      TH1D *histMassPhiTildeCS = (TH1D*) histNVarCSClone -> Projection(1);
-      histMassPhiTildeCS -> Write(Form("histCS_%2.1f_pT_%2.1f__%3.2f_PhiTilde_%3.2f",fMinPt[i],fMaxPt[i],fPhiTildeValues[j],fPhiTildeValues[j+1]));
-      delete histMassPhiTildeCS;
-      delete histNVarCSClone;
-    }
   }
   fileOutput -> Close();
 }
