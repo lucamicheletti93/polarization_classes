@@ -254,6 +254,9 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   delete canvasHistFitSim_CosTheta;
   delete canvasHistFitSim_Phi;
   delete canvasHistFitSim_PhiTilde;
+  delete histGridCosTheta;
+  delete histGridPhi;
+  delete histGridPhiTilde;
 }
 //______________________________________________________________________________
 void SpecialFitCalculator::BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas) {
@@ -537,9 +540,16 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
     canvasHistFitDec_PhiTilde -> SaveAs(Form("%s_PhiTilde.pdf",nameCanvas.c_str()));
   }
 
+  // Clone the hist & func into data members of the class
+  for(int i = 0;i < 3;i++){fHistFit[i] = gHistFit[i];}
+  for(int i = 0;i < 3;i++){fFuncFit[i] = gFuncFit[i];}
+
   delete canvasHistFitDec_CosTheta;
   delete canvasHistFitDec_Phi;
   delete canvasHistFitDec_PhiTilde;
+  delete histGridCosTheta;
+  delete histGridPhi;
+  delete histGridPhiTilde;
 }
 //______________________________________________________________________________
 Double_t funcCosTheta(Double_t x, Double_t *par){

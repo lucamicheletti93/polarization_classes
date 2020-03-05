@@ -54,6 +54,9 @@ class SpecialFitCalculator : public TObject
 
    TGraph*  GetContour_lambdaTheta_lambdaPhi(){return fGraContour_lambdaTheta_lambdaPhi;}
 
+   TH1D*    GetHistFit(int index){return fHistFit[index];}
+   TF1*     GetFuncFit(int index){return fFuncFit[index];}
+
  private:
    Bool_t   fInitNorm;
    Double_t fInitNormCosTheta;
@@ -100,6 +103,13 @@ class SpecialFitCalculator : public TObject
    vector <Double_t> fErrorPhiTildeParametersList;
 
    TGraph *fGraContour_lambdaTheta_lambdaPhi;
+
+
+   TH1D *fHistCosTheta, *fHistPhi, *fHistPhiTilde;
+   TF1  *fFuncCosTheta, *fFuncPhi, *fFuncPhiTilde;
+
+   TH1D *fHistFit[3];
+   TF1  *fFuncFit[3];
 
    // Global variables
    Double_t gPi;
