@@ -2004,6 +2004,431 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Upsilon(Double_t polPa
     fileAccxEffReWeighted -> Close();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+//______________________________________________________________________________
+void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double_t polParHE[3][4], Double_t polParCS[3][4], string strSample, Bool_t saveFile, string nameOutputFile) {
+  int indexPt = 0;
+  int nEvents = 0;
+
+  TF1 *funcCosThetaHE[4], *funcPhiHE[4], *funcPhiTildeHE[4];
+  TF1 *funcCosThetaCS[4], *funcPhiCS[4], *funcPhiTildeCS[4];
+
+  for(int i = 0;i < 4;i++){
+    funcCosThetaHE[i] = new TF1(Form("funcCosThetaHE_%i",i),"(1/(3 + [0]))*(1 + [0]*x*x)",-1,1); funcCosThetaHE[i] -> SetParameter(0,polParHE[0][i]);
+    funcPhiHE[i] = new TF1(Form("funcPhiHE_%i",i),"(1 + ((2*[1])/(3 + [0]))*cos(2*x))",0,fPi); funcPhiHE[i] -> SetParameter(0,polParHE[0][i]); funcPhiHE[i] -> SetParameter(1,polParHE[1][i]);
+    funcPhiTildeHE[i] = new TF1(Form("funcPhiTildeHE_%i",i),"(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*fPi); funcPhiTildeHE[i] -> SetParameter(0,polParHE[0][i]); funcPhiTildeHE[i] -> SetParameter(2,polParHE[2][i]);
+
+    funcCosThetaCS[i] = new TF1(Form("funcCosThetaCS_%i",i),"(1/(3 + [0]))*(1 + [0]*x*x)",-1,1); funcCosThetaCS[i] -> SetParameter(0,polParCS[0][i]);
+    funcPhiCS[i] = new TF1(Form("funcPhiCS_%i",i),"(1 + ((2*[1])/(3 + [0]))*cos(2*x))",0,fPi); funcPhiCS[i] -> SetParameter(0,polParCS[0][i]); funcPhiCS[i] -> SetParameter(1,polParCS[1][i]);
+    funcPhiTildeCS[i] = new TF1(Form("funcPhiTildeCS_%i",i),"(1 + ((sqrt(2)*[2])/(3 + [1]))*cos(x))",0.,2*fPi); funcPhiTildeCS[i] -> SetParameter(0,polParCS[0][i]); funcPhiTildeCS[i] -> SetParameter(2,polParCS[2][i]);
+  }
+
+  //if(strSample == "FullStat"){nEvents = fTreeAccxEff_PbPb2015_PbPb2018[ii] -> GetEntries();}
+  //if(strSample == "TestStat"){nEvents = 300000;}
+  //printf("N events = %i \n",nEvents);
+
+  double CosThetaHEGen = 0;
+  double CosThetaHERec = 0;
+  double PhiHEGen = 0;
+  double PhiHERec = 0;
+  double PhiTildeHEGen = 0;
+  double PhiTildeHERec = 0;
+
+  double weightCosThetaHE = 0;
+  double weightPhiHE = 0;
+  double weightPhiTildeHE = 0;
+
+  double weightCosThetaPhiHE = 0;
+
+  double CosThetaCSGen = 0;
+  double CosThetaCSRec = 0;
+  double PhiCSGen = 0;
+  double PhiCSRec = 0;
+  double PhiTildeCSGen = 0;
+  double PhiTildeCSRec = 0;
+
+  double weightCosThetaCS = 0;
+  double weightPhiCS = 0;
+  double weightPhiTildeCS = 0;
+
+  double weightCosThetaPhiCS = 0;
+
+  double tmpVar = 0;
+  Long_t *dummy1 = 0, *dummy2 = 0, *dummy3 = 0, *dummy4 = 0;
+
+  // Table 1 ALICE-PUBLIC-2018-011 [https://cds.cern.ch/record/2636623/files/centrality%20determination%20note.pdf]
+  double centrClass[6] = {0,20,40,60,80,90};
+  const int NCentrClass = 4;
+  double minCentrClass[NCentrClass] = {0,20,40,60};
+  double maxCentrClass[NCentrClass] = {20,40,60,90};
+  double Ncoll[NCentrClass] = {1273,468.2,138.5,20.76}; // Obtained averaging the numbers in the paper -> (40.5+16.12+5.667)/3
+  int colorPalette[NCentrClass] = {632,600,416,880};
+
+  double sum_Ncoll = 0;
+  for(int i = 0;i < NCentrClass;i++){sum_Ncoll += Ncoll[i];}
+
+  // Computing the event-per-event weight on NColl
+  double weight_Ncoll[NCentrClass];
+  for(int i = 0;i < NCentrClass;i++){weight_Ncoll[i] = Ncoll[i]/sum_Ncoll;}
+
+  // Computing the sum of N_CMUL7 - PbPb2015
+  string simName_PbPb2015 = "LHC16e2_Full";
+  string filePath_PbPb2015 = "/home/luca/data_storage/PbPb2015/embedding_MC";
+  ifstream fileNCMUL7_PbPb2015 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2015/run_info.txt");
+  string runNumber_PbPb2015;
+  double NCMUL7_PbPb2015;
+  double sum_NCMUL7_PbPb2015 = 0.;
+  if (fileNCMUL7_PbPb2015.is_open()){
+    while (fileNCMUL7_PbPb2015 >> runNumber_PbPb2015 >> NCMUL7_PbPb2015){
+      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath_PbPb2015.c_str(),simName_PbPb2015.c_str(),runNumber_PbPb2015.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        sum_NCMUL7_PbPb2015 += NCMUL7_PbPb2015;
+      }
+    }
+  }
+  cout << "Total CMUL7 triggers (PbPb2015) = " << sum_NCMUL7_PbPb2015 << endl;
+
+  // Computing the sum of N_CMUL7 - PbPb2018
+  string simName_PbPb2018 = "LHC19a2";
+  string filePath_PbPb2018 = "/home/luca/data_storage/PbPb2018/embedding_MC";
+  ifstream fileNCMUL7_PbPb2018 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2018/run_info.txt");
+  string runNumber_PbPb2018;
+  double NCMUL7_PbPb2018;
+  double sum_NCMUL7_PbPb2018 = 0.;
+  if (fileNCMUL7_PbPb2018.is_open()){
+    while (fileNCMUL7_PbPb2018 >> runNumber_PbPb2018 >> NCMUL7_PbPb2018){
+      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath_PbPb2018.c_str(),simName_PbPb2018.c_str(),runNumber_PbPb2018.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        sum_NCMUL7_PbPb2018 += NCMUL7_PbPb2018;
+      }
+    }
+  }
+  cout << "Total CMUL7 triggers (PbPb2018) = " << sum_NCMUL7_PbPb2018 << endl;
+
+  double sum_NCMUL7 = sum_NCMUL7_PbPb2015 + sum_NCMUL7_PbPb2018;
+  cout << "Total CMUL7 triggers (PbPb2015 + PbPb2018) = " << sum_NCMUL7 << endl;
+
+
+
+
+  for(int i = 0;i < NCentrClass;i++){
+    fHistGenCosThetaHEReWeighted[i] = new TH1D(Form("histGenCosThetaHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaHEReWeighted[i] -> Sumw2();
+    fHistRecCosThetaHEReWeighted[i] = new TH1D(Form("histRecCosThetaHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistRecCosThetaHEReWeighted[i] -> Sumw2();
+    fHistGenPhiHEReWeighted[i] = new TH1D(Form("histGenPhiHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiBins,&fPhiValues[0]); fHistGenPhiHEReWeighted[i] -> Sumw2();
+    fHistRecPhiHEReWeighted[i] = new TH1D(Form("histRecPhiHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiBins,&fPhiValues[0]); fHistRecPhiHEReWeighted[i] -> Sumw2();
+    fHistGenPhiTildeHEReWeighted[i] = new TH1D(Form("histGenPhiTildeHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistGenPhiTildeHEReWeighted[i] -> Sumw2();
+    fHistRecPhiTildeHEReWeighted[i] = new TH1D(Form("histRecPhiTildeHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistRecPhiTildeHEReWeighted[i] -> Sumw2();
+
+    fHistGenCosThetaCSReWeighted[i] = new TH1D(Form("histGenCosThetaCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistGenCosThetaCSReWeighted[i] -> Sumw2();
+    fHistRecCosThetaCSReWeighted[i] = new TH1D(Form("histRecCosThetaCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNCosThetaBins,&fCosThetaValues[0]); fHistRecCosThetaCSReWeighted[i] -> Sumw2();
+    fHistGenPhiCSReWeighted[i] = new TH1D(Form("histGenPhiCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiBins,&fPhiValues[0]); fHistGenPhiCSReWeighted[i] -> Sumw2();
+    fHistRecPhiCSReWeighted[i] = new TH1D(Form("histRecPhiCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiBins,&fPhiValues[0]); fHistRecPhiCSReWeighted[i] -> Sumw2();
+    fHistGenPhiTildeCSReWeighted[i] = new TH1D(Form("histGenPhiTildeCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistGenPhiTildeCSReWeighted[i] -> Sumw2();
+    fHistRecPhiTildeCSReWeighted[i] = new TH1D(Form("histRecPhiTildeCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]); fHistRecPhiTildeCSReWeighted[i] -> Sumw2();
+  }
+
+  TH1D *histGenCosThetaHEReWeighted_PercV0M_0_90 = new TH1D("histGenCosThetaHEReWeighted_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histGenCosThetaHEReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecCosThetaHEReWeighted_PercV0M_0_90 = new TH1D("histRecCosThetaHEReWeighted_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histRecCosThetaHEReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiHEReWeighted_PercV0M_0_90 = new TH1D("histGenPhiHEReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histGenPhiHEReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiHEReWeighted_PercV0M_0_90 = new TH1D("histRecPhiHEReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histRecPhiHEReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiTildeHEReWeighted_PercV0M_0_90 = new TH1D("histGenPhiTildeHEReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histGenPhiTildeHEReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiTildeHEReWeighted_PercV0M_0_90 = new TH1D("histRecPhiTildeHEReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histRecPhiTildeHEReWeighted_PercV0M_0_90 -> Sumw2();
+
+  TH1D *histGenCosThetaCSReWeighted_PercV0M_0_90 = new TH1D("histGenCosThetaCSReWeighted_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histGenCosThetaCSReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecCosThetaCSReWeighted_PercV0M_0_90 = new TH1D("histRecCosThetaCSReWeighted_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histRecCosThetaCSReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiCSReWeighted_PercV0M_0_90 = new TH1D("histGenPhiCSReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histGenPhiCSReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiCSReWeighted_PercV0M_0_90 = new TH1D("histRecPhiCSReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histRecPhiCSReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiTildeCSReWeighted_PercV0M_0_90 = new TH1D("histGenPhiTildeCSReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histGenPhiTildeCSReWeighted_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiTildeCSReWeighted_PercV0M_0_90 = new TH1D("histRecPhiTildeCSReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histRecPhiTildeCSReWeighted_PercV0M_0_90 -> Sumw2();
+
+  TH1D *histGenCosThetaHE_PercV0M_0_90 = new TH1D("histGenCosThetaHE_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histGenCosThetaHE_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecCosThetaHE_PercV0M_0_90 = new TH1D("histRecCosThetaHE_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histRecCosThetaHE_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiHE_PercV0M_0_90 = new TH1D("histGenPhiHE_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histGenPhiHE_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiHE_PercV0M_0_90 = new TH1D("histRecPhiHE_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histRecPhiHE_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiTildeHE_PercV0M_0_90 = new TH1D("histGenPhiTildeHE_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histGenPhiTildeHE_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiTildeHE_PercV0M_0_90 = new TH1D("histRecPhiTildeHE_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histRecPhiTildeHE_PercV0M_0_90 -> Sumw2();
+
+  TH1D *histGenCosThetaCS_PercV0M_0_90 = new TH1D("histGenCosThetaCS_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histGenCosThetaCS_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecCosThetaCS_PercV0M_0_90 = new TH1D("histRecCosThetaCS_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]); histRecCosThetaCS_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiCS_PercV0M_0_90 = new TH1D("histGenPhiCS_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histGenPhiCS_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiCS_PercV0M_0_90 = new TH1D("histRecPhiCS_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]); histRecPhiCS_PercV0M_0_90 -> Sumw2();
+  TH1D *histGenPhiTildeCS_PercV0M_0_90 = new TH1D("histGenPhiTildeCS_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histGenPhiTildeCS_PercV0M_0_90 -> Sumw2();
+  TH1D *histRecPhiTildeCS_PercV0M_0_90 = new TH1D("histRecPhiTildeCS_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]); histRecPhiTildeCS_PercV0M_0_90 -> Sumw2();
+
+  string filePath[2];
+  filePath[0] = filePath_PbPb2015;
+  filePath[1] = filePath_PbPb2018;
+  int period[2] = {2015,2018};
+  string simName[2];
+  simName[0] = simName_PbPb2015;
+  simName[1] = simName_PbPb2018;
+
+  int runCounter = 0;
+  int indexCosTheta = 0;
+  int indexPhi = 0;
+  int indexCentr = 0;
+
+  string runNumber;
+  double NCMUL7;
+
+  vector <string> vectorRunList;
+  vector <double> vectorNCMUL7;
+
+  for(int ii = 0;ii < 2;ii++){
+    ifstream fileRunList (Form("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_%i/run_info.txt",period[ii]));
+    if (fileRunList.is_open()){
+      while (fileRunList >> runNumber >> NCMUL7){
+        if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+          runCounter++;
+          vectorRunList.push_back(runNumber);
+          vectorNCMUL7.push_back(NCMUL7);
+          printf("Reading run %s \n",runNumber.c_str());
+
+          TFile *file = new TFile(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),"READ");
+          TTree *tree = (TTree*) file -> Get("MCTree");
+          tree -> SetBranchAddress("PercV0M",&fPercV0M);
+          tree -> SetBranchAddress("NDimu_gen",&fNDimuGen);
+          tree -> SetBranchAddress("DimuY_gen",fDimuYGen);
+          tree -> SetBranchAddress("DimuPt_gen",fDimuPtGen);
+
+          tree -> SetBranchAddress("CostHE_gen",fCosThetaHEGen);
+          tree -> SetBranchAddress("PhiHE_gen",fPhiHEGen);
+          tree -> SetBranchAddress("CostCS_gen",fCosThetaCSGen);
+          tree -> SetBranchAddress("PhiCS_gen",fPhiCSGen);
+
+          tree -> SetBranchAddress("CostHE_rec",fCosThetaHERec);
+          tree -> SetBranchAddress("PhiHE_rec",fPhiHERec);
+          tree -> SetBranchAddress("CostCS_rec",fCosThetaCSRec);
+          tree -> SetBranchAddress("PhiCS_rec",fPhiCSRec);
+
+          tree -> SetBranchAddress("NDimu_rec",&fNDimuRec);
+          tree -> SetBranchAddress("DimuY_rec",fDimuYRec);
+          tree -> SetBranchAddress("DimuPt_rec",fDimuPtRec);
+          tree -> SetBranchAddress("DimuPDG_gen",fDimuPDG_gen);
+          tree -> SetBranchAddress("DimuPDG_rec",fDimuPDG_rec);
+
+          tree -> SetBranchAddress("DimuMu_rec",fDimuMu_rec);
+          tree -> SetBranchAddress("Pt_rec",fPt_rec);
+
+
+          nEvents = tree -> GetEntries();
+          //nEvents = 1000;
+          for(int i = 0;i < nEvents;i++){
+            printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
+            tree -> GetEntry(i);
+            indexCentr = 0;
+            while(fPercV0M < minCentrClass[indexCentr] || fPercV0M > maxCentrClass[indexCentr]){indexCentr++;}
+            for(int j = 0;j < fNDimuGen;j++){
+              if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
+                if(fDimuPDG_gen[j] == 443){
+                  if(fDimuPtGen[j] > 2. && fDimuPtGen[j] < 6.){
+                    weightCosThetaHE = (funcCosThetaHE[indexCentr] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexCentr] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
+                    weightPhiHE = (funcPhiHE[indexCentr] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexCentr] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
+                    weightPhiTildeHE = (funcPhiTildeHE[indexCentr] -> Eval(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j])))/(funcPhiTildeHE[indexCentr] -> GetMaximum()); PhiTildeHEGen = computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]);
+
+                    fHistGenCosThetaHEReWeighted[indexCentr] -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaHE);
+                    fHistGenPhiHEReWeighted[indexCentr] -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiHE);
+                    fHistGenPhiTildeHEReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeHE);
+
+                    histGenCosThetaHEReWeighted_PercV0M_0_90 -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaHE);
+                    histGenPhiHEReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiHE);
+                    histGenPhiTildeHEReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeHE);
+
+
+                    histGenCosThetaHE_PercV0M_0_90 -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                    histGenPhiHE_PercV0M_0_90 -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                    histGenPhiTildeHE_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+
+                    weightCosThetaCS = (funcCosThetaCS[indexCentr] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexCentr] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
+                    weightPhiCS = (funcPhiCS[indexCentr] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexCentr] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
+                    weightPhiTildeCS = (funcPhiTildeCS[indexCentr] -> Eval(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j])))/(funcPhiTildeCS[indexCentr] -> GetMaximum()); PhiTildeCSGen = computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]);
+
+                    fHistGenCosThetaCSReWeighted[indexCentr] -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaCS);
+                    fHistGenPhiCSReWeighted[indexCentr] -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiCS);
+                    fHistGenPhiTildeCSReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeCS);
+
+                    histGenCosThetaCSReWeighted_PercV0M_0_90 -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaCS);
+                    histGenPhiCSReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiCS);
+                    histGenPhiTildeCSReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeCS);
+
+                    histGenCosThetaCS_PercV0M_0_90 -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                    histGenPhiCS_PercV0M_0_90 -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                    histGenPhiTildeCS_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                  }
+                }
+              }
+            }
+
+            for(int j = 0;j < fNDimuRec;j++){
+              if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
+                if(fDimuPDG_rec[j] == 443){
+                  if(fDimuPtRec[j] > 2. && fDimuPtRec[j] < 6.){
+                    if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
+                      if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
+
+                        fHistRecCosThetaHEReWeighted[indexCentr] -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaHE);
+                        fHistRecPhiHEReWeighted[indexCentr] -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiHE);
+                        fHistRecPhiTildeHEReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeHE);
+
+                        histRecCosThetaHEReWeighted_PercV0M_0_90 -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaHE);
+                        histRecPhiHEReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiHE);
+                        histRecPhiTildeHEReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeHE);
+
+                        histRecCosThetaHE_PercV0M_0_90 -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                        histRecPhiHE_PercV0M_0_90 -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                        histRecPhiTildeHE_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                      }
+                    }
+
+
+                    if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
+                      if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                        fHistRecCosThetaCSReWeighted[indexCentr] -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaCS);
+                        fHistRecPhiCSReWeighted[indexCentr] -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiCS);
+                        fHistRecPhiTildeCSReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeCS);
+
+                        histRecCosThetaCSReWeighted_PercV0M_0_90 -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightCosThetaCS);
+                        histRecPhiCSReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiCS);
+                        histRecPhiTildeCSReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7)*weightPhiTildeCS);
+
+                        histRecCosThetaCS_PercV0M_0_90 -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                        histRecPhiCS_PercV0M_0_90 -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                        histRecPhiTildeCS_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentr]*(NCMUL7/sum_NCMUL7));
+                      }
+                    }
+
+                  }
+                }
+              }
+            }
+          }
+          file -> Close();
+          printf("\n");
+        }
+      }
+    }
+  }
+
+
+  for(int i = 0;i < NCentrClass;i++){
+    fHistAccxEffCosThetaHEReWeighted[i] = new TH1D(Form("histAccxEffCosThetaHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
+    fHistAccxEffCosThetaHEReWeighted[i] -> Divide(fHistRecCosThetaHEReWeighted[i],fHistGenCosThetaHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiHEReWeighted[i] = new TH1D(Form("histAccxEffPhiHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffPhiHEReWeighted[i] -> Divide(fHistRecPhiHEReWeighted[i],fHistGenPhiHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiTildeHEReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeHEReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
+    fHistAccxEffPhiTildeHEReWeighted[i] -> Divide(fHistRecPhiTildeHEReWeighted[i],fHistGenPhiTildeHEReWeighted[i],1,1,"B");
+
+    fHistAccxEffCosThetaCSReWeighted[i] = new TH1D(Form("histAccxEffCosThetaCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNCosThetaBins,&fCosThetaValues[0]);
+    fHistAccxEffCosThetaCSReWeighted[i] -> Divide(fHistRecCosThetaCSReWeighted[i],fHistGenCosThetaCSReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiCSReWeighted[i] = new TH1D(Form("histAccxEffPhiCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiBins,&fPhiValues[0]);
+    fHistAccxEffPhiCSReWeighted[i] -> Divide(fHistRecPhiCSReWeighted[i],fHistGenPhiCSReWeighted[i],1,1,"B");
+
+    fHistAccxEffPhiTildeCSReWeighted[i] = new TH1D(Form("histAccxEffPhiTildeCSReWeighted_PercV0M_%i_%i",(int) minCentrClass[i],(int) maxCentrClass[i]),"",fNPhiTildeBins,&fPhiTildeValues[0]);
+    fHistAccxEffPhiTildeCSReWeighted[i] -> Divide(fHistRecPhiTildeCSReWeighted[i],fHistGenPhiTildeCSReWeighted[i],1,1,"B");
+  }
+
+
+  TH1D *histAccxEffCosThetaHEReWeighted_PercV0M_0_90 = new TH1D("histAccxEffCosThetaHEReWeighted_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]);
+  histAccxEffCosThetaHEReWeighted_PercV0M_0_90 -> Divide(histRecCosThetaHEReWeighted_PercV0M_0_90,histGenCosThetaHEReWeighted_PercV0M_0_90,1,1,"B");
+
+  TH1D *histAccxEffPhiHEReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiHEReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]);
+  histAccxEffPhiHEReWeighted_PercV0M_0_90 -> Divide(histRecPhiHEReWeighted_PercV0M_0_90,histGenPhiHEReWeighted_PercV0M_0_90,1,1,"B");
+  
+  TH1D *histAccxEffPhiTildeHEReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiTildeHEReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]);
+  histAccxEffPhiTildeHEReWeighted_PercV0M_0_90 -> Divide(histRecPhiTildeHEReWeighted_PercV0M_0_90,histGenPhiTildeHEReWeighted_PercV0M_0_90,1,1,"B");
+
+
+  TH1D *histAccxEffCosThetaCSReWeighted_PercV0M_0_90 = new TH1D("histAccxEffCosThetaCSReWeighted_PercV0M_0_90","",fNCosThetaBins,&fCosThetaValues[0]);
+  histAccxEffCosThetaCSReWeighted_PercV0M_0_90 -> Divide(histRecCosThetaCSReWeighted_PercV0M_0_90,histGenCosThetaCSReWeighted_PercV0M_0_90,1,1,"B");
+
+  TH1D *histAccxEffPhiCSReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiCSReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]);
+  histAccxEffPhiCSReWeighted_PercV0M_0_90 -> Divide(histRecPhiCSReWeighted_PercV0M_0_90,histGenPhiCSReWeighted_PercV0M_0_90,1,1,"B");
+  
+  TH1D *histAccxEffPhiTildeCSReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiTildeCSReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]);
+  histAccxEffPhiTildeCSReWeighted_PercV0M_0_90 -> Divide(histRecPhiTildeCSReWeighted_PercV0M_0_90,histGenPhiTildeCSReWeighted_PercV0M_0_90,1,1,"B");
+
+
+  if(saveFile){
+    TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
+    histGenCosThetaHEReWeighted_PercV0M_0_90 -> Write();
+    histGenPhiHEReWeighted_PercV0M_0_90 -> Write();
+    histGenPhiTildeHEReWeighted_PercV0M_0_90 -> Write();
+    histGenCosThetaCSReWeighted_PercV0M_0_90 -> Write();
+    histGenPhiCSReWeighted_PercV0M_0_90 -> Write();
+    histGenPhiTildeCSReWeighted_PercV0M_0_90 -> Write();
+
+    histRecCosThetaHEReWeighted_PercV0M_0_90 -> Write();
+    histRecPhiHEReWeighted_PercV0M_0_90 -> Write();
+    histRecPhiTildeHEReWeighted_PercV0M_0_90 -> Write();
+    histRecCosThetaCSReWeighted_PercV0M_0_90 -> Write();
+    histRecPhiCSReWeighted_PercV0M_0_90 -> Write();
+    histRecPhiTildeCSReWeighted_PercV0M_0_90 -> Write();
+
+
+    histGenCosThetaHE_PercV0M_0_90 -> Write();
+    histGenPhiHE_PercV0M_0_90 -> Write();
+    histGenPhiTildeHE_PercV0M_0_90 -> Write();
+    histGenCosThetaCS_PercV0M_0_90 -> Write();
+    histGenPhiCS_PercV0M_0_90 -> Write();
+    histGenPhiTildeCS_PercV0M_0_90 -> Write();
+
+    histRecCosThetaHE_PercV0M_0_90 -> Write();
+    histRecPhiHE_PercV0M_0_90 -> Write();
+    histRecPhiTildeHE_PercV0M_0_90 -> Write();
+    histRecCosThetaCS_PercV0M_0_90 -> Write();
+    histRecPhiCS_PercV0M_0_90 -> Write();
+    histRecPhiTildeCS_PercV0M_0_90 -> Write();
+
+
+
+    histAccxEffCosThetaHEReWeighted_PercV0M_0_90 -> Write();
+    histAccxEffPhiHEReWeighted_PercV0M_0_90 -> Write();
+    histAccxEffPhiTildeHEReWeighted_PercV0M_0_90 -> Write();
+    histAccxEffCosThetaCSReWeighted_PercV0M_0_90 -> Write();
+    histAccxEffPhiCSReWeighted_PercV0M_0_90 -> Write();
+    histAccxEffPhiTildeCSReWeighted_PercV0M_0_90 -> Write();
+
+    for(int i = 0;i < NCentrClass;i++){
+      fHistGenCosThetaHEReWeighted[i] -> Write();
+      fHistRecCosThetaHEReWeighted[i] -> Write();
+      fHistAccxEffCosThetaHEReWeighted[i] -> Write();
+
+      fHistGenPhiHEReWeighted[i] -> Write();
+      fHistRecPhiHEReWeighted[i] -> Write();
+      fHistAccxEffPhiHEReWeighted[i] -> Write();
+
+      fHistGenPhiTildeHEReWeighted[i] -> Write();
+      fHistRecPhiTildeHEReWeighted[i] -> Write();
+      fHistAccxEffPhiTildeHEReWeighted[i] -> Write();
+
+      fHistGenCosThetaCSReWeighted[i] -> Write();
+      fHistRecCosThetaCSReWeighted[i] -> Write();
+      fHistAccxEffCosThetaCSReWeighted[i] -> Write();
+
+      fHistGenPhiCSReWeighted[i] -> Write();
+      fHistRecPhiCSReWeighted[i] -> Write();
+      fHistAccxEffPhiCSReWeighted[i] -> Write();
+
+      fHistGenPhiTildeCSReWeighted[i] -> Write();
+      fHistRecPhiTildeCSReWeighted[i] -> Write();
+      fHistAccxEffPhiTildeCSReWeighted[i] -> Write();
+    }
+    fileAccxEffReWeighted -> Close();
+  }
+}
+
+
 //______________________________________________________________________________
 ////////////////////////////////////////////////////////////////////////////////
 Double_t MyFuncPol(Double_t *x, Double_t *par){

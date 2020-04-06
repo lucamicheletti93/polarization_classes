@@ -26,6 +26,7 @@ class AccxEffCalculator : public TObject
    void ReWeightAccxEff(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
    void ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[4][4], Double_t polParCS[4][4], string strSample, Bool_t saveFile, string nameOutputFile);
    void ReWeightAccxEff_PbPb2015_PbPb2018_Upsilon(Double_t polParHE[3][1], Double_t polParCS[3][1], string strSample, Bool_t saveFile, string nameOutputFile);
+   void ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double_t polParHE[3][4], Double_t polParCS[3][4], string strSample, Bool_t saveFile, string nameOutputFile);
    void ComputeTriggerResponseFunction(string strSample, string nameOutputFile);
    //void ComputeReweightTRFAccxEff(string , string , bool , TH1D *);
    void ComputeReweightTRFAccxEff(string , string , bool , TObjArray *);
