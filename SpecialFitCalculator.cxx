@@ -588,6 +588,7 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
   //Int_t fitBinMin[3] = {2,0,0};
   //Int_t fitBinMax[3] = {4,2,2};
   // for Upsilon
+ 
   Int_t fitBinMin[3];
   Int_t fitBinMax[3];
 
@@ -598,6 +599,10 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
   fitBinMax[0] = gMaxFitRangeCosTheta;
   fitBinMax[1] = gMaxFitRangePhi;
   fitBinMax[2] = gMaxFitRangePhiTilde;
+
+  // for Jpsi
+  //Int_t fitBinMin[3] = {1,0,-1};
+  //Int_t fitBinMax[3] = {4,3,2};
 
   //cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
   //cout << gMinFitRangeCosTheta << " " << gMinFitRangePhi << " " << gMinFitRangePhiTilde << endl;

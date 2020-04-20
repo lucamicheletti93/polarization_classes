@@ -104,7 +104,6 @@ class SpecialFitCalculator : public TObject
 
    TGraph *fGraContour_lambdaTheta_lambdaPhi;
 
-
    TH1D *fHistCosTheta, *fHistPhi, *fHistPhiTilde;
    TF1  *fFuncCosTheta, *fFuncPhi, *fFuncPhiTilde;
 
