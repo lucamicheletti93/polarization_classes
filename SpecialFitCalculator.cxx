@@ -102,6 +102,13 @@ void SpecialFitCalculator::SetFitNormalization(Double_t NormCosTheta, Double_t N
   fInitNormPhiTilde = NormPhiTilde;
 }
 //______________________________________________________________________________
+void SpecialFitCalculator::SetFitPolParameters(Double_t LambdaTheta, Double_t LambdaPhi, Double_t LambdaThetaPhi){
+  fInitPolPar = kTRUE;
+  fInitLambdaTheta = LambdaTheta;
+  fInitLambdaPhi = LambdaPhi;
+  fInitLambdaThetaPhi = LambdaThetaPhi;
+}
+//______________________________________________________________________________
 void SpecialFitCalculator::SetPlotTitle(string plotTitle){
    gPlotTitle = plotTitle;
 }
@@ -123,7 +130,7 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
     cout << i << ") ndf = " << gHistFit[i] -> GetSize() << endl;
   }
   cout << "ndf = " << ndf << endl;
-  gHistFit[0] -> SetAxisRange(-0.7,0.7);
+  //gHistFit[0] -> SetAxisRange(-0.7,0.7);
 
   TMinuit *minuit = new TMinuit(6);
   minuit -> SetFCN(polarizationFCN);
@@ -144,9 +151,17 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
     minuit -> mnparm(1,"normPhi",1.e7,1.,0.,0.,ierflg);
     minuit -> mnparm(2,"normPhiTilde",1.e7,1.,0.,0.,ierflg);
   }
-  minuit -> mnparm(3,"lambdaTheta",0.,0.001,-1.,1.,ierflg);
-  minuit -> mnparm(4,"lambdaPhi",0.,0.001,-1.,1.,ierflg);
-  minuit -> mnparm(5,"lambdaThetaPhi",0.,0.001,-1.,1.,ierflg);
+
+  if(fInitPolPar){
+    minuit -> mnparm(3,"lambdaTheta",fInitLambdaTheta,0.001,-1.,1.,ierflg);
+    minuit -> mnparm(4,"lambdaPhi",fInitLambdaPhi,0.001,-1.,1.,ierflg);
+    minuit -> mnparm(5,"lambdaThetaPhi",fInitLambdaThetaPhi,0.001,-1.,1.,ierflg);
+  }
+  else{
+    minuit -> mnparm(3,"lambdaTheta",0.,0.001,-1.,1.,ierflg);
+    minuit -> mnparm(4,"lambdaPhi",0.,0.001,-1.,1.,ierflg);
+    minuit -> mnparm(5,"lambdaThetaPhi",0.,0.001,-1.,1.,ierflg);
+  }
 
   arglist[0] = 500;
   arglist[1] = 1.;
@@ -194,7 +209,7 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gr34 -> Draw("alp");
   */
 
-  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,-1.,1.,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
+  TH2D *histGridCosTheta = new TH2D("histGridCosTheta","",100,-0.7,0.7,100.,0.,gHistFit[0] -> GetMaximum() + 0.5*gHistFit[0] -> GetMaximum());
   histGridCosTheta -> GetXaxis() -> SetTitle("cos#theta");
 
   TH2D *histGridPhi = new TH2D("histGridPhi","",100,0.,gPi,100.,0.,gHistFit[1] -> GetMaximum() + 0.3*gHistFit[1] -> GetMaximum());
@@ -207,20 +222,34 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
   gHistFit[1] -> SetMarkerStyle(20); gHistFit[1] -> SetMarkerColor(kBlack); gHistFit[1] -> SetLineColor(kBlack);
   gHistFit[2] -> SetMarkerStyle(20); gHistFit[2] -> SetMarkerColor(kBlack); gHistFit[2] -> SetLineColor(kBlack);
 
-  TPaveText *paveTextPolCosTheta = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  //----------------------------------------------------------------------------------------------------
+  // NDF[-0.7/0.7] = 17(bins cosTheta) + 8(bins phi) + 10(bins phiTilde) - 6(N free parameters) = 29   |
+  //----------------------------------------------------------------------------------------------------
+  fChiSquare_NDF = globalChiSquare/29.;
+
+  TPaveText *paveTextPolCosTheta = new TPaveText(0.2,0.8,0.8,0.98,"NDC");
   paveTextPolCosTheta -> SetFillColor(kWhite);
   paveTextPolCosTheta -> AddText(gPlotTitle.c_str());
+  //paveTextPolCosTheta -> AddText(Form("N = %3.2f",gFuncFit[0] -> GetParameter(0)));
   paveTextPolCosTheta -> AddText(Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  //paveTextPolCosTheta -> AddText(Form("#chi^{2}/NDF = %3.2f/29 = %3.2f",globalChiSquare,globalChiSquare/29.));
+  paveTextPolCosTheta -> AddText(Form("#chi^{2}/NDF = %3.2f",globalChiSquare/29.));
 
-  TPaveText *paveTextPolPhi = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  TPaveText *paveTextPolPhi = new TPaveText(0.2,0.8,0.8,0.98,"NDC");
   paveTextPolPhi -> SetFillColor(kWhite);
   paveTextPolPhi -> AddText(gPlotTitle.c_str());
+  //paveTextPolPhi -> AddText(Form("N = %3.2f",gFuncFit[1] -> GetParameter(0)));
   paveTextPolPhi -> AddText(Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  //paveTextPolPhi -> AddText(Form("#chi^{2}/NDF = %3.2f/29 = %3.2f",globalChiSquare,globalChiSquare/29.));
+  paveTextPolPhi -> AddText(Form("#chi^{2}/NDF = %3.2f",globalChiSquare/29.));
 
-  TPaveText *paveTextPolPhiTilde = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  TPaveText *paveTextPolPhiTilde = new TPaveText(0.2,0.8,0.8,0.98,"NDC");
   paveTextPolPhiTilde -> SetFillColor(kWhite);
   paveTextPolPhiTilde -> AddText(gPlotTitle.c_str());
+  //paveTextPolPhiTilde -> AddText(Form("N = %3.2f",gFuncFit[2] -> GetParameter(0)));
   paveTextPolPhiTilde -> AddText(Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  //paveTextPolPhiTilde -> AddText(Form("#chi^{2}/NDF = %3.2f/29 = %3.2f",globalChiSquare,globalChiSquare/29.));
+  paveTextPolPhiTilde -> AddText(Form("#chi^{2}/NDF = %3.2f",globalChiSquare/29.));
 
   TCanvas *canvasHistFitSim_CosTheta = new TCanvas("canvasHistFitSim_CosTheta","canvasHistFitSim_CosTheta",600,600);
   histGridCosTheta -> Draw(); gHistFit[0] -> Draw("EPsame"); gFuncFit[0] -> Draw("same");
@@ -495,22 +524,25 @@ void SpecialFitCalculator::DecoupledFit(TObjArray *data, Bool_t saveCanvas, stri
   gHistFit[1] -> SetMarkerStyle(20); gHistFit[1] -> SetMarkerColor(kBlack); gHistFit[1] -> SetLineColor(kBlack);
   gHistFit[2] -> SetMarkerStyle(20); gHistFit[2] -> SetMarkerColor(kBlack); gHistFit[2] -> SetLineColor(kBlack);
 
-  TPaveText *paveTextPolCosTheta = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  TPaveText *paveTextPolCosTheta = new TPaveText(0.2,0.8,0.8,0.98,"NDC");
   paveTextPolCosTheta -> SetFillColor(kWhite);
   paveTextPolCosTheta -> AddText(gPlotTitle.c_str());
   paveTextPolCosTheta -> AddText(Form("#lambda_{#theta} = %3.2f #pm %3.2f",fLambdaTheta,fErrorLambdaTheta));
+  //paveTextPolCosTheta -> AddText(Form("#chi^{2}/NDF = %3.2f/%i = %3.2f",gFuncFit[0] -> GetChisquare(),gFuncFit[0] -> GetNDF(),gFuncFit[0] -> GetChisquare()/gFuncFit[0] -> GetNDF()));
   paveTextPolCosTheta -> AddText(Form("#chi^{2}/NDF = %3.2f",gFuncFit[0] -> GetChisquare()/gFuncFit[0] -> GetNDF()));
 
-  TPaveText *paveTextPolPhi = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  TPaveText *paveTextPolPhi = new TPaveText(0.2,0.8,0.8,0.98,"NDC");
   paveTextPolPhi -> SetFillColor(kWhite);
   paveTextPolPhi -> AddText(gPlotTitle.c_str());
   paveTextPolPhi -> AddText(Form("#lambda_{#varphi} = %3.2f #pm %3.2f",fLambdaPhi,fErrorLambdaPhi));
+  //paveTextPolPhi -> AddText(Form("#chi^{2}/NDF = %3.2f/%i = %3.2f",gFuncFit[1] -> GetChisquare(),gFuncFit[1] -> GetNDF(),gFuncFit[1] -> GetChisquare()/gFuncFit[1] -> GetNDF()));
   paveTextPolPhi -> AddText(Form("#chi^{2}/NDF = %3.2f",gFuncFit[1] -> GetChisquare()/gFuncFit[1] -> GetNDF()));
 
-  TPaveText *paveTextPolPhiTilde = new TPaveText(0.2,0.85,0.8,0.98,"NDC");
+  TPaveText *paveTextPolPhiTilde = new TPaveText(0.2,0.8,0.8,0.98,"NDC");
   paveTextPolPhiTilde -> SetFillColor(kWhite);
   paveTextPolPhiTilde -> AddText(gPlotTitle.c_str());
   paveTextPolPhiTilde -> AddText(Form("#lambda_{#theta#varphi} = %3.2f #pm %3.2f",fLambdaThetaPhi,fErrorLambdaThetaPhi));
+  //paveTextPolPhiTilde -> AddText(Form("#chi^{2}/NDF = %3.2f/%i = %3.2f",gFuncFit[2] -> GetChisquare(),gFuncFit[2] -> GetNDF(),gFuncFit[2] -> GetChisquare()/gFuncFit[2] -> GetNDF()));
   paveTextPolPhiTilde -> AddText(Form("#chi^{2}/NDF = %3.2f",gFuncFit[2] -> GetChisquare()/gFuncFit[2] -> GetNDF()));
 
   TCanvas *canvasHistFitDec_CosTheta = new TCanvas("canvasHistFitDec_CosTheta","canvasHistFitDec_CosTheta",600,600);
@@ -621,6 +653,7 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
     for(int j = fitBinMin[i];j < gHistFit[i] -> GetSize() - fitBinMax[i];j++){
       val = gHistFit[i] -> GetBinContent(j+1);
       errVal = gHistFit[i] -> GetBinError(j+1);
+      //cout << gHistFit[i] -> GetBinCenter(j+1) << endl;
 
       if(val == 0. && errVal == 0.){continue;}
       if(i == 0){
@@ -637,6 +670,7 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
       }
       chiSquare += pull*pull;
     }
+    //cout << "-----------" << endl;
   }
 
   gChiSquare = chiSquare;

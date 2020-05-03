@@ -20,6 +20,7 @@ class SpecialFitCalculator : public TObject
    void SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues);
    void SetFitRange(Int_t [], Int_t []);
    void SetFitNormalization(Double_t initNormCosTheta, Double_t initNormPhi, Double_t initNormPhiTilde);
+   void SetFitPolParameters(Double_t initLambdaTheta, Double_t initLambdaPhi, Double_t initLambdaThetaPhi);
    void SimultaneousFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
    void BarbatruccoFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas);
    void DecoupledFit(TObjArray *data, Bool_t saveCanvas, string nameCanvas, double minFitrange, double maxFitRange);
@@ -52,6 +53,8 @@ class SpecialFitCalculator : public TObject
    Double_t GetLambdaThetaPhiCS(){return fLambdaThetaPhiCS;};
    Double_t GetErrorLambdaThetaPhiCS(){return fErrorLambdaThetaPhiCS;};
 
+   Double_t GetChiSquare_NDF(){return fChiSquare_NDF;}
+
    TGraph*  GetContour_lambdaTheta_lambdaPhi(){return fGraContour_lambdaTheta_lambdaPhi;}
 
    TH1D*    GetHistFit(int index){return fHistFit[index];}
@@ -62,6 +65,11 @@ class SpecialFitCalculator : public TObject
    Double_t fInitNormCosTheta;
    Double_t fInitNormPhi;
    Double_t fInitNormPhiTilde;
+
+   Bool_t   fInitPolPar;
+   Double_t fInitLambdaTheta;
+   Double_t fInitLambdaPhi;
+   Double_t fInitLambdaThetaPhi;
 
    Double_t fNormCosTheta;
    Double_t fErrorNormCosTheta;
@@ -94,6 +102,8 @@ class SpecialFitCalculator : public TObject
    Double_t fErrorLambdaThetaLambdaPhiCS;
 
    Double_t fLambdaTilde, fErrorLambdaTilde;
+
+   Double_t fChiSquare_NDF;
 
    vector <Double_t> fCosThetaParametersList;
    vector <Double_t> fErrorCosThetaParametersList;

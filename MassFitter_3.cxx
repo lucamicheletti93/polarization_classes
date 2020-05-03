@@ -82,17 +82,17 @@ MassFitter_3::MassFitter_3(TH1D *histMinv): TObject() {
   fIndexPhi = 100;
   fRebin = 1;
 
-  // statndard tails
-  //double parTailsCB2[4] = {0.970014,3.9789,2.29866,3.0301};                                                 // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
-  //double parTailsNA60[8] = {0.227822,1.14006,0.0357395,0.187828,1.22477,0.0569524,-0.630315,2.36889};       // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
+  // standard tails
+  double parTailsCB2[4] = {0.970014,3.9789,2.29866,3.0301};                                                 // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
+  double parTailsNA60[8] = {0.227822,1.14006,0.0357395,0.187828,1.22477,0.0569524,-0.630315,2.36889};       // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
 
   // alternative tails
   //double parTailsCB2[4] = {1.0103,3.5390,2.3271,2.6860};                                                  // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
   //double parTailsNA60[8] = {0.2274,1.1732,0.0409,0.1878,1.2014,0.0373,-0.6534,2.3469};                    // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c) 
 
   // Chun-Lu tails
-  double parTailsCB2[4] = {0.94,3.95,2.26,2.96};                                                  // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
-  double parTailsNA60[8] = {0.2274,1.1732,0.0409,0.1878,1.2014,0.0373,-0.6534,2.3469};                    // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c) 
+  //double parTailsCB2[4] = {0.94,3.95,2.26,2.96};                                                          // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c)
+  //double parTailsNA60[8] = {0.2274,1.1732,0.0409,0.1878,1.2014,0.0373,-0.6534,2.3469};                    // tails parameter embedding Pb-Pb 5.02 TeV (0 < pT < 12 GeV/c) 
 
 
   for(int i = 0;i < 4;i++){fParTailsCB2[i] = parTailsCB2[i];}
