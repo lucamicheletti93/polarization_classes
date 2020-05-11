@@ -280,6 +280,11 @@ void SpecialFitCalculator::SimultaneousFit(TObjArray *data, Bool_t saveCanvas, s
     canvasHistFitSim_PhiTilde -> SaveAs(Form("%s_PhiTilde.pdf",nameCanvas.c_str()));
   }
 
+
+  // Clone the hist & func into data members of the class
+  for(int i = 0;i < 3;i++){fHistFit[i] = gHistFit[i];}
+  for(int i = 0;i < 3;i++){fFuncFit[i] = gFuncFit[i];}
+
   delete canvasHistFitSim_CosTheta;
   delete canvasHistFitSim_Phi;
   delete canvasHistFitSim_PhiTilde;
