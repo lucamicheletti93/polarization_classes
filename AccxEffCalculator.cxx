@@ -2043,11 +2043,11 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
   double PhiHEGen = 0;
   double PhiHERec = 0;
   double PhiTildeHEGen = 0;
-  double PhiTildeHERec = 0;
+  double PhiTildeHERec = 0;;
 
-  double weightCosThetaHE = 0;
-  double weightPhiHE = 0;
-  double weightPhiTildeHE = 0;
+  double weightCosThetaHE = 0.;
+  double weightPhiHE = 0.;
+  double weightPhiTildeHE = 0.;
 
   double weightCosThetaPhiHE = 0;
 
@@ -2205,23 +2205,31 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
   int indexCentr = 0;
   int indexCentrNcollRW = 0;
 
+  int label1 = 0;
+
+  double gPi = TMath::Pi();
+
   string runNumber;
   double NCMUL7;
 
   vector <string> vectorRunList;
   vector <double> vectorNCMUL7;
 
+
+
   for(int ii = 0;ii < 2;ii++){
     ifstream fileRunList (Form("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_%i/run_info.txt",period[ii]));
     if (fileRunList.is_open()){
       while (fileRunList >> runNumber >> NCMUL7){
-        if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        //if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+        if(gSystem -> GetPathInfo(Form("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb_centrality/montecarlo/MC_productions/%s/tree/Emb_PS_%s.root",simName[ii].c_str(),runNumber.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
           runCounter++;
           vectorRunList.push_back(runNumber);
           vectorNCMUL7.push_back(NCMUL7);
           printf("Reading run %s \n",runNumber.c_str());
 
-          TFile *file = new TFile(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),"READ");
+          //TFile *file = new TFile(Form("%s/tree_%s/Emb_PS_%s.root",filePath[ii].c_str(),simName[ii].c_str(),runNumber.c_str()),"READ");
+          TFile *file = new TFile(Form("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb_centrality/montecarlo/MC_productions/%s/tree/Emb_PS_%s.root",simName[ii].c_str(),runNumber.c_str()),"READ");
           TTree *tree = (TTree*) file -> Get("MCTree");
           tree -> SetBranchAddress("PercV0M",&fPercV0M);
           tree -> SetBranchAddress("NDimu_gen",&fNDimuGen);
@@ -2247,9 +2255,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
           tree -> SetBranchAddress("DimuMu_rec",fDimuMu_rec);
           tree -> SetBranchAddress("Pt_rec",fPt_rec);
 
-
           nEvents = tree -> GetEntries();
-          //nEvents = 1000;
           for(int i = 0;i < nEvents;i++){
             printf("Reading : %3.2f %% \r",((double) i/(double) nEvents)*100.);
             tree -> GetEntry(i);
@@ -2267,7 +2273,19 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
             indexCentrPtYRW = 1;                                  // bin zero corresponds to 0-90%
             while(fPercV0M < minCentrClassPtYRW[indexCentrPtYRW] || fPercV0M > maxCentrClassPtYRW[indexCentrPtYRW]){indexCentrPtYRW++;}
 
+
+
             for(int j = 0;j < fNDimuGen;j++){
+              if(fabs(fCosThetaHEGen[j]) <= 1. && fabs(fCosThetaCSGen[j]) <= 1. && fabs(fPhiHEGen[j]) <= gPi && fabs(fPhiCSGen[j]) <= gPi){label1 = 0;}
+              else{label1 = 1;}
+            }
+
+            if(label1 == 1){continue;}
+
+            for(int j = 0;j < fNDimuGen;j++){
+              if(fDimuPtGen[j] > 2. && fDimuPtGen[j] < 6.){
+
+
               if(fDimuYGen[j] > -4. && fDimuYGen[j] < -2.5){
                 if(fDimuPDG_gen[j] == 443){
 
@@ -2276,82 +2294,112 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
                     weightY = histWeigthY[indexCentrPtYRW] -> GetBinContent(histWeigthY[indexCentrPtYRW] -> FindBin(fDimuYGen[j]));
                   }
 
+                    if(fCosThetaHEGen[j] > -1. && fCosThetaHEGen[j] < 1. && fabs(fPhiHEGen[j]) > 0. && fabs(fPhiHEGen[j]) < gPi){
+                      weightCosThetaHE = (funcCosThetaHE[indexCentr] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexCentr] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
+                      weightPhiHE = (funcPhiHE[indexCentr] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexCentr] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
+                      weightPhiTildeHE = (funcPhiTildeHE[indexCentr] -> Eval(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j])))/(funcPhiTildeHE[indexCentr] -> GetMaximum()); PhiTildeHEGen = computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]);
 
-                  if(fDimuPtGen[j] > 2. && fDimuPtGen[j] < 6.){
-                    weightCosThetaHE = (funcCosThetaHE[indexCentr] -> Eval(fCosThetaHEGen[j]))/(funcCosThetaHE[indexCentr] -> GetMaximum()); CosThetaHEGen = fCosThetaHEGen[j];
-                    weightPhiHE = (funcPhiHE[indexCentr] -> Eval(fPhiHEGen[j]))/(funcPhiHE[indexCentr] -> GetMaximum()); PhiHEGen = fPhiHEGen[j];
-                    weightPhiTildeHE = (funcPhiTildeHE[indexCentr] -> Eval(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j])))/(funcPhiTildeHE[indexCentr] -> GetMaximum()); PhiTildeHEGen = computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]);
+                      //if(fPercV0M > 60 && fPercV0M < 90){
+                        //cout << "Gen" << endl;
+                        //cout << indexCentr << " " << fCosThetaHEGen[j] << " " << weight_Ncoll[indexCentrNcollRW] << " " << (NCMUL7/sum_NCMUL7) << " " << weightPt << " " << weightY << " " << weightCosThetaHE << " -> " <<  weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE << endl;
+                      //}
 
-                    fHistGenCosThetaHEReWeighted[indexCentr] -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
-                    fHistGenPhiHEReWeighted[indexCentr] -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
-                    fHistGenPhiTildeHEReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
+                      fHistGenCosThetaHEReWeighted[indexCentr] -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
+                      fHistGenPhiHEReWeighted[indexCentr] -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
+                      fHistGenPhiTildeHEReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
 
-                    histGenCosThetaHEReWeighted_PercV0M_0_90 -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
-                    histGenPhiHEReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
-                    histGenPhiTildeHEReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
+                      histGenCosThetaHEReWeighted_PercV0M_0_90 -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
+                      histGenPhiHEReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
+                      histGenPhiTildeHEReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
 
 
-                    histGenCosThetaHE_PercV0M_0_90 -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                    histGenPhiHE_PercV0M_0_90 -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                    histGenPhiTildeHE_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                      histGenCosThetaHE_PercV0M_0_90 -> Fill(fCosThetaHEGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                      histGenPhiHE_PercV0M_0_90 -> Fill(fabs(fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                      histGenPhiTildeHE_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHEGen[j],fPhiHEGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                    }
+                    //else{
+                      //weightCosThetaHE = 999999;
+                      //weightPhiHE = 999999;
+                      //weightPhiTildeHE = 999999;
+                    //}
+                    
 
-                    weightCosThetaCS = (funcCosThetaCS[indexCentr] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexCentr] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
-                    weightPhiCS = (funcPhiCS[indexCentr] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexCentr] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
-                    weightPhiTildeCS = (funcPhiTildeCS[indexCentr] -> Eval(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j])))/(funcPhiTildeCS[indexCentr] -> GetMaximum()); PhiTildeCSGen = computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]);
+                    //if(fCosThetaCSGen[j] > -1. && fCosThetaCSGen[j] < 1. && fabs(fPhiCSGen[j]) > 0. && fabs(fPhiCSGen[j]) < gPi){
+                      weightCosThetaCS = (funcCosThetaCS[indexCentr] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexCentr] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
+                      weightPhiCS = (funcPhiCS[indexCentr] -> Eval(fPhiCSGen[j]))/(funcPhiCS[indexCentr] -> GetMaximum()); PhiCSGen = fPhiCSGen[j];
+                      weightPhiTildeCS = (funcPhiTildeCS[indexCentr] -> Eval(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j])))/(funcPhiTildeCS[indexCentr] -> GetMaximum()); PhiTildeCSGen = computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]);
 
-                    fHistGenCosThetaCSReWeighted[indexCentr] -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
-                    fHistGenPhiCSReWeighted[indexCentr] -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
-                    fHistGenPhiTildeCSReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
+                      fHistGenCosThetaCSReWeighted[indexCentr] -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
+                      fHistGenPhiCSReWeighted[indexCentr] -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
+                      fHistGenPhiTildeCSReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
 
-                    histGenCosThetaCSReWeighted_PercV0M_0_90 -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
-                    histGenPhiCSReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
-                    histGenPhiTildeCSReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
+                      histGenCosThetaCSReWeighted_PercV0M_0_90 -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
+                      histGenPhiCSReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
+                      histGenPhiTildeCSReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
 
-                    histGenCosThetaCS_PercV0M_0_90 -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                    histGenPhiCS_PercV0M_0_90 -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                    histGenPhiTildeCS_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                      histGenCosThetaCS_PercV0M_0_90 -> Fill(fCosThetaCSGen[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                      histGenPhiCS_PercV0M_0_90 -> Fill(fabs(fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                      histGenPhiTildeCS_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSGen[j],fPhiCSGen[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                    //}
+                    //else{
+                      //weightCosThetaCS = 999999;
+                      //weightPhiCS = 999999;
+                      //weightPhiTildeCS = 999999;
+                    //}
+
                   }
                 }
               }
             }
 
             for(int j = 0;j < fNDimuRec;j++){
+
               if(fDimuYRec[j] > -4. && fDimuYRec[j] < -2.5){
                 if(fDimuPDG_rec[j] == 443){
                   if(fDimuPtRec[j] > 2. && fDimuPtRec[j] < 6.){
-                    if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
-                      if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
 
-                        fHistRecCosThetaHEReWeighted[indexCentr] -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
-                        fHistRecPhiHEReWeighted[indexCentr] -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
-                        fHistRecPhiTildeHEReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
+                    //if(weightCosThetaHE != 999999 && weightPhiHE != 999999){
+                      if(TMath::Abs(fPhiHERec[j]) > fPhiValues[1] && TMath::Abs(fPhiHERec[j]) < fPhiValues[fNPhiBins-1]){
+                        if(fCosThetaHERec[j] > fCosThetaValues[1] && fCosThetaHERec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                          //if(fPercV0M > 60 && fPercV0M < 90){
+                            //cout << "Rec" << endl;
+                            //cout << indexCentr << " " << fCosThetaHERec[j] << " " << weight_Ncoll[indexCentrNcollRW] << " " << (NCMUL7/sum_NCMUL7) << " " << weightPt << " " << weightY << " " << weightCosThetaHE << " -> " <<  weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE << endl;
+                            //pippo -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
+                          //}
+                          
+                          fHistRecCosThetaHEReWeighted[indexCentr] -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
+                          fHistRecPhiHEReWeighted[indexCentr] -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
+                          fHistRecPhiTildeHEReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
 
-                        histRecCosThetaHEReWeighted_PercV0M_0_90 -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
-                        histRecPhiHEReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
-                        histRecPhiTildeHEReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
+                          histRecCosThetaHEReWeighted_PercV0M_0_90 -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
+                          histRecPhiHEReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
+                          histRecPhiTildeHEReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
 
-                        histRecCosThetaHE_PercV0M_0_90 -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                        histRecPhiHE_PercV0M_0_90 -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                        histRecPhiTildeHE_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                          histRecCosThetaHE_PercV0M_0_90 -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                          histRecPhiHE_PercV0M_0_90 -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                          histRecPhiTildeHE_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                        }
                       }
-                    }
+                    //}
 
+                    //if(weightCosThetaCS != 999999 && weightPhiCS != 999999){
+                      if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
+                        if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
+                          fHistRecCosThetaCSReWeighted[indexCentr] -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
+                          fHistRecPhiCSReWeighted[indexCentr] -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
+                          fHistRecPhiTildeCSReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
 
-                    if(TMath::Abs(fPhiCSRec[j]) > fPhiValues[1] && TMath::Abs(fPhiCSRec[j]) < fPhiValues[fNPhiBins-1]){
-                      if(fCosThetaCSRec[j] > fCosThetaValues[1] && fCosThetaCSRec[j] < fCosThetaValues[fNCosThetaBins-1]){
-                        fHistRecCosThetaCSReWeighted[indexCentr] -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
-                        fHistRecPhiCSReWeighted[indexCentr] -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
-                        fHistRecPhiTildeCSReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
+                          histRecCosThetaCSReWeighted_PercV0M_0_90 -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
+                          histRecPhiCSReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
+                          histRecPhiTildeCSReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
 
-                        histRecCosThetaCSReWeighted_PercV0M_0_90 -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaCS);
-                        histRecPhiCSReWeighted_PercV0M_0_90 -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiCS);
-                        histRecPhiTildeCSReWeighted_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeCS);
-
-                        histRecCosThetaCS_PercV0M_0_90 -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                        histRecPhiCS_PercV0M_0_90 -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
-                        histRecPhiTildeCS_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                          histRecCosThetaCS_PercV0M_0_90 -> Fill(fCosThetaCSRec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                          histRecPhiCS_PercV0M_0_90 -> Fill(fabs(fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                          histRecPhiTildeCS_PercV0M_0_90 -> Fill(computePhiTilde(fCosThetaCSRec[j],fPhiCSRec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7));
+                        }
                       }
-                    }
+                    //}
+                    
 
                   }
                 }
@@ -2409,6 +2457,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
 
   if(saveFile){
     TFile *fileAccxEffReWeighted = new TFile(nameOutputFile.c_str(),"RECREATE");
+
     histGenCosThetaHEReWeighted_PercV0M_0_90 -> Write();
     histGenPhiHEReWeighted_PercV0M_0_90 -> Write();
     histGenPhiTildeHEReWeighted_PercV0M_0_90 -> Write();
