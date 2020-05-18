@@ -2112,15 +2112,22 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
   //------------------------------------------------------
 
   // Computing the sum of N_CMUL7 - PbPb2015
+  //string simName_PbPb2015 = "LHC16e2_plus";
   string simName_PbPb2015 = "LHC16e2_Full";
-  string filePath_PbPb2015 = "/home/luca/data_storage/PbPb2015/embedding_MC";
+  // OLD
+  //string filePath_PbPb2015 = "/home/luca/data_storage/PbPb2015/embedding_MC";
+  // NEW
+  string filePath_PbPb2015 = "/home/luca/GITLAB/analysis_jpsi_polarization_pbpb_centrality/montecarlo/MC_productions";
   ifstream fileNCMUL7_PbPb2015 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2015/run_info.txt");
   string runNumber_PbPb2015;
   double NCMUL7_PbPb2015;
   double sum_NCMUL7_PbPb2015 = 0.;
   if (fileNCMUL7_PbPb2015.is_open()){
     while (fileNCMUL7_PbPb2015 >> runNumber_PbPb2015 >> NCMUL7_PbPb2015){
-      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath_PbPb2015.c_str(),simName_PbPb2015.c_str(),runNumber_PbPb2015.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+      // OLD
+      //if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath_PbPb2015.c_str(),simName_PbPb2015.c_str(),runNumber_PbPb2015.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+      // NEW
+      if(gSystem -> GetPathInfo(Form("%s/%s/tree/Emb_PS_%s.root",filePath_PbPb2015.c_str(),simName_PbPb2015.c_str(),runNumber_PbPb2015.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
         sum_NCMUL7_PbPb2015 += NCMUL7_PbPb2015;
       }
     }
@@ -2129,22 +2136,25 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
 
   // Computing the sum of N_CMUL7 - PbPb2018
   string simName_PbPb2018 = "LHC19a2";
-  string filePath_PbPb2018 = "/home/luca/data_storage/PbPb2018/embedding_MC";
+  // OLD
+  //string filePath_PbPb2018 = "/home/luca/data_storage/PbPb2018/embedding_MC";
+  // NEW
+  string filePath_PbPb2018 = "/home/luca/GITLAB/analysis_jpsi_polarization_pbpb_centrality/montecarlo/MC_productions";
   ifstream fileNCMUL7_PbPb2018 ("/home/luca/GITLAB/analysis_jpsi_polarization_pbpb/general_run_information/PbPb_2018/run_info.txt");
   string runNumber_PbPb2018;
   double NCMUL7_PbPb2018;
   double sum_NCMUL7_PbPb2018 = 0.;
   if (fileNCMUL7_PbPb2018.is_open()){
     while (fileNCMUL7_PbPb2018 >> runNumber_PbPb2018 >> NCMUL7_PbPb2018){
-      if(gSystem -> GetPathInfo(Form("%s/tree_%s/Emb_PS_%s.root",filePath_PbPb2018.c_str(),simName_PbPb2018.c_str(),runNumber_PbPb2018.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
+      if(gSystem -> GetPathInfo(Form("%s/%s/tree/Emb_PS_%s.root",filePath_PbPb2018.c_str(),simName_PbPb2018.c_str(),runNumber_PbPb2018.c_str()),dummy1,dummy2,dummy3,dummy4) == 0){
         sum_NCMUL7_PbPb2018 += NCMUL7_PbPb2018;
       }
     }
   }
   cout << "Total CMUL7 triggers (PbPb2018) = " << sum_NCMUL7_PbPb2018 << endl;
 
-  double sum_NCMUL7 = sum_NCMUL7_PbPb2015 + sum_NCMUL7_PbPb2018;
-  cout << "Total CMUL7 triggers (PbPb2015 + PbPb2018) = " << sum_NCMUL7 << endl;
+  double sum_NCMUL7 = sum_NCMUL7_PbPb2018 + sum_NCMUL7_PbPb2015;
+  cout << "Total CMUL7 triggers (PbPb2018) = " << sum_NCMUL7 << endl;
 
 
   for(int i = 0;i < NCentrClass;i++){
