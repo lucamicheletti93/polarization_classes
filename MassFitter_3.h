@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class MassFitter_3 : public TObject
 {
 
