@@ -21,6 +21,7 @@ public:
   void SetScalingFactor(Double_t);
   void SetBinning(vector <Double_t> , vector <Double_t>, vector <Double_t>);
   void SetFitRange(Double_t , Double_t);
+  void SetFitOption(string);
   void SetSpecialFitConditions(Int_t, Bool_t);
   void SetJpsiWidth(Double_t);
   void SetJpsiMass(Double_t);
@@ -90,6 +91,8 @@ private:
   string                 fSigShape;
   string                 fBkgShape;
   string                 fOutputDir;
+
+  string                 fFitOption;
 
   string                 fPlotType;
   Bool_t                 fSavePlot;
