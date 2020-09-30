@@ -34,7 +34,7 @@
 #include <TGaxis.h>
 
 // My includes
-#include "/home/luca/GITHUB/polarization_classes/FunctionsLibrary_3.C"
+#include "FunctionsLibrary_3.C"
 #include "MassFitter_3.h"
 
 // List of fitting-functions
