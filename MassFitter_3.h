@@ -28,6 +28,9 @@ public:
   void SetPhilippeCorrectionFactor(Double_t);
   void SetCosThetaPhiIndex(Int_t, Int_t);
   void SetTailsParameters(Double_t [], Double_t []);
+  void ResetInitialParameters(Double_t [], Double_t [], Double_t [], Double_t []);
+  void SetNormalizationParameters(Double_t, Double_t);
+
   void fit_of_minv(string, string, string, string, Bool_t, Bool_t);
 
   Double_t GetNJpsi(){return fNJpsi;}
@@ -37,6 +40,8 @@ public:
   Double_t GetSigmaJpsi(){return fSigmaJpsi;}
   Double_t GetErrSigmaJpsi(){return fErrSigmaJpsi;}
   Double_t GetChiSquare_NDF(){return fChiSquare_NDF;}
+  Double_t GetNormSig(){return fNormSig;}
+  Double_t GetNormBkg(){return fNormBkg;}
   string   GetFitStatus(){return fFitStatus;}
 
   TF1*     GetFuncTot(){return fFuncTot;}
@@ -102,6 +107,16 @@ private:
 
   Double_t               fParTailsCB2[4];
   Double_t               fParTailsNA60[8];
+
+  Bool_t                 fResetInitialParameters;
+  Double_t               fParBkgVWG[4];
+  Double_t               fParBkgPOL4EXP[6];
+  Double_t               fParSigCB2[3];
+  Double_t               fParSigNA60[3];
+
+  Bool_t                 fSetNormalizationParameters;
+  Double_t               fNormBkg;
+  Double_t               fNormSig;
 
 ClassDef(MassFitter_3,1)
 };

@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <algorithm>
+#include <iterator>
 
 // ROOT includes
 #include <TROOT.h>
@@ -81,6 +83,12 @@ MassFitter_3::MassFitter_3(TH1D *histMinv): TObject() {
   fIndexCosTheta = 100;
   fIndexPhi = 100;
   fRebin = 1;
+  fResetInitialParameters = kFALSE;
+  fSetNormalizationParameters = kFALSE;
+  for(int i = 0;i < 4;i++){fParBkgVWG[i] = 0.;}
+  for(int i = 0;i < 6;i++){fParBkgPOL4EXP[i] = 0.;}
+  for(int i = 0;i < 3;i++){fParSigCB2[i] = 0.;}
+  for(int i = 0;i < 3;i++){fParSigNA60[i] = 0.;}
   fFitOption = "RLS0Q";
 
   // standard tails
@@ -161,6 +169,20 @@ void MassFitter_3::SetTailsParameters(Double_t tmpParTailsCB2[4], Double_t tmpPa
     }
 }
 //______________________________________________________________________________
+void MassFitter_3::ResetInitialParameters(Double_t tmpParBkgVWG[4], Double_t tmpParBkgPOL4EXP[6], Double_t tmpParSigCB2[3], Double_t tmpParSigNA60[3]){
+  fResetInitialParameters = kTRUE;
+  for(int i = 0;i < 4;i++){fParBkgVWG[i] = tmpParBkgVWG[i];}
+  for(int i = 0;i < 6;i++){fParBkgPOL4EXP[i] = tmpParBkgPOL4EXP[i];}
+  for(int i = 0;i < 3;i++){fParSigCB2[i] = tmpParSigCB2[i];}
+  for(int i = 0;i < 3;i++){fParSigNA60[i] = tmpParSigNA60[i];}
+}
+//______________________________________________________________________________
+void MassFitter_3::SetNormalizationParameters(Double_t tmpNormBkg, Double_t tmpNormSig){
+  fSetNormalizationParameters = kTRUE;
+  fNormBkg = tmpNormBkg;
+  fNormSig = tmpNormSig;
+}
+//______________________________________________________________________________
 void MassFitter_3::SetBinning(vector <Double_t> CosThetaValues, vector <Double_t> PhiValues, vector <Double_t> PhiTildeValues) {
   for(int i = 0;i < (int) CosThetaValues.size();i++){fCosThetaValues.push_back(CosThetaValues[i]);}
   fNCosThetaBins = fCosThetaValues.size() - 1;
@@ -192,12 +214,21 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   // background function
   double parBkgVWG[4] = {500000.,0.6,0.2,0.2};
   double parBkgPOL4EXP[6] = {5000.,-10.,1e6,-1e6,1e3,1e3};
+
+  double parSigCB2[3] = {500.,3.096,7.0e-02};
+  double parSigNA60[3] = {500.,3.096,7.0e-02};
+
+  if(fResetInitialParameters){
+    std::copy(std::begin(fParBkgVWG), std::end(fParBkgVWG), std::begin(parBkgVWG));
+    std::copy(std::begin(fParBkgPOL4EXP), std::end(fParBkgPOL4EXP), std::begin(parBkgPOL4EXP));
+    std::copy(std::begin(fParSigCB2), std::end(fParSigCB2), std::begin(parSigCB2));
+    std::copy(std::begin(fParSigNA60), std::end(fParSigNA60), std::begin(parSigNA60));
+  }
+
   double *parBkg;
   if(bkgShape == "VWG"){parBkg = &(parBkgVWG[0]); nParBkg = sizeof(parBkgVWG)/sizeof(double);}
   if(bkgShape == "POL4EXP"){parBkg = &(parBkgPOL4EXP[0]); nParBkg = sizeof(parBkgPOL4EXP)/sizeof(double);}
 
-  double parSigCB2[3] = {500.,3.096,7.0e-02};
-  double parSigNA60[3] = {500.,3.096,7.0e-02};
   double *parSig;
   if(sigShape == "CB2"){parSig = &(parSigCB2[0]); nParSig = sizeof(parSigCB2)/sizeof(double);}
   if(sigShape == "NA60"){parSig = &(parSigNA60[0]); nParSig = sizeof(parSigCB2)/sizeof(double);}
@@ -278,6 +309,13 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   if(sigShape == "CB2" && bkgShape == "POL4EXP"){fFuncTot = new TF1("fFuncTot",Func_tot_CB2_POL4EXP,min_fit_range,max_fit_range,nParBkg + nParSig + nParTails + 1);}
   if(sigShape == "NA60" && bkgShape == "POL4EXP"){fFuncTot = new TF1("fFuncTot",Func_tot_NA60_POL4EXP,min_fit_range,max_fit_range,nParBkg + nParSig + nParTails + 1);}
 
+  if(fSetNormalizationParameters){
+    if(bkgShape == "VWG"){funcBkg -> SetParameter(0, fNormBkg);}
+    if(bkgShape == "POL4EXP"){funcBkg -> SetParameter(0, fNormBkg);}
+    if(sigShape == "CB2"){funcSigJpsi -> SetParameter(nParBkg, fNormSig);}
+    if(sigShape == "NA60"){funcSigJpsi -> SetParameter(nParBkg, fNormSig);}
+  }
+
   TFitResultPtr fit_ptr;
   for(int i = 0;i < 100;i++){
     //cout << i << " " << fFuncTot -> GetParameter(nParBkg + 1) << " " << fFuncTot -> GetParameter(nParBkg + 2) << endl;
@@ -308,11 +346,12 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       if(fTailParametersFixed){for(int i = 0;i < nParTails;i++){fFuncTot -> FixParameter(nParBkg + nParSig + i,funcSigJpsi -> GetParameter(nParBkg + nParSig + i));}}
       else{for(int i = 0;i < nParTails;i++){fFuncTot -> SetParameter(nParBkg + nParSig + i,funcSigJpsi -> GetParameter(nParBkg + nParSig + i));}}
+      fFuncTot -> SetNpx(1000);
 
       // Psi(2S) : only normalization is a parameter
-      fFuncTot -> SetParameter(nParBkg + nParSig + nParTails,2.37767e-02);
-      fFuncTot -> SetParLimits(nParBkg + nParSig + nParTails,0.,0.1);
-
+      //fFuncTot -> SetParameter(nParBkg + nParSig + nParTails,2.37767e-02);
+      fFuncTot -> SetParameter(nParBkg + nParSig + nParTails,1e-02);
+      fFuncTot -> SetParLimits(nParBkg + nParSig + nParTails,0.,100);
     }
     else{fFuncTot -> SetParameters(fFuncTot -> GetParameters());}
     //fit_ptr = (TFitResultPtr) fHistMinv -> Fit(fFuncTot,"RLS0Q");
@@ -322,9 +361,11 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
 
   fChiSquare_NDF = fFuncTot -> GetChisquare()/fFuncTot -> GetNDF();
 
-  if(gMinuit -> fCstatu.Contains("FAILED")){
+  //if(gMinuit -> fCstatu.Contains("FAILED")){
+  if(!gMinuit -> fCstatu.Contains("CONVERGED")){
     cout << "WARNING : FIT STATUS FAILED" << endl;
     fFitStatus = "FAILED";
+    /*
     delete histMinvBkg, fHistMinv;
     delete funcBkg, funcSigJpsi, fFuncTot;
     fNJpsi = 0.; fStatJpsi = 0.; fMassJpsi = 0.; fErrMassJpsi = 0.; fSigmaJpsi = 0.; fErrSigmaJpsi = 0.; fChiSquare_NDF = 666.;
@@ -346,6 +387,7 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
         else{canvasMinv -> SaveAs(Form("%s/Collins_Soper/%s_%s/%s",outputDir.c_str(),sigShape.c_str(),bkgShape.c_str(),nameHistMinv.c_str()));}
         canvasMinv -> Close();
     }
+    */
     return;
   }
   else{fFitStatus = "SUCCESS";}
@@ -409,6 +451,7 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   double N_Jpsi_3sigma = fFuncSigJpsiFix -> Integral(sigma_min_Jpsi,sigma_max_Jpsi)/m_width;
   double N_bck_Jpsi_3sigma = fFuncBkgFix -> Integral(sigma_min_Jpsi,sigma_max_Jpsi)/m_width;
   double SB_Jpsi = N_Jpsi_3sigma/N_bck_Jpsi_3sigma;
+  cout << "SIGNAL / BACKGROUND = " << SB_Jpsi << endl;
 
   fNJpsi = fFuncSigJpsiFix -> Integral(0,5)/m_width;
   fStatJpsi = fFuncSigJpsiFix -> IntegralError(0.,5.,Jpsi_par,covJpsi.GetMatrixArray())/m_width;
@@ -419,6 +462,8 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   fErrSigmaPsi2S = (fFuncTot -> GetParError(nParBkg + 2))*1.07365;
   fNPsi2S = fFuncSigPsi2SFix -> Integral(0,5)/m_width;
   fStatPsi2S = fFuncSigPsi2SFix -> IntegralError(0,5,Psi2S_par,covPsi2S.GetMatrixArray())/m_width;
+  fNormBkg = fFuncBkgFix -> GetParameter(0);
+  fNormSig = fFuncSigJpsiFix -> GetParameter(nParBkg);
 
   //cout << "################################################" << endl;
   //cout << "N J/Psi   = " << fNJpsi  << " +/- " << fStatJpsi  << endl;
