@@ -10,6 +10,8 @@
 #include <vector>
 #include "TMatrixD.h"
 
+using namespace std;
+
 class SpecialFitCalculator : public TObject
 {
 

@@ -16,6 +16,8 @@
 #include "THnSparse.h"
 #include "AccxEffCalculator.h"
 
+using namespace std;
+
 Double_t MyFuncPol(Double_t *, Double_t *);
 Double_t computePhiTilde(Double_t , Double_t);
 
@@ -1450,7 +1452,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018(Double_t polParHE[3][4
                 // HELICITY
                 while(fDimuPtGen[j] < fMinPt[indexPt] || fDimuPtGen[j] > fMaxPt[indexPt]){indexPt++;}
                 if(indexPt >= 4){indexPt = 0; continue;}
-                
+
 
                 tmpVar = fPhiHEGen[j] + fPi;
                 if(fCosThetaHEGen[j] < 0.){fPhiTilde = tmpVar - (3./4.)*fPi;}
@@ -2332,7 +2334,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
                       //weightPhiHE = 999999;
                       //weightPhiTildeHE = 999999;
                     //}
-                    
+
 
                     //if(fCosThetaCSGen[j] > -1. && fCosThetaCSGen[j] < 1. && fabs(fPhiCSGen[j]) > 0. && fabs(fPhiCSGen[j]) < gPi){
                       weightCosThetaCS = (funcCosThetaCS[indexCentr] -> Eval(fCosThetaCSGen[j]))/(funcCosThetaCS[indexCentr] -> GetMaximum()); CosThetaCSGen = fCosThetaCSGen[j];
@@ -2376,7 +2378,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
                             //cout << indexCentr << " " << fCosThetaHERec[j] << " " << weight_Ncoll[indexCentrNcollRW] << " " << (NCMUL7/sum_NCMUL7) << " " << weightPt << " " << weightY << " " << weightCosThetaHE << " -> " <<  weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE << endl;
                             //pippo -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
                           //}
-                          
+
                           fHistRecCosThetaHEReWeighted[indexCentr] -> Fill(fCosThetaHERec[j],weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightCosThetaHE);
                           fHistRecPhiHEReWeighted[indexCentr] -> Fill(fabs(fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiHE);
                           fHistRecPhiTildeHEReWeighted[indexCentr] -> Fill(computePhiTilde(fCosThetaHERec[j],fPhiHERec[j]),weight_Ncoll[indexCentrNcollRW]*(NCMUL7/sum_NCMUL7)*weightPt*weightY*weightPhiTildeHE);
@@ -2409,7 +2411,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
                         }
                       }
                     //}
-                    
+
 
                   }
                 }
@@ -2450,7 +2452,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
 
   TH1D *histAccxEffPhiHEReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiHEReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]);
   histAccxEffPhiHEReWeighted_PercV0M_0_90 -> Divide(histRecPhiHEReWeighted_PercV0M_0_90,histGenPhiHEReWeighted_PercV0M_0_90,1,1,"B");
-  
+
   TH1D *histAccxEffPhiTildeHEReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiTildeHEReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]);
   histAccxEffPhiTildeHEReWeighted_PercV0M_0_90 -> Divide(histRecPhiTildeHEReWeighted_PercV0M_0_90,histGenPhiTildeHEReWeighted_PercV0M_0_90,1,1,"B");
 
@@ -2460,7 +2462,7 @@ void AccxEffCalculator::ReWeightAccxEff_PbPb2015_PbPb2018_Jpsi_Centrality(Double
 
   TH1D *histAccxEffPhiCSReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiCSReWeighted_PercV0M_0_90","",fNPhiBins,&fPhiValues[0]);
   histAccxEffPhiCSReWeighted_PercV0M_0_90 -> Divide(histRecPhiCSReWeighted_PercV0M_0_90,histGenPhiCSReWeighted_PercV0M_0_90,1,1,"B");
-  
+
   TH1D *histAccxEffPhiTildeCSReWeighted_PercV0M_0_90 = new TH1D("histAccxEffPhiTildeCSReWeighted_PercV0M_0_90","",fNPhiTildeBins,&fPhiTildeValues[0]);
   histAccxEffPhiTildeCSReWeighted_PercV0M_0_90 -> Divide(histRecPhiTildeCSReWeighted_PercV0M_0_90,histGenPhiTildeCSReWeighted_PercV0M_0_90,1,1,"B");
 

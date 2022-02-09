@@ -32,6 +32,8 @@
 
 #include "SpecialFitCalculator.h"
 
+using namespace std;
+
 // Global variables
 Int_t gNDistrib;
 TH1D *gHistFit[3];

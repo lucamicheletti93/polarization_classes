@@ -32,6 +32,8 @@
 
 #include "SpecialFitCalculator.h"
 
+using namespace std;
+
 // Global variables
 Int_t gNDistrib;
 TH1D *gHistFit[3];
@@ -625,7 +627,7 @@ void polarizationFCN(Int_t &npar, Double_t *gin, Double_t &gChiSquare, Double_t 
   //Int_t fitBinMin[3] = {2,0,0};
   //Int_t fitBinMax[3] = {4,2,2};
   // for Upsilon
- 
+
   Int_t fitBinMin[3];
   Int_t fitBinMax[3];
 
