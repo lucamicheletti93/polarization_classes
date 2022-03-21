@@ -451,7 +451,9 @@ void MassFitter_3::fit_of_minv(string sigShape, string bkgShape, string outputDi
   double N_Jpsi_3sigma = fFuncSigJpsiFix -> Integral(sigma_min_Jpsi,sigma_max_Jpsi)/m_width;
   double N_bck_Jpsi_3sigma = fFuncBkgFix -> Integral(sigma_min_Jpsi,sigma_max_Jpsi)/m_width;
   double SB_Jpsi = N_Jpsi_3sigma/N_bck_Jpsi_3sigma;
+  double Significance_Jpsi = N_Jpsi_3sigma / TMath::Sqrt(N_Jpsi_3sigma + N_bck_Jpsi_3sigma);
   cout << "SIGNAL / BACKGROUND = " << SB_Jpsi << endl;
+  cout << "SIGNIFICANCE = " << Significance_Jpsi << endl;
 
   fNJpsi = fFuncSigJpsiFix -> Integral(0,5)/m_width;
   fStatJpsi = fFuncSigJpsiFix -> IntegralError(0.,5.,Jpsi_par,covJpsi.GetMatrixArray())/m_width;
